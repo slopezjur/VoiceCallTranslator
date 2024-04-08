@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
+    //alias(libs.plugins.gsmGoogleServices)
+    id("com.google.gms.google-services") version "4.4.1"
     alias(libs.plugins.jetbrainsKotlinAndroid)
 }
 
@@ -46,9 +48,13 @@ android {
 
 dependencies {
 
+    val composeBom = platform(libs.androidx.compose.bom)
+    val firebaseBom = platform(libs.firebase.bom)
+
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    implementation(composeBom)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling)
@@ -57,12 +63,15 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(firebaseBom)
+    implementation(libs.firebase.auth)
     implementation(libs.material)
 
     // Tests
     testImplementation(libs.junit)
 
     // Instrumentation
-    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(composeBom)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit)
 }

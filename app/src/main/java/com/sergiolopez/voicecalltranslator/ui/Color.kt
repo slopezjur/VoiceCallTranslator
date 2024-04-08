@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.app.ui
+package com.sergiolopez.voicecalltranslator.ui
 
 import androidx.compose.ui.graphics.Color
 
