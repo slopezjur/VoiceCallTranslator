@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator
+package com.sergiolopez.voicecalltranslator.app
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -7,12 +7,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.sergiolopez.voicecalltranslator.app.ui.VoiceCallTranslatorTheme
 
 class VoiceCallTranslatorActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            HelloThere()
+            VoiceCallTranslatorTheme {
+                HelloThere()
+            }
         }
     }
 }
