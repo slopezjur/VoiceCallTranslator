@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.ui
+package com.sergiolopez.voicecalltranslator.splash.ui
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

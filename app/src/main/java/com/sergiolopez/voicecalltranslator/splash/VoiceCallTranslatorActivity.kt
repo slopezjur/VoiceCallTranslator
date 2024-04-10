@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator
+package com.sergiolopez.voicecalltranslator.splash
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.sergiolopez.voicecalltranslator.ui.VoiceCallTranslatorTheme
+//import com.sergiolopez.voicecalltranslator.login.ui.login.LoginViewModel
+import com.sergiolopez.voicecalltranslator.splash.ui.VoiceCallTranslatorTheme
+//import dagger.hilt.android.AndroidEntryPoint
 
 class VoiceCallTranslatorActivity : AppCompatActivity() {
 
