@@ -2,6 +2,7 @@ package com.sergiolopez.voicecalltranslator.splash
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,8 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 //import com.sergiolopez.voicecalltranslator.login.ui.login.LoginViewModel
 import com.sergiolopez.voicecalltranslator.splash.ui.VoiceCallTranslatorTheme
-//import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class VoiceCallTranslatorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
