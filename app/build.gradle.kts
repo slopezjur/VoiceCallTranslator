@@ -1,8 +1,10 @@
 plugins {
-    alias(libs.plugins.androidApplication)
-    //alias(libs.plugins.gsmGoogleServices)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.hilt.android)
+
     id("com.google.gms.google-services") version "4.4.1"
-    alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-kapt")
 }
 
 android {
@@ -62,10 +64,11 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.hilt.android)
     implementation(firebaseBom)
     implementation(libs.firebase.auth)
-    implementation(libs.material)
+
+    kapt(libs.hilt.compiler)
 
     // Tests
     testImplementation(libs.junit)
