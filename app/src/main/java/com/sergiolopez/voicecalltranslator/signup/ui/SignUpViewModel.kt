@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.login.ui
+package com.sergiolopez.voicecalltranslator.signup.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.login.domain.subscriber.CurrentUserSubscriber
@@ -12,15 +12,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class SignUpViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val currentUserSubscriber: CurrentUserSubscriber
 ) : VoiceCallTranslatorViewModel() {
-
-    fun initialize() {
-        observeCurrentUserState()
-        subscribeCurrentUser()
-    }
 
     private val _emailState = MutableStateFlow("")
     val emailState: StateFlow<String> = _emailState.asStateFlow()
