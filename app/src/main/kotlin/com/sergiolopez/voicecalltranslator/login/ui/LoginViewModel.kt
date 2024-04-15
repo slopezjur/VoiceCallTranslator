@@ -17,7 +17,7 @@ class LoginViewModel @Inject constructor(
     private val currentUserSubscriber: CurrentUserSubscriber
 ) : VoiceCallTranslatorViewModel() {
 
-    fun initialize() {
+    init {
         observeCurrentUserState()
         subscribeCurrentUser()
     }

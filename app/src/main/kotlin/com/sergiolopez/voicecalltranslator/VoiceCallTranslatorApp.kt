@@ -47,8 +47,8 @@ fun NavGraphBuilder.notesGraph(navigationState: NavigationState) {
     composable(NavigationAction.Login.route) {
         LoginScreen(
             openAndPopUp = { navigationParams ->
-                navigationState.navigateAndPopUp(
-                    navigationParams = navigationParams
+                navigationState.navigate(
+                    route = navigationParams.route
                 )
             })
     }
@@ -59,6 +59,7 @@ fun NavGraphBuilder.notesGraph(navigationState: NavigationState) {
                 navigationState.navigateAndPopUp(
                     navigationParams = navigationParams
                 )
-            })
+            }
+        )
     }
 }

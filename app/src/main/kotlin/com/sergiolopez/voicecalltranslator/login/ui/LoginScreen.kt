@@ -141,7 +141,8 @@ fun LoginScreenContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp, 0.dp)
+                .padding(16.dp, 0.dp),
+            enabled = email.isNotEmpty() && password.isNotEmpty()
         ) {
             Text(
                 text = stringResource(R.string.login),

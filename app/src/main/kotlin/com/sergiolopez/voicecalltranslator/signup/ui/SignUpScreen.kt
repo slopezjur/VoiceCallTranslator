@@ -42,8 +42,11 @@ fun SignUpScreen(
         openAndPopUp = openAndPopUp,
         email = signUpViewModel.emailState.collectAsState().value,
         password = signUpViewModel.passwordState.collectAsState().value,
+        confirmPassword = signUpViewModel.confirmPasswordState.collectAsState().value,
         updateEmail = { signUpViewModel.updateEmail(it) },
         updatePassword = { signUpViewModel.updatePassword(it) },
+        updateConfirmPassword = { signUpViewModel.updateConfirmPassword(it) },
+        isPasswordError = signUpViewModel.isPasswordDifferent.collectAsState().value,
         onSignUpClick = { signUpViewModel.onSignUpClick(it) }
     )
 }
@@ -54,8 +57,11 @@ fun SignUpScreenContent(
     openAndPopUp: (NavigationParams) -> Unit,
     email: String,
     password: String,
+    confirmPassword: String,
     updateEmail: (String) -> Unit,
     updatePassword: (String) -> Unit,
+    updateConfirmPassword: (String) -> Unit,
+    isPasswordError: Boolean,
     onSignUpClick: ((NavigationParams) -> Unit) -> Unit
 ) {
 
@@ -132,10 +138,11 @@ fun SignUpScreenContent(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
-            value = password,
-            onValueChange = { updatePassword(it) },
+            value = confirmPassword,
+            onValueChange = { updateConfirmPassword(it) },
             placeholder = { Text(stringResource(R.string.confirm_password)) },
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            isError = isPasswordError
         )
 
         Spacer(
@@ -146,11 +153,12 @@ fun SignUpScreenContent(
 
         Button(
             onClick = {
-                //onSignUpClick()
+                onSignUpClick(openAndPopUp)
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp, 0.dp)
+                .padding(16.dp, 0.dp),
+            enabled = email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()
         ) {
             Text(
                 text = stringResource(R.string.sign_up),
@@ -170,8 +178,31 @@ fun SignUpScreenPreview() {
                 openAndPopUp = {},
                 email = "slopezjur@uoc.edu",
                 password = "SUPERCOMPLEXPASSWORD",
+                confirmPassword = "SUPERCOMPLEXPASSWORD",
                 updateEmail = {},
                 updatePassword = {},
+                updateConfirmPassword = {},
+                isPasswordError = false,
+                onSignUpClick = {}
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun SignUpScreenPasswordErrorPreview() {
+    VoiceCallTranslatorTheme {
+        Surface {
+            SignUpScreenContent(
+                openAndPopUp = {},
+                email = "slopezjur@uoc.edu",
+                password = "SUPERCOMPLEXPASSWORD",
+                confirmPassword = "differentPassword",
+                updateEmail = {},
+                updatePassword = {},
+                updateConfirmPassword = {},
+                isPasswordError = true,
                 onSignUpClick = {}
             )
         }
