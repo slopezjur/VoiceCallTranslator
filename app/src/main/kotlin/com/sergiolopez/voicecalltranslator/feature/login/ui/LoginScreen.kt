@@ -45,7 +45,7 @@ fun LoginScreen(
         password = loginViewModel.passwordState.collectAsState().value,
         updateEmail = { loginViewModel.updateEmail(it) },
         updatePassword = { loginViewModel.updatePassword(it) },
-        onLoginClick = { loginViewModel.onLoginClick() },
+        onLoginClick = { loginViewModel.onLoginClick(it) },
         onSignUpClick = { loginViewModel.onSignUpClick(it) }
     )
 }
@@ -58,7 +58,7 @@ fun LoginScreenContent(
     password: String,
     updateEmail: (String) -> Unit,
     updatePassword: (String) -> Unit,
-    onLoginClick: () -> Unit,
+    onLoginClick: ((NavigationParams) -> Unit) -> Unit,
     onSignUpClick: ((NavigationParams) -> Unit) -> Unit
 ) {
 
@@ -137,7 +137,7 @@ fun LoginScreenContent(
 
         Button(
             onClick = {
-                onLoginClick()
+                onLoginClick.invoke(openAndPopUp)
             },
             modifier = Modifier
                 .fillMaxWidth()

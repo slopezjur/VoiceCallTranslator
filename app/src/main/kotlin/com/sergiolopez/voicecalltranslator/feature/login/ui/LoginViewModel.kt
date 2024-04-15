@@ -18,7 +18,6 @@ class LoginViewModel @Inject constructor(
 ) : VoiceCallTranslatorViewModel() {
 
     init {
-        observeCurrentUserState()
         subscribeCurrentUser()
     }
 
@@ -30,16 +29,6 @@ class LoginViewModel @Inject constructor(
 
     private val _loginUiState = MutableStateFlow(LoginUiState.LOADING)
     val loginUiState: StateFlow<LoginUiState> = _loginUiState
-
-    private fun observeCurrentUserState() {
-        launchCatching {
-            currentUserSubscriber.currentUserState.collect { user ->
-                if (user != null) {
-                    _loginUiState.value = LoginUiState.LOGGED
-                }
-            }
-        }
-    }
 
     private fun subscribeCurrentUser() {
         launchCatching {
@@ -55,7 +44,20 @@ class LoginViewModel @Inject constructor(
         _passwordState.value = newPassword
     }
 
-    fun onLoginClick() {
+    fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
+        launchCatching {
+            currentUserSubscriber.currentUserState.collect { user ->
+                if (user != null) {
+                    _loginUiState.value = LoginUiState.LOGGED
+                    openAndPopUp(
+                        NavigationParams(
+                            NavigationRoute.CONTACT_LIST.navigationName,
+                            NavigationRoute.LOGIN.navigationName
+                        )
+                    )
+                }
+            }
+        }
         launchCatching {
             loginUseCase.invoke(_emailState.value, _passwordState.value)
         }

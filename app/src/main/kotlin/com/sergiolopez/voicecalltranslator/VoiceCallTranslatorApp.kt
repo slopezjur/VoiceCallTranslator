@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sergiolopez.voicecalltranslator.feature.contactlist.ui.ContactListScreen
 import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
 import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
 import com.sergiolopez.voicecalltranslator.navigation.NavigationAction
@@ -50,11 +51,22 @@ fun NavGraphBuilder.notesGraph(navigationState: NavigationState) {
                 navigationState.navigate(
                     route = navigationParams.route
                 )
-            })
+            }
+        )
     }
 
     composable(NavigationAction.SignUp.route) {
         SignUpScreen(
+            openAndPopUp = { navigationParams ->
+                navigationState.navigateAndPopUp(
+                    navigationParams = navigationParams
+                )
+            }
+        )
+    }
+
+    composable(NavigationAction.ContactList.route) {
+        ContactListScreen(
             openAndPopUp = { navigationParams ->
                 navigationState.navigateAndPopUp(
                     navigationParams = navigationParams
