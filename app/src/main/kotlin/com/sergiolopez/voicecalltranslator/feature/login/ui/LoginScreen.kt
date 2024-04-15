@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.signup.ui
+package com.sergiolopez.voicecalltranslator.feature.login.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,34 +35,30 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 
 @Composable
-fun SignUpScreen(
+fun LoginScreen(
     openAndPopUp: (NavigationParams) -> Unit,
-    signUpViewModel: SignUpViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
-    SignUpScreenContent(
+    LoginScreenContent(
         openAndPopUp = openAndPopUp,
-        email = signUpViewModel.emailState.collectAsState().value,
-        password = signUpViewModel.passwordState.collectAsState().value,
-        confirmPassword = signUpViewModel.confirmPasswordState.collectAsState().value,
-        updateEmail = { signUpViewModel.updateEmail(it) },
-        updatePassword = { signUpViewModel.updatePassword(it) },
-        updateConfirmPassword = { signUpViewModel.updateConfirmPassword(it) },
-        isPasswordError = signUpViewModel.isPasswordDifferent.collectAsState().value,
-        onSignUpClick = { signUpViewModel.onSignUpClick(it) }
+        email = loginViewModel.emailState.collectAsState().value,
+        password = loginViewModel.passwordState.collectAsState().value,
+        updateEmail = { loginViewModel.updateEmail(it) },
+        updatePassword = { loginViewModel.updatePassword(it) },
+        onLoginClick = { loginViewModel.onLoginClick() },
+        onSignUpClick = { loginViewModel.onSignUpClick(it) }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreenContent(
+fun LoginScreenContent(
     openAndPopUp: (NavigationParams) -> Unit,
     email: String,
     password: String,
-    confirmPassword: String,
     updateEmail: (String) -> Unit,
     updatePassword: (String) -> Unit,
-    updateConfirmPassword: (String) -> Unit,
-    isPasswordError: Boolean,
+    onLoginClick: () -> Unit,
     onSignUpClick: ((NavigationParams) -> Unit) -> Unit
 ) {
 
@@ -73,6 +70,14 @@ fun SignUpScreenContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        /*Image(
+            painter = painterResource(id = R.mipmap.ic_launcher),
+            contentDescription = "Auth image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp, 4.dp)
+        )*/
+
         Text(
             text = stringResource(id = R.string.app_name),
             fontSize = 80.sp,
@@ -124,27 +129,6 @@ fun SignUpScreenContent(
             visualTransformation = PasswordVisualTransformation()
         )
 
-        OutlinedTextField(
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp, 4.dp)
-                .border(
-                    BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(50)
-                ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            value = confirmPassword,
-            onValueChange = { updateConfirmPassword(it) },
-            placeholder = { Text(stringResource(R.string.confirm_password)) },
-            visualTransformation = PasswordVisualTransformation(),
-            isError = isPasswordError
-        )
-
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,37 +137,32 @@ fun SignUpScreenContent(
 
         Button(
             onClick = {
-                onSignUpClick(openAndPopUp)
+                onLoginClick()
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp, 0.dp),
-            enabled = email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()
+            enabled = email.isNotEmpty() && password.isNotEmpty()
         ) {
             Text(
-                text = stringResource(R.string.sign_up),
+                text = stringResource(R.string.login),
                 fontSize = 16.sp,
                 modifier = Modifier.padding(0.dp, 6.dp)
             )
         }
-    }
-}
 
-@PreviewLightDark
-@Composable
-fun SignUpScreenPreview() {
-    VoiceCallTranslatorTheme {
-        Surface {
-            SignUpScreenContent(
-                openAndPopUp = {},
-                email = "slopezjur@uoc.edu",
-                password = "SUPERCOMPLEXPASSWORD",
-                confirmPassword = "SUPERCOMPLEXPASSWORD",
-                updateEmail = {},
-                updatePassword = {},
-                updateConfirmPassword = {},
-                isPasswordError = false,
-                onSignUpClick = {}
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
+        )
+
+        TextButton(onClick = {
+            onSignUpClick.invoke(openAndPopUp)
+        }) {
+            Text(
+                text = stringResource(R.string.sign_up),
+                fontSize = 16.sp
             )
         }
     }
@@ -191,18 +170,16 @@ fun SignUpScreenPreview() {
 
 @PreviewLightDark
 @Composable
-fun SignUpScreenPasswordErrorPreview() {
+fun LoginScreenPreview() {
     VoiceCallTranslatorTheme {
         Surface {
-            SignUpScreenContent(
+            LoginScreenContent(
                 openAndPopUp = {},
                 email = "slopezjur@uoc.edu",
                 password = "SUPERCOMPLEXPASSWORD",
-                confirmPassword = "differentPassword",
                 updateEmail = {},
                 updatePassword = {},
-                updateConfirmPassword = {},
-                isPasswordError = true,
+                onLoginClick = {},
                 onSignUpClick = {}
             )
         }

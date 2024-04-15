@@ -1,8 +1,8 @@
-package com.sergiolopez.voicecalltranslator.login.ui
+package com.sergiolopez.voicecalltranslator.feature.login.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
-import com.sergiolopez.voicecalltranslator.login.domain.subscriber.CurrentUserSubscriber
-import com.sergiolopez.voicecalltranslator.login.domain.usecase.LoginUseCase
+import com.sergiolopez.voicecalltranslator.feature.login.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.login.domain.usecase.LoginUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import dagger.hilt.android.lifecycle.HiltViewModel

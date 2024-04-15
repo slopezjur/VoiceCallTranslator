@@ -11,11 +11,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sergiolopez.voicecalltranslator.login.ui.LoginScreen
+import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
+import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
 import com.sergiolopez.voicecalltranslator.navigation.NavigationAction
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.navigation.NavigationState
-import com.sergiolopez.voicecalltranslator.signup.ui.SignUpScreen
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 
 @Composable

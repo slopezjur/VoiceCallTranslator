@@ -1,6 +1,6 @@
-package com.sergiolopez.voicecalltranslator.login.domain.usecase
+package com.sergiolopez.voicecalltranslator.feature.login.domain.usecase
 
-import com.sergiolopez.voicecalltranslator.common.data.FirebaseRepository
+import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseRepository
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(

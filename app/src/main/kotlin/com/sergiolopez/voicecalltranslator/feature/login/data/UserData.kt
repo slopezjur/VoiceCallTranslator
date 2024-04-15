@@ -1,6 +1,6 @@
-package com.sergiolopez.voicecalltranslator.login.domain.model
+package com.sergiolopez.voicecalltranslator.feature.login.data
 
-class User(
+data class UserData(
     val id: String,
     val creationDate: String,
     val lastLogin: String,
