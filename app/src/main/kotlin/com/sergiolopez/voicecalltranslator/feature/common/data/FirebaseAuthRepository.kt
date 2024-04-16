@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class FirebaseRepository @Inject constructor() {
+class FirebaseAuthRepository @Inject constructor() {
 
     val currentUser: Flow<UserData?>
         get() = callbackFlow {
