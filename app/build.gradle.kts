@@ -1,9 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.gms.google.services)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.jetbrains.kotlin.android)
 
-    id("com.google.gms.google-services") version "4.4.1"
     id("kotlin-kapt")
 }
 
@@ -66,7 +66,9 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation)
     implementation(firebaseBom)
+    implementation(libs.firebase.appcheck.debug)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
     implementation(libs.navigation.compose)
 
     kapt(libs.hilt.compiler)

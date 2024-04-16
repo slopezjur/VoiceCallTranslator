@@ -1,6 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.common.utils
 
-import com.sergiolopez.voicecalltranslator.feature.login.domain.model.User
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 
 object Dummy {
 

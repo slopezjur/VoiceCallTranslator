@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
-import com.sergiolopez.voicecalltranslator.feature.login.domain.model.User
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 
 @Composable

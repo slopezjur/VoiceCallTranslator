@@ -3,7 +3,7 @@ package com.sergiolopez.voicecalltranslator.feature.common.data
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.sergiolopez.voicecalltranslator.feature.login.data.UserData
+import com.sergiolopez.voicecalltranslator.feature.common.data.model.UserData
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

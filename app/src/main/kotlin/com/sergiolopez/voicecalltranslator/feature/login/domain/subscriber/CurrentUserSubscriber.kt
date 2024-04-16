@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.login.domain.subscriber
 
 import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseAuthRepository
-import com.sergiolopez.voicecalltranslator.feature.login.domain.model.User
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject

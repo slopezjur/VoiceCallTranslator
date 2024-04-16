@@ -1,15 +1,15 @@
 [versions]
 activity = "1.8.2"
-agp = "8.3.1"
+agp = "8.3.2"
 appcompat = "1.6.1"
 composeBom = "2024.04.00"
 composeMaterial3 = "1.2.1"
 coreKtx = "1.12.0"
 espressoCore = "3.5.1"
-firebaseBom = "32.8.0"
+firebaseBom = "32.8.1"
 googleServices = "4.4.1"
 hiltNavigation = "1.2.0"
-hiltVersion = "2.44"
+hiltVersion = "2.51.1"
 kotlin = "1.9.23"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -30,8 +30,10 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "composeMaterial3" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database-ktx" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion"}
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hiltVersion"}
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
@@ -41,6 +43,6 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-common"
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
-gsm-google-services = { id = "com.google.gsm.google-services", version.ref = "googleServices" }
+gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 

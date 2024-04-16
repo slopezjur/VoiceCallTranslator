@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.login.data
+package com.sergiolopez.voicecalltranslator.feature.common.data.model
 
 data class UserData(
     val id: String,

@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.login.domain.model
+package com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model
 
 class User(
     val id: String,
