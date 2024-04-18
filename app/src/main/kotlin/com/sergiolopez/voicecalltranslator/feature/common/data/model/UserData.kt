@@ -1,8 +1,8 @@
 package com.sergiolopez.voicecalltranslator.feature.common.data.model
 
 data class UserData(
-    val id: String,
-    val creationDate: String,
-    val lastLogin: String,
-    val uuid: String
+    val id: String? = null,
+    val creationDate: String? = null,
+    val lastLogin: String? = null,
+    val uuid: String? = null
 )

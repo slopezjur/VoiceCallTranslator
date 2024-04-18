@@ -8,10 +8,10 @@ class UserMapper @Inject constructor() {
 
     fun mapUserDataToUser(userData: UserData): User {
         return User(
-            id = userData.id,
-            creationDate = userData.creationDate,
-            lastLogin = userData.lastLogin,
-            uuid = userData.uuid
+            id = userData.id ?: "",
+            creationDate = userData.creationDate ?: "",
+            lastLogin = userData.lastLogin ?: "",
+            uuid = userData.uuid ?: ""
         )
     }
 

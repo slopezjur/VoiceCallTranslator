@@ -44,5 +44,5 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-common"
 android-application = { id = "com.android.application", version.ref = "agp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 

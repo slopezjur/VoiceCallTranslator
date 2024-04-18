@@ -10,4 +10,10 @@ object Dummy {
         lastLogin = "15 abr 2024",
         uuid = "uuid example"
     )
+
+    val userList = listOf(
+        user,
+        user.copy(id = "test@test.com"),
+        user.copy(id = "test2@test.com")
+    )
 }

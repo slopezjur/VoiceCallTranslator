@@ -3,7 +3,10 @@ package com.sergiolopez.voicecalltranslator.feature.contactlist.ui
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,19 +22,25 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 @Composable
 fun ContactItem(
     user: User,
-    onContactUserClick: (String) -> Unit
+    onContactUserClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
+        modifier = modifier
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
         ) {
+            Icon(
+                imageVector = Icons.Filled.AccountCircle,
+                contentDescription = "Contact icon",
+                modifier = modifier.padding(8.dp)
+            )
             Text(
                 text = user.id,
-                modifier = Modifier.padding(12.dp, 12.dp, 12.dp, 12.dp),
+                modifier = modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
         }

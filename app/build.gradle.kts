@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.gms.google.services)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.android)
 
     id("kotlin-kapt")
 }
@@ -34,6 +34,7 @@ android {
             )
         }
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.11"
     }
@@ -49,6 +50,8 @@ android {
 }
 
 dependencies {
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     val composeBom = platform(libs.androidx.compose.bom)
     val firebaseBom = platform(libs.firebase.bom)
