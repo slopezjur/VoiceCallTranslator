@@ -15,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -31,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
-import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
+import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun SignUpScreen(
@@ -172,39 +171,35 @@ fun SignUpScreenContent(
 @PreviewLightDark
 @Composable
 fun SignUpScreenPreview() {
-    VoiceCallTranslatorTheme {
-        Surface {
-            SignUpScreenContent(
-                openAndPopUp = {},
-                email = "slopezjur@uoc.edu",
-                password = "SUPERCOMPLEXPASSWORD",
-                confirmPassword = "SUPERCOMPLEXPASSWORD",
-                updateEmail = {},
-                updatePassword = {},
-                updateConfirmPassword = {},
-                isPasswordError = false,
-                onSignUpClick = {}
-            )
-        }
+    VoiceCallTranslatorPreview {
+        SignUpScreenContent(
+            openAndPopUp = {},
+            email = "slopezjur@uoc.edu",
+            password = "SUPERCOMPLEXPASSWORD",
+            confirmPassword = "SUPERCOMPLEXPASSWORD",
+            updateEmail = {},
+            updatePassword = {},
+            updateConfirmPassword = {},
+            isPasswordError = false,
+            onSignUpClick = {}
+        )
     }
 }
 
 @PreviewLightDark
 @Composable
 fun SignUpScreenPasswordErrorPreview() {
-    VoiceCallTranslatorTheme {
-        Surface {
-            SignUpScreenContent(
-                openAndPopUp = {},
-                email = "slopezjur@uoc.edu",
-                password = "SUPERCOMPLEXPASSWORD",
-                confirmPassword = "differentPassword",
-                updateEmail = {},
-                updatePassword = {},
-                updateConfirmPassword = {},
-                isPasswordError = true,
-                onSignUpClick = {}
-            )
-        }
+    VoiceCallTranslatorPreview {
+        SignUpScreenContent(
+            openAndPopUp = {},
+            email = "slopezjur@uoc.edu",
+            password = "SUPERCOMPLEXPASSWORD",
+            confirmPassword = "differentPassword",
+            updateEmail = {},
+            updatePassword = {},
+            updateConfirmPassword = {},
+            isPasswordError = true,
+            onSignUpClick = {}
+        )
     }
 }

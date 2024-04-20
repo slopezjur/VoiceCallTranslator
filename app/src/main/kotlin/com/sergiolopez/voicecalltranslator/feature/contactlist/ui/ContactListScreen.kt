@@ -1,6 +1,5 @@
 package com.sergiolopez.voicecalltranslator.feature.contactlist.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,15 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,15 +21,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
-import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
+import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
+import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun ContactListScreen(
@@ -45,23 +38,29 @@ fun ContactListScreen(
     val contactList = contactListViewModel.userList.collectAsState().value
 
     ContactListContent(
-        openAndPopUp = openAndPopUp,
         contactList = contactList,
-        onContactUserCall = {},
+        onContactUserCall = {
+            openAndPopUp.invoke(
+                NavigationParams(
+                    NavigationRoute.CALL.navigationName,
+                    NavigationRoute.CONTACT_LIST.navigationName
+                )
+            )
+        },
         showCallDialog = false
     )
 }
 
 @Composable
 fun ContactListContent(
-    openAndPopUp: (NavigationParams) -> Unit,
+    modifier: Modifier = Modifier,
     contactList: List<User>,
     onContactUserCall: (String) -> Unit,
-    modifier: Modifier = Modifier,
     showCallDialog: Boolean
 ) {
-    var showCallDialogRemember by remember { mutableStateOf(showCallDialog) }
     var contactToCall by remember { mutableStateOf("") }
+
+    var showCallDialogRemember by remember { mutableStateOf(showCallDialog) }
 
     val onContactUserClick: (String) -> Unit = {
         contactToCall = it
@@ -105,32 +104,11 @@ fun ContactListContent(
     }
 
     if (showCallDialogRemember) {
-        AlertDialog(
-            onDismissRequest = { showCallDialogRemember = false },
-            title = { Text(text = stringResource(id = R.string.call_dialog_title, contactToCall)) },
-            text = { Text(text = stringResource(id = R.string.call_dialog_subtitle)) },
-            confirmButton = {
-                Icon(
-                    imageVector = Icons.Filled.Call,
-                    contentDescription = "Contact icon",
-                    modifier = modifier
-                        .padding(8.dp)
-                        .clickable {
-                            onContactUserCall.invoke(contactToCall)
-                        }
-                )
-            },
-            dismissButton = {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "Contact icon",
-                    modifier = modifier
-                        .padding(8.dp)
-                        .clickable {
-                            showCallDialogRemember = false
-                        }
-                )
-            },
+        ContactCallDialog(
+            modifier = modifier,
+            contactToCall = contactToCall,
+            onContactUserCall = onContactUserCall,
+            onDismissDialog = { showCallDialogRemember = false }
         )
     }
 }
@@ -138,29 +116,23 @@ fun ContactListContent(
 @PreviewLightDark
 @Composable
 fun ContactListScreenPreview() {
-    VoiceCallTranslatorTheme {
-        Surface {
-            ContactListContent(
-                openAndPopUp = {},
-                contactList = Dummy.userList,
-                onContactUserCall = {},
-                showCallDialog = false
-            )
-        }
+    VoiceCallTranslatorPreview {
+        ContactListContent(
+            contactList = Dummy.userList,
+            onContactUserCall = {},
+            showCallDialog = false
+        )
     }
 }
 
 @PreviewLightDark
 @Composable
 fun ContactListScreenShowCallDialogPreview() {
-    VoiceCallTranslatorTheme {
-        Surface {
-            ContactListContent(
-                openAndPopUp = {},
-                contactList = Dummy.userList,
-                onContactUserCall = {},
-                showCallDialog = true
-            )
-        }
+    VoiceCallTranslatorPreview {
+        ContactListContent(
+            contactList = Dummy.userList,
+            onContactUserCall = {},
+            showCallDialog = true
+        )
     }
 }

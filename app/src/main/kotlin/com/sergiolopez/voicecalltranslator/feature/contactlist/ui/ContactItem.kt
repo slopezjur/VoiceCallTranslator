@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +16,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
-import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
+import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun ContactItem(
@@ -51,12 +50,10 @@ fun ContactItem(
 @PreviewLightDark
 @Composable
 fun ContactItemPreview() {
-    VoiceCallTranslatorTheme {
-        Surface {
-            ContactItem(
-                user = Dummy.user,
-                onContactUserClick = {}
-            )
-        }
+    VoiceCallTranslatorPreview {
+        ContactItem(
+            user = Dummy.user,
+            onContactUserClick = {}
+        )
     }
 }

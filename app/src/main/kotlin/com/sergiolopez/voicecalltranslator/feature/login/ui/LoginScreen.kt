@@ -15,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
@@ -32,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
-import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
+import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun LoginScreen(
@@ -99,8 +98,10 @@ fun LoginScreenContent(
                     BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(50)
                 ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -118,8 +119,10 @@ fun LoginScreenContent(
                     BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(50)
                 ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -171,17 +174,15 @@ fun LoginScreenContent(
 @PreviewLightDark
 @Composable
 fun LoginScreenPreview() {
-    VoiceCallTranslatorTheme {
-        Surface {
-            LoginScreenContent(
-                openAndPopUp = {},
-                email = "slopezjur@uoc.edu",
-                password = "SUPERCOMPLEXPASSWORD",
-                updateEmail = {},
-                updatePassword = {},
-                onLoginClick = {},
-                onSignUpClick = {}
-            )
-        }
+    VoiceCallTranslatorPreview {
+        LoginScreenContent(
+            openAndPopUp = {},
+            email = "slopezjur@uoc.edu",
+            password = "SUPERCOMPLEXPASSWORD",
+            updateEmail = {},
+            updatePassword = {},
+            onLoginClick = {},
+            onSignUpClick = {}
+        )
     }
 }
