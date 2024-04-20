@@ -1,5 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.contactlist.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,17 +11,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -35,20 +46,33 @@ fun ContactListScreen(
 
     ContactListContent(
         openAndPopUp = openAndPopUp,
-        contactList = contactList
+        contactList = contactList,
+        onContactUserCall = {},
+        showCallDialog = false
     )
 }
 
 @Composable
 fun ContactListContent(
     openAndPopUp: (NavigationParams) -> Unit,
-    contactList: List<User>
+    contactList: List<User>,
+    onContactUserCall: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    showCallDialog: Boolean
 ) {
+    var showCallDialogRemember by remember { mutableStateOf(showCallDialog) }
+    var contactToCall by remember { mutableStateOf("") }
+
+    val onContactUserClick: (String) -> Unit = {
+        contactToCall = it
+        showCallDialogRemember = true
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {},
-                modifier = Modifier.padding(16.dp),
+                modifier = modifier.padding(16.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Icon(Icons.Filled.Settings, "Settings")
@@ -56,28 +80,58 @@ fun ContactListContent(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .padding(paddingValues)
                 .fillMaxWidth()
                 .fillMaxHeight()
         ) {
             Column(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
                 LazyColumn {
-                    items(contactList, key = { it.id }) { contactItem ->
-                        Spacer(modifier = Modifier.size(8.dp))
+                    items(contactList, key = { it.email }) { contactItem ->
+                        Spacer(modifier = modifier.size(8.dp))
 
                         ContactItem(
                             user = contactItem,
-                            onContactUserClick = {}
+                            onContactUserClick = { onContactUserClick.invoke(it) }
                         )
                     }
                 }
             }
         }
+    }
+
+    if (showCallDialogRemember) {
+        AlertDialog(
+            onDismissRequest = { showCallDialogRemember = false },
+            title = { Text(text = stringResource(id = R.string.call_dialog_title, contactToCall)) },
+            text = { Text(text = stringResource(id = R.string.call_dialog_subtitle)) },
+            confirmButton = {
+                Icon(
+                    imageVector = Icons.Filled.Call,
+                    contentDescription = "Contact icon",
+                    modifier = modifier
+                        .padding(8.dp)
+                        .clickable {
+                            onContactUserCall.invoke(contactToCall)
+                        }
+                )
+            },
+            dismissButton = {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Contact icon",
+                    modifier = modifier
+                        .padding(8.dp)
+                        .clickable {
+                            showCallDialogRemember = false
+                        }
+                )
+            },
+        )
     }
 }
 
@@ -89,6 +143,23 @@ fun ContactListScreenPreview() {
             ContactListContent(
                 openAndPopUp = {},
                 contactList = Dummy.userList,
+                onContactUserCall = {},
+                showCallDialog = false
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun ContactListScreenShowCallDialogPreview() {
+    VoiceCallTranslatorTheme {
+        Surface {
+            ContactListContent(
+                openAndPopUp = {},
+                contactList = Dummy.userList,
+                onContactUserCall = {},
+                showCallDialog = true
             )
         }
     }

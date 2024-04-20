@@ -26,7 +26,8 @@ fun ContactItem(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
+        modifier = modifier,
+        onClick = { onContactUserClick.invoke(user.email) }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -39,7 +40,7 @@ fun ContactItem(
                 modifier = modifier.padding(8.dp)
             )
             Text(
-                text = user.id,
+                text = user.email,
                 modifier = modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )

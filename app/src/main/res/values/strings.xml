@@ -6,4 +6,6 @@
     <string name="confirm_password">Confirm password</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>
+    <string name="call_dialog_title">Call %1$s?</string>
+    <string name="call_dialog_subtitle">The call will start immediately.</string>
 </resources>

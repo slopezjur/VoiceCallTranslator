@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.contactlist.domain.usecase
+package com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase
 
 import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseDatabaseRepository
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User

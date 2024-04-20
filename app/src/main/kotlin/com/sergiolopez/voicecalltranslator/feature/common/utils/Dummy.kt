@@ -5,7 +5,8 @@ import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 object Dummy {
 
     val user = User(
-        id = "slopezjur@uco.edu",
+        id = "01",
+        email = "slopezjur@uco.edu",
         creationDate = "15 abr 2024",
         lastLogin = "15 abr 2024",
         uuid = "uuid example"
@@ -13,7 +14,7 @@ object Dummy {
 
     val userList = listOf(
         user,
-        user.copy(id = "test@test.com"),
-        user.copy(id = "test2@test.com")
+        user.copy(email = "test@test.com"),
+        user.copy(email = "test2@test.com")
     )
 }

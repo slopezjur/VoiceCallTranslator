@@ -19,6 +19,7 @@ class FirebaseAuthRepository @Inject constructor() {
                     this.trySend(auth.currentUser?.let {
                         User(
                             id = it.uid,
+                            email = it.email ?: "",
                             creationDate = it.metadata?.creationTimestamp.toString(),
                             lastLogin = it.metadata?.lastSignInTimestamp.toString(),
                             uuid = it.tenantId.orEmpty()

@@ -1,6 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.signup.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
+import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SaveUserUseCase
 import com.sergiolopez.voicecalltranslator.feature.login.domain.subscriber.CurrentUserSubscriber
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
-    private val currentUserSubscriber: CurrentUserSubscriber
+    private val currentUserSubscriber: CurrentUserSubscriber,
+    private val saveUserUseCase: SaveUserUseCase
 ) : VoiceCallTranslatorViewModel() {
 
     init {
@@ -67,6 +69,8 @@ class SignUpViewModel @Inject constructor(
             launchCatching {
                 currentUserSubscriber.currentUserState.collect { user ->
                     if (user != null) {
+                        // TODO: What happen if this sync fails with the Database?
+                        saveUserUseCase.invoke(user)
                         _signUpUiState.value = SignUpUiState.LOGGED
                         openAndPopUp.invoke(
                             NavigationParams(

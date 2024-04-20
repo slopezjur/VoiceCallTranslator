@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.usecase.GetUserListUseCase
-import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.usecase.SaveUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +14,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ContactListViewModel @Inject constructor(
-    private val saveUserUseCase: SaveUserUseCase,
     private val getUserListUseCase: GetUserListUseCase
 ) : VoiceCallTranslatorViewModel() {
 
@@ -28,8 +26,6 @@ class ContactListViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             _contactListUiState.value = ContactListUiState.LOADING
-            //saveUserUseCase.invoke(User("test2", "test2", "test3", "test4"))
-            //saveUserUseCase.invoke(User("test3", "test2", "test3", "test4"))
             val result = getUserListUseCase.invoke()
             if (result.isSuccess) {
                 result.getOrNull()?.collect {

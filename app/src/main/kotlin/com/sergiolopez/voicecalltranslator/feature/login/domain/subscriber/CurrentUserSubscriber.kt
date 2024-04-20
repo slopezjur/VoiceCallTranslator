@@ -18,6 +18,7 @@ class CurrentUserSubscriber @Inject constructor(
             if (user != null) {
                 _currentUserState.value = User(
                     id = user.id,
+                    email = user.email,
                     creationDate = user.creationDate,
                     lastLogin = user.lastLogin,
                     uuid = user.uuid
