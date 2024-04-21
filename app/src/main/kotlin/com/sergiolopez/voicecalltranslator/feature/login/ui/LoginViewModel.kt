@@ -3,6 +3,7 @@ package com.sergiolopez.voicecalltranslator.feature.login.ui
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.login.domain.usecase.LoginUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
@@ -49,7 +50,7 @@ class LoginViewModel @Inject constructor(
     fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
         launchCatching {
             currentUserSubscriber.currentUserState.collect { user ->
-                if (user != null) {
+                if (user is User.Logged) {
                     saveUserUseCase.invoke(user)
                     _loginUiState.value = LoginUiState.LOGGED
                     openAndPopUp(

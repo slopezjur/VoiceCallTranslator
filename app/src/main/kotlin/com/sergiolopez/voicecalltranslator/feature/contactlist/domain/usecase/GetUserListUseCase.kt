@@ -9,7 +9,7 @@ class GetUserListUseCase @Inject constructor(
     private val firebaseDatabaseRepository: FirebaseDatabaseRepository
 ) {
 
-    operator fun invoke(userId: String): Result<Flow<List<User>>> {
+    operator fun invoke(userId: String): Result<Flow<List<User.Logged>>> {
         return firebaseDatabaseRepository.getUserList(userId)
     }
 }

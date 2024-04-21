@@ -5,7 +5,7 @@ import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 
 object Dummy {
 
-    val user = User(
+    val user = User.Logged(
         id = "01",
         email = "slopezjur@uco.edu",
         creationDate = "15 abr 2024",

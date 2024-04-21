@@ -3,6 +3,7 @@ package com.sergiolopez.voicecalltranslator.feature.signup.ui
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SignUpUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
@@ -68,7 +69,7 @@ class SignUpViewModel @Inject constructor(
         } else {
             launchCatching {
                 currentUserSubscriber.currentUserState.collect { user ->
-                    if (user != null) {
+                    if (user is User.Logged) {
                         // TODO: What happen if this sync fails with the Database?
                         saveUserUseCase.invoke(user)
                         _signUpUiState.value = SignUpUiState.LOGGED

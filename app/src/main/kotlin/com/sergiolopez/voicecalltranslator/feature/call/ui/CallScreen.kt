@@ -33,8 +33,6 @@ fun CallScreen(
 ) {
     val callUiState = callViewModel.callUiState.collectAsState().value
 
-    //callViewModel.startCall(calleeId)
-
     val context = LocalContext.current
     val telecomCallRepositoryRemember = remember {
         TelecomCallRepository.instance ?: TelecomCallRepository.create(context.applicationContext)
@@ -45,6 +43,7 @@ fun CallScreen(
 
     when (callUiState) {
         CallViewModel.CallUiState.STARTING -> {
+            callViewModel.startCall(calleeId)
             context.launchCall(
                 action = ACTION_OUTGOING_CALL,
                 name = "Bob",

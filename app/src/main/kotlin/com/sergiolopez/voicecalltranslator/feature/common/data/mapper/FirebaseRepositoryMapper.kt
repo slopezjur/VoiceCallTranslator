@@ -10,8 +10,8 @@ import javax.inject.Inject
 
 class FirebaseRepositoryMapper @Inject constructor() {
 
-    fun mapUserDataToUser(userData: UserData): User {
-        return User(
+    fun mapUserDataToUserLogged(userData: UserData): User.Logged {
+        return User.Logged(
             id = userData.id ?: "",
             email = userData.email ?: "",
             creationDate = userData.creationDate ?: "",
@@ -21,7 +21,7 @@ class FirebaseRepositoryMapper @Inject constructor() {
         )
     }
 
-    fun mapUserToUserData(user: User): UserData {
+    fun mapUserLoggedToUserData(user: User.Logged): UserData {
         return UserData(
             id = user.id,
             email = user.email,

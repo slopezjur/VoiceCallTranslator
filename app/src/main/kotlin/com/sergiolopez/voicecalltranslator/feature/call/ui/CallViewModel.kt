@@ -1,9 +1,14 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
-import com.sergiolopez.voicecalltranslator.feature.call.domain.subscriber.CurrentCallSubscriber
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.CreateCallUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.webrtc.DataModel
+import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
+import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentCallSubscriber
 import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,13 +18,18 @@ import javax.inject.Inject
 class CallViewModel @Inject constructor(
     private val currentUserSubscriber: CurrentUserSubscriber,
     private val createCallUseCase: CreateCallUseCase,
-    private val currentCallSubscriber: CurrentCallSubscriber
-) : VoiceCallTranslatorViewModel() {
+    private val currentCallSubscriber: CurrentCallSubscriber,
+    private val webRTCClient: WebRTCClient
+) : VoiceCallTranslatorViewModel(), WebRTCClient.Listener {
 
     private val _callUiState = MutableStateFlow(CallUiState.STARTING)
     val callUiState: StateFlow<CallUiState> = _callUiState
 
     fun startCall(calleeId: String) {
+        webRTCClient.listener = this
+        webRTCClient.call(calleeId)
+
+
         /*launchCatching {
             processCallActions(actionSource.consumeAsFlow())
         }
@@ -52,5 +62,24 @@ class CallViewModel @Inject constructor(
         CALLING,
         CALL_IN_PROGRESS,
         ERROR
+    }
+
+    override fun onTransferEventToSocket(data: DataModel) {
+        val user = currentUserSubscriber.currentUserState.value
+        if (user is User.Logged) {
+            launchCatching {
+                createCallUseCase.invoke(
+                    Call(
+                        callerId = user.id,
+                        calleeId = data.target,
+                        offerData = data.data,
+                        answerData = "",
+                        isIncoming = false,
+                        callStatus = CallStatus.CALLING
+                    )
+                )
+            }
+
+        }
     }
 }

@@ -55,7 +55,7 @@ fun ContactListScreen(
 @Composable
 fun ContactListContent(
     modifier: Modifier = Modifier,
-    contactList: List<User>,
+    contactList: List<User.Logged>,
     onContactUserCall: (String) -> Unit,
     showCallDialog: Boolean
 ) {

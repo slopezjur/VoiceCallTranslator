@@ -13,12 +13,12 @@ import javax.inject.Inject
 
 class FirebaseAuthRepository @Inject constructor() {
 
-    val currentUser: Flow<User?>
+    val currentUser: Flow<User>
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
                     this.trySend(auth.currentUser?.let {
-                        User(
+                        User.Logged(
                             id = it.uid,
                             email = it.email ?: "",
                             creationDate = it.metadata?.creationTimestamp.toString(),
@@ -26,7 +26,7 @@ class FirebaseAuthRepository @Inject constructor() {
                             uuid = it.tenantId.orEmpty(),
                             status = UserStatus.ONLINE
                         )
-                    })
+                    } ?: User.None)
                 }
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }
