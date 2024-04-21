@@ -1,6 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber
 
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseDatabaseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,10 +12,15 @@ class CurrentCallSubscriber @Inject constructor(
     val firebaseDatabaseRepository: FirebaseDatabaseRepository
 ) {
 
-    private val _currentCallState = MutableStateFlow<TelecomCall>(TelecomCall.None)
-    val currentCallState: StateFlow<TelecomCall> = _currentCallState
+    private val _currentCallState = MutableStateFlow<List<Call>>(listOf(Call.CallNoData))
+    val currentCallState: StateFlow<List<Call>> = _currentCallState
 
-    fun updateCurrentCallState(telecomCall: TelecomCall) {
-        _currentCallState.value = telecomCall
+    suspend fun subscribe() {
+        val result = firebaseDatabaseRepository.getCallList()
+        if (result.isSuccess) {
+            result.getOrNull()?.collect {
+                _currentCallState.value = it
+            }
+        }
     }
 }

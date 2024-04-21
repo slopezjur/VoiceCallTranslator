@@ -2,7 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.call.data
 
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 
-data class CallData(
+data class CallDatabase(
     val callerId: String? = null,
     val calleeId: String? = null,
     val offerId: String? = null,

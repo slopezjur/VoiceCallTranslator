@@ -1,7 +1,5 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,17 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.launchCall
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.TelecomCallRepository
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.service.TelecomCallService
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.service.TelecomCallService.Companion.ACTION_OUTGOING_CALL
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
@@ -27,19 +24,20 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 @Composable
 fun CallScreen(
     openAndPopUp: (NavigationParams) -> Unit,
-    callViewModel: CallViewModel = hiltViewModel(),
     calleeId: String,
-    telecomCallRepository: TelecomCallRepository
+    callViewModel: CallViewModel = hiltViewModel()
 ) {
     val callUiState = callViewModel.callUiState.collectAsState().value
 
     val context = LocalContext.current
-    val telecomCallRepositoryRemember = remember {
-        TelecomCallRepository.instance ?: TelecomCallRepository.create(context.applicationContext)
+
+    val telecomCall by callViewModel.telecomCallState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        callViewModel.subscribeTelecomCallState()
     }
 
-    val call by telecomCallRepositoryRemember.currentCall.collectAsState()
-    val hasOngoingCall = call is TelecomCall.Registered
+    val hasOngoingCall = telecomCall is TelecomCall.Registered
 
     when (callUiState) {
         CallViewModel.CallUiState.STARTING -> {
@@ -61,7 +59,7 @@ fun CallScreen(
                     callUiState = callUiState
                 ) -> {
                     TelecomCallScreen(
-                        telecomCallRepository = telecomCallRepositoryRemember,
+                        telecomCall = telecomCall,
                         onCallFinished = {}
                     )
                     callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_IN_PROGRESS)
@@ -91,16 +89,6 @@ private fun isCallingAndHasOngoingCall(
 @Composable
 private fun isCallInProgress(callUiState: CallViewModel.CallUiState) =
     callUiState == CallViewModel.CallUiState.CALL_IN_PROGRESS
-
-private fun Context.launchCall(action: String, name: String, uri: Uri) {
-    startService(
-        Intent(this, TelecomCallService::class.java).apply {
-            this.action = action
-            putExtra(TelecomCallService.EXTRA_NAME, name)
-            putExtra(TelecomCallService.EXTRA_URI, uri)
-        },
-    )
-}
 
 @Composable
 fun CallScreenContent(

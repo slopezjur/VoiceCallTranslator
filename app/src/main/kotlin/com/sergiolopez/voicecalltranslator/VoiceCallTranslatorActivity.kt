@@ -9,7 +9,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.core.content.getSystemService
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.TelecomCallRepository
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.service.TelecomCallService
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.MyPeerObserver
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
@@ -40,9 +39,6 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val telecomCallRepository =
-            TelecomCallRepository.instance ?: TelecomCallRepository.create(applicationContext)
-
         setupCallActivity()
 
         setUpWebRtc(webRTCClient = webRTCClient)
@@ -51,9 +47,7 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
             VoiceCallTranslatorTheme {
                 Surface {
                     PermissionBox(permissions = setUpPermissions()) {
-                        VoiceCallTranslatorApp(
-                            telecomCallRepository = telecomCallRepository
-                        )
+                        VoiceCallTranslatorApp()
                     }
                 }
             }

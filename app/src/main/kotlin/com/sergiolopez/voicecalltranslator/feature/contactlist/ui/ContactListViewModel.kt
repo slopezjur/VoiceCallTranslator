@@ -19,13 +19,13 @@ class ContactListViewModel @Inject constructor(
     private val _contactListUiState = MutableStateFlow(ContactListUiState.CONTINUE)
     val contactListUiState: StateFlow<ContactListUiState> = _contactListUiState.asStateFlow()
 
-    private val _userList = MutableStateFlow(emptyList<User.Logged>())
-    val userList: StateFlow<List<User.Logged>> = _userList.asStateFlow()
+    private val _userList = MutableStateFlow(emptyList<User.UserData>())
+    val userList: StateFlow<List<User.UserData>> = _userList.asStateFlow()
 
     init {
         _contactListUiState.value = ContactListUiState.LOADING
         val user = currentUserSubscriber.currentUserState.value
-        if (user is User.Logged) {
+        if (user is User.UserData) {
             launchCatching {
                 val result =
                     getUserListUseCase.invoke(

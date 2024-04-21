@@ -12,13 +12,13 @@ class CurrentUserSubscriber @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository
 ) {
 
-    private val _currentUserState = MutableStateFlow<User>(User.None)
+    private val _currentUserState = MutableStateFlow<User>(User.UserNoData)
     val currentUserState: StateFlow<User> = _currentUserState
 
     suspend fun subscribe() {
         firebaseAuthRepository.currentUser.collect { user ->
-            if (user is User.Logged) {
-                _currentUserState.value = User.Logged(
+            if (user is User.UserData) {
+                _currentUserState.value = User.UserData(
                     id = user.id,
                     email = user.email,
                     creationDate = user.creationDate,

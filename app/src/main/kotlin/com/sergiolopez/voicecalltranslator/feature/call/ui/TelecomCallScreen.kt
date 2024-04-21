@@ -53,7 +53,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,12 +85,10 @@ import kotlinx.coroutines.delay
  */
 @Composable
 internal fun TelecomCallScreen(
-    telecomCallRepository: TelecomCallRepository,
+    telecomCall: TelecomCall,
     onCallFinished: () -> Unit
 ) {
-    // Collect the current call state and update UI
-    val call by telecomCallRepository.currentCall.collectAsState()
-    when (val newCall = call) {
+    when (val newCall = telecomCall) {
         is TelecomCall.Unregistered, TelecomCall.None -> {
             // If there is no call invoke finish after a small delay
             LaunchedEffect(Unit) {

@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.TelecomCallRepository
 import com.sergiolopez.voicecalltranslator.feature.call.ui.CallScreen
 import com.sergiolopez.voicecalltranslator.feature.contactlist.ui.ContactListScreen
 import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
@@ -24,7 +23,7 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.navigation.NavigationState
 
 @Composable
-fun VoiceCallTranslatorApp(telecomCallRepository: TelecomCallRepository) {
+fun VoiceCallTranslatorApp() {
     val navigationState = rememberNavigationState()
 
     Scaffold { innerPaddingModifier ->
@@ -34,8 +33,7 @@ fun VoiceCallTranslatorApp(telecomCallRepository: TelecomCallRepository) {
             modifier = Modifier.padding(innerPaddingModifier)
         ) {
             notesGraph(
-                navigationState = navigationState,
-                telecomCallRepository = telecomCallRepository
+                navigationState = navigationState
             )
         }
     }
@@ -48,8 +46,7 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
     }
 
 fun NavGraphBuilder.notesGraph(
-    navigationState: NavigationState,
-    telecomCallRepository: TelecomCallRepository
+    navigationState: NavigationState
 ) {
     composable(NavigationAction.LoginNavigation.route) {
         LoginScreen(
@@ -91,8 +88,7 @@ fun NavGraphBuilder.notesGraph(
                     navigationParams = navigationParams
                 )
             },
-            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID,
-            telecomCallRepository = telecomCallRepository
+            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID
         )
     }
 }

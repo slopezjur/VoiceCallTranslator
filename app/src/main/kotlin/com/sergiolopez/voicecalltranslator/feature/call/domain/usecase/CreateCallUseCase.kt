@@ -7,7 +7,7 @@ import javax.inject.Inject
 class CreateCallUseCase @Inject constructor(
     private val firebaseDatabaseRepository: FirebaseDatabaseRepository
 ) {
-    suspend fun invoke(call: Call) {
+    suspend fun invoke(call: Call.CallData) {
         return firebaseDatabaseRepository.createCall(
             call = call
         )

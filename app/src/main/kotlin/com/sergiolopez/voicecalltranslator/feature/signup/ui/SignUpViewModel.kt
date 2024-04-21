@@ -69,7 +69,7 @@ class SignUpViewModel @Inject constructor(
         } else {
             launchCatching {
                 currentUserSubscriber.currentUserState.collect { user ->
-                    if (user is User.Logged) {
+                    if (user is User.UserData) {
                         // TODO: What happen if this sync fails with the Database?
                         saveUserUseCase.invoke(user)
                         _signUpUiState.value = SignUpUiState.LOGGED

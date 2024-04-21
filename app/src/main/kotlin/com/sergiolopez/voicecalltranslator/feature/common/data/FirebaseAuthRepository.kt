@@ -18,7 +18,7 @@ class FirebaseAuthRepository @Inject constructor() {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
                     this.trySend(auth.currentUser?.let {
-                        User.Logged(
+                        User.UserData(
                             id = it.uid,
                             email = it.email ?: "",
                             creationDate = it.metadata?.creationTimestamp.toString(),
@@ -26,7 +26,7 @@ class FirebaseAuthRepository @Inject constructor() {
                             uuid = it.tenantId.orEmpty(),
                             status = UserStatus.ONLINE
                         )
-                    } ?: User.None)
+                    } ?: User.UserNoData)
                 }
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }

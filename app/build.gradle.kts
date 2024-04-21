@@ -78,7 +78,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.web.rtc)
 
-    kapt(libs.hilt.compiler)
+    kapt(libs.hilt.android.compiler)
 
     // Tests
     testImplementation(libs.junit)

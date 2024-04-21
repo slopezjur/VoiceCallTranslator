@@ -50,7 +50,7 @@ class LoginViewModel @Inject constructor(
     fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
         launchCatching {
             currentUserSubscriber.currentUserState.collect { user ->
-                if (user is User.Logged) {
+                if (user is User.UserData) {
                     saveUserUseCase.invoke(user)
                     _loginUiState.value = LoginUiState.LOGGED
                     openAndPopUp(

@@ -28,6 +28,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCal
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCallAction
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.TelecomCallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.TelecomCallRepository
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 /**
@@ -52,7 +54,11 @@ import kotlinx.coroutines.launch
  * calls can consume significant memory, although that would require more complex setup to make it
  * work across multiple process.
  */
+@AndroidEntryPoint
 class TelecomCallService : Service() {
+
+    @Inject
+    lateinit var telecomCallRepository: TelecomCallRepository
 
     companion object {
         internal const val EXTRA_NAME: String = "extra_name"
@@ -63,7 +69,6 @@ class TelecomCallService : Service() {
     }
 
     private lateinit var notificationManager: TelecomCallNotificationManager
-    private lateinit var telecomRepository: TelecomCallRepository
 
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
     private var audioJob: Job? = null
@@ -71,11 +76,9 @@ class TelecomCallService : Service() {
     override fun onCreate() {
         super.onCreate()
         notificationManager = TelecomCallNotificationManager(applicationContext)
-        telecomRepository =
-            TelecomCallRepository.instance ?: TelecomCallRepository.create(applicationContext)
 
         // Observe call status updates once the call is registered and update the service
-        telecomRepository.currentCall
+        telecomCallRepository.currentCall
             .onEach { call ->
                 updateServiceState(call)
             }
@@ -101,7 +104,7 @@ class TelecomCallService : Service() {
         when (intent.action) {
             ACTION_INCOMING_CALL -> registerCall(intent = intent, incoming = true)
             ACTION_OUTGOING_CALL -> registerCall(intent = intent, incoming = false)
-            ACTION_UPDATE_CALL -> updateServiceState(telecomRepository.currentCall.value)
+            ACTION_UPDATE_CALL -> updateServiceState(telecomCallRepository.currentCall.value)
 
             else -> throw IllegalArgumentException("Unknown action")
         }
@@ -111,7 +114,7 @@ class TelecomCallService : Service() {
 
     private fun registerCall(intent: Intent, incoming: Boolean) {
         // If we have an ongoing call ignore command
-        if (telecomRepository.currentCall.value is TelecomCall.Registered) {
+        if (telecomCallRepository.currentCall.value is TelecomCall.Registered) {
             return
         }
 
@@ -131,13 +134,13 @@ class TelecomCallService : Service() {
 
             launch {
                 // Register the call with the Telecom stack
-                telecomRepository.registerCall(name, uri, incoming)
+                telecomCallRepository.registerCall(name, uri, incoming)
             }
 
             if (!incoming) {
                 // If doing an outgoing call, fake the other end picks it up for demo purposes.
                 delay(2000)
-                (telecomRepository.currentCall.value as? TelecomCall.Registered)?.processAction(
+                (telecomCallRepository.currentCall.value as? TelecomCall.Registered)?.processAction(
                     TelecomCallAction.Activate,
                 )
             }

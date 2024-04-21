@@ -4,6 +4,8 @@ import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.CreateCallUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetTelecomCallUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.DataModel
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
 import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentCallSubscriber
@@ -19,11 +21,21 @@ class CallViewModel @Inject constructor(
     private val currentUserSubscriber: CurrentUserSubscriber,
     private val createCallUseCase: CreateCallUseCase,
     private val currentCallSubscriber: CurrentCallSubscriber,
-    private val webRTCClient: WebRTCClient
+    private val webRTCClient: WebRTCClient,
+    private val getTelecomCallUseCase: GetTelecomCallUseCase
 ) : VoiceCallTranslatorViewModel(), WebRTCClient.Listener {
 
     private val _callUiState = MutableStateFlow(CallUiState.STARTING)
     val callUiState: StateFlow<CallUiState> = _callUiState
+
+    private val _telecomCallState = MutableStateFlow<TelecomCall>(TelecomCall.None)
+    val telecomCallState: StateFlow<TelecomCall> = _telecomCallState
+
+    suspend fun subscribeTelecomCallState() {
+        getTelecomCallUseCase.invoke().collect {
+            _telecomCallState.value = it
+        }
+    }
 
     fun startCall(calleeId: String) {
         webRTCClient.listener = this
@@ -66,10 +78,10 @@ class CallViewModel @Inject constructor(
 
     override fun onTransferEventToSocket(data: DataModel) {
         val user = currentUserSubscriber.currentUserState.value
-        if (user is User.Logged) {
+        if (user is User.UserData) {
             launchCatching {
                 createCallUseCase.invoke(
-                    Call(
+                    Call.CallData(
                         callerId = user.id,
                         calleeId = data.target,
                         offerData = data.data,

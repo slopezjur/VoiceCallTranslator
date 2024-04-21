@@ -1,6 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.common.data.model
 
-data class UserData(
+data class UserDatabase(
     val id: String? = null,
     val email: String? = null,
     val creationDate: String? = null,

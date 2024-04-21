@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * The central repository that keeps track of the current call and allows to register new calls.
@@ -25,36 +27,20 @@ import kotlinx.coroutines.launch
  *
  * @see registerCall
  */
-class TelecomCallRepository(private val callsManager: CallsManager) {
+@Singleton
+class TelecomCallRepository @Inject constructor(
+    context: Context
+) {
+    private var callsManager: CallsManager
 
-    companion object {
-        var instance: TelecomCallRepository? = null
-            private set
-
-        /**
-         * This does not illustrate best practices for instantiating classes in Android but for
-         * simplicity we use this create method to create a singleton with the CallsManager class.
-         */
-        fun create(context: Context): TelecomCallRepository {
-            Log.d("MPB", "New instance")
-            check(instance == null) {
-                "CallRepository instance already created"
-            }
-
-            // Create the Jetpack Telecom entry point
-            val callsManager = CallsManager(context).apply {
-                // Register with the telecom interface with the supported capabilities
-                registerAppWithTelecom(
-                    capabilities = CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING and
-                            CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING,
-                )
-            }
-
-            return TelecomCallRepository(
-                callsManager = callsManager,
-            ).also {
-                instance = it
-            }
+    init {
+        // Create the Jetpack Telecom entry point
+        callsManager = CallsManager(context).apply {
+            // Register with the telecom interface with the supported capabilities
+            registerAppWithTelecom(
+                capabilities = CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING and
+                        CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING,
+            )
         }
     }
 
