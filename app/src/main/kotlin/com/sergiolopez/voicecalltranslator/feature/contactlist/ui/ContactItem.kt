@@ -26,7 +26,7 @@ fun ContactItem(
 ) {
     Card(
         modifier = modifier,
-        onClick = { onContactUserClick.invoke(user.email) }
+        onClick = { onContactUserClick.invoke(user.id) }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

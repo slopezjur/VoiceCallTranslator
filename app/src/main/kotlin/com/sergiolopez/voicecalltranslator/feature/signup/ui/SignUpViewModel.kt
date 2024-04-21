@@ -1,11 +1,11 @@
 package com.sergiolopez.voicecalltranslator.feature.signup.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
-import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SaveUserUseCase
-import com.sergiolopez.voicecalltranslator.feature.login.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
+import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SignUpUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
-import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SignUpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

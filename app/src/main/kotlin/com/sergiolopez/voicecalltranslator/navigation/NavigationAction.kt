@@ -1,10 +1,18 @@
 package com.sergiolopez.voicecalltranslator.navigation
 
 sealed class NavigationAction(val route: String) {
-    data object Login : NavigationAction(NavigationRoute.LOGIN.navigationName)
-    data object SignUp : NavigationAction(NavigationRoute.SIGN_UP.navigationName)
-    data object ContactList : NavigationAction(NavigationRoute.CONTACT_LIST.navigationName)
-    data object VoiceSettings : NavigationAction(NavigationRoute.VOICE_SETTINGS.navigationName)
-    data object AccountSettings : NavigationAction(NavigationRoute.ACCOUNT_SETTINGS.navigationName)
-    data object VoiceTraining : NavigationAction(NavigationRoute.VOICE_TRAINING.navigationName)
+    data object LoginNavigation : NavigationAction(NavigationRoute.LOGIN.navigationName)
+    data object SignUpNavigation : NavigationAction(NavigationRoute.SIGN_UP.navigationName)
+    data object ContactListNavigation :
+        NavigationAction(NavigationRoute.CONTACT_LIST.navigationName)
+
+    data object CallNavigation : NavigationAction(NavigationRoute.CALL.navigationName)
+    data object VoiceSettingsNavigation :
+        NavigationAction(NavigationRoute.VOICE_SETTINGS.navigationName)
+
+    data object AccountSettingsNavigation :
+        NavigationAction(NavigationRoute.ACCOUNT_SETTINGS.navigationName)
+
+    data object VoiceTrainingNavigation :
+        NavigationAction(NavigationRoute.VOICE_TRAINING.navigationName)
 }

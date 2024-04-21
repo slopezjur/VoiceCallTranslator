@@ -3,7 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools" >
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <application
         android:name="com.sergiolopez.voicecalltranslator.VoiceCallTranslatorApplication"
         android:allowBackup="true"
@@ -11,10 +14,14 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:launchMode="singleInstance"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:showOnLockScreen="true"
+        android:showWhenLocked="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar"
-        tools:targetApi="31" >
+        tools:targetApi="34"
+        android:turnScreenOn="true">
         <activity
             android:name=".VoiceCallTranslatorActivity"
             android:exported="true" >
@@ -24,6 +31,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".feature.call.telecom.service.TelecomCallService"
+            android:exported="false" />
+        <receiver
+            android:name=".feature.call.telecom.broadcast.TelecomCallBroadcast"
+            android:exported="false" />
     </application>
 
 </manifest>

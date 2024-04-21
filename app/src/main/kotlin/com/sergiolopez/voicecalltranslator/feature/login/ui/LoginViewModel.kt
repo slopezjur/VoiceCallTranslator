@@ -1,7 +1,8 @@
 package com.sergiolopez.voicecalltranslator.feature.login.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
-import com.sergiolopez.voicecalltranslator.feature.login.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
+import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
 import com.sergiolopez.voicecalltranslator.feature.login.domain.usecase.LoginUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val currentUserSubscriber: CurrentUserSubscriber
+    private val currentUserSubscriber: CurrentUserSubscriber,
+    private val saveUserUseCase: SaveUserUseCase
 ) : VoiceCallTranslatorViewModel() {
 
     init {
@@ -48,6 +50,7 @@ class LoginViewModel @Inject constructor(
         launchCatching {
             currentUserSubscriber.currentUserState.collect { user ->
                 if (user != null) {
+                    saveUserUseCase.invoke(user)
                     _loginUiState.value = LoginUiState.LOGGED
                     openAndPopUp(
                         NavigationParams(

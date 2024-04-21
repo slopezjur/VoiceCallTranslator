@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -51,28 +52,31 @@ android {
 
 dependencies {
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-
-    val composeBom = platform(libs.androidx.compose.bom)
+    val composeBom = platform(libs.compose.bom)
     val firebaseBom = platform(libs.firebase.bom)
 
+    implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(composeBom)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.tooling)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material.iconsext)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation)
+    implementation(libs.hilt.navigation.compose)
     implementation(firebaseBom)
     implementation(libs.firebase.appcheck.debug)
     implementation(libs.firebase.auth)
-    implementation(libs.firebase.database)
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.core.telecom)
     implementation(libs.navigation.compose)
+    implementation(libs.web.rtc)
 
     kapt(libs.hilt.compiler)
 

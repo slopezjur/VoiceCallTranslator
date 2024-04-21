@@ -5,5 +5,6 @@ data class User(
     val email: String,
     val creationDate: String,
     val lastLogin: String,
-    val uuid: String
+    val uuid: String,
+    val status: UserStatus
 )

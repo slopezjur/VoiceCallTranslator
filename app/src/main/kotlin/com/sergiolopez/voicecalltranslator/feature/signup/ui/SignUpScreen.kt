@@ -93,8 +93,10 @@ fun SignUpScreenContent(
                     BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(50)
                 ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -112,10 +114,12 @@ fun SignUpScreenContent(
                     BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(50)
                 ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
             ),
             value = password,
             onValueChange = { updatePassword(it) },
@@ -132,8 +136,10 @@ fun SignUpScreenContent(
                     BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(50)
                 ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),

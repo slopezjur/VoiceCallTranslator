@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
+import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
@@ -42,8 +43,8 @@ fun ContactListScreen(
         onContactUserCall = {
             openAndPopUp.invoke(
                 NavigationParams(
-                    NavigationRoute.CALL.navigationName,
-                    NavigationRoute.CONTACT_LIST.navigationName
+                    route = "${NavigationRoute.CALL.navigationName}?$CALLEE_ID=${it}",
+                    popUp = NavigationRoute.CONTACT_LIST.navigationName
                 )
             )
         },

@@ -1,20 +1,19 @@
 package com.sergiolopez.voicecalltranslator.feature.contactlist.ui
 
-import androidx.lifecycle.viewModelScope
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
+import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.usecase.GetUserListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ContactListViewModel @Inject constructor(
-    private val getUserListUseCase: GetUserListUseCase
+    private val getUserListUseCase: GetUserListUseCase,
+    private val currentUserSubscriber: CurrentUserSubscriber
 ) : VoiceCallTranslatorViewModel() {
 
     private val _contactListUiState = MutableStateFlow(ContactListUiState.CONTINUE)
@@ -24,9 +23,12 @@ class ContactListViewModel @Inject constructor(
     val userList: StateFlow<List<User>> = _userList.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            _contactListUiState.value = ContactListUiState.LOADING
-            val result = getUserListUseCase.invoke()
+        _contactListUiState.value = ContactListUiState.LOADING
+        launchCatching {
+            val result =
+                getUserListUseCase.invoke(
+                    userId = currentUserSubscriber.currentUserState.value?.id ?: ""
+                )
             if (result.isSuccess) {
                 result.getOrNull()?.collect {
                     _userList.value = it

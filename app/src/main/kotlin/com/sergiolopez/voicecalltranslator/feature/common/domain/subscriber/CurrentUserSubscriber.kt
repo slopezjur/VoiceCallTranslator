@@ -1,11 +1,13 @@
-package com.sergiolopez.voicecalltranslator.feature.login.domain.subscriber
+package com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber
 
 import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class CurrentUserSubscriber @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository
 ) {
@@ -21,7 +23,8 @@ class CurrentUserSubscriber @Inject constructor(
                     email = user.email,
                     creationDate = user.creationDate,
                     lastLogin = user.lastLogin,
-                    uuid = user.uuid
+                    uuid = user.uuid,
+                    status = user.status
                 )
             }
         }

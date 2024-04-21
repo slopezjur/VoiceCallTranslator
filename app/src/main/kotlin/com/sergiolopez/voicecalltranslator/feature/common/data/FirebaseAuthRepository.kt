@@ -4,6 +4,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.UserStatus
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -22,7 +23,8 @@ class FirebaseAuthRepository @Inject constructor() {
                             email = it.email ?: "",
                             creationDate = it.metadata?.creationTimestamp.toString(),
                             lastLogin = it.metadata?.lastSignInTimestamp.toString(),
-                            uuid = it.tenantId.orEmpty()
+                            uuid = it.tenantId.orEmpty(),
+                            status = UserStatus.ONLINE
                         )
                     })
                 }
