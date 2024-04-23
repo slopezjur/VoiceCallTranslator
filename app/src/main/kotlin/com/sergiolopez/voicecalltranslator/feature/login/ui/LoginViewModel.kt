@@ -2,7 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.login.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
-import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.login.domain.usecase.LoginUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -16,13 +16,9 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val currentUserSubscriber: CurrentUserSubscriber,
-    private val saveUserUseCase: SaveUserUseCase
+    private val saveUserUseCase: SaveUserUseCase,
+    private val firebaseAuthService: FirebaseAuthService
 ) : VoiceCallTranslatorViewModel() {
-
-    init {
-        subscribeCurrentUser()
-    }
 
     private val _emailState = MutableStateFlow("")
     val emailState: StateFlow<String> = _emailState.asStateFlow()
@@ -31,13 +27,7 @@ class LoginViewModel @Inject constructor(
     val passwordState: StateFlow<String> = _passwordState
 
     private val _loginUiState = MutableStateFlow(LoginUiState.LOADING)
-    val loginUiState: StateFlow<LoginUiState> = _loginUiState
-
-    private fun subscribeCurrentUser() {
-        launchCatching {
-            currentUserSubscriber.subscribe()
-        }
-    }
+    val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
 
     fun updateEmail(newEmail: String) {
         _emailState.value = newEmail
@@ -49,22 +39,26 @@ class LoginViewModel @Inject constructor(
 
     fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
         launchCatching {
-            currentUserSubscriber.currentUserState.collect { user ->
+            firebaseAuthService.currentUser.collect { user ->
                 if (user is User.UserData) {
                     saveUserUseCase.invoke(user)
-                    _loginUiState.value = LoginUiState.LOGGED
-                    openAndPopUp(
-                        NavigationParams(
-                            NavigationRoute.CONTACT_LIST.navigationName,
-                            NavigationRoute.LOGIN.navigationName
-                        )
-                    )
+                    setLoggedAnNavigate(openAndPopUp)
                 }
             }
         }
         launchCatching {
             loginUseCase.invoke(_emailState.value, _passwordState.value)
         }
+    }
+
+    private fun setLoggedAnNavigate(openAndPopUp: (NavigationParams) -> Unit) {
+        _loginUiState.value = LoginUiState.LOGGED
+        openAndPopUp(
+            NavigationParams(
+                NavigationRoute.CONTACT_LIST.navigationName,
+                NavigationRoute.LOGIN.navigationName
+            )
+        )
     }
 
     fun onSignUpClick(openAndPopUp: (NavigationParams) -> Unit) {

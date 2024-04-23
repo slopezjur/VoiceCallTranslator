@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.common.data
+package com.sergiolopez.voicecalltranslator.feature.common.domain.service
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class FirebaseAuthRepository @Inject constructor() {
+@Singleton
+class FirebaseAuthService @Inject constructor() {
 
     val currentUser: Flow<User>
         get() = callbackFlow {
@@ -31,6 +33,10 @@ class FirebaseAuthRepository @Inject constructor() {
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }
         }
+
+    fun isUserLogged(): Boolean {
+        return Firebase.auth.currentUser != null
+    }
 
     suspend fun login(email: String, password: String) {
         Firebase.auth.signInWithEmailAndPassword(email, password).await()

@@ -13,7 +13,6 @@ import com.sergiolopez.voicecalltranslator.feature.call.telecom.service.TelecomC
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.MyPeerObserver
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
-import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,9 +26,6 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
 
     @Inject
     lateinit var saveUserUseCase: SaveUserUseCase
-
-    @Inject
-    lateinit var currentUserSubscriber: CurrentUserSubscriber
 
     @Inject
     lateinit var webRTCClient: WebRTCClient

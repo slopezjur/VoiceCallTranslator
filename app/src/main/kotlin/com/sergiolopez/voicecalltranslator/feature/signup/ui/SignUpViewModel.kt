@@ -2,7 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.signup.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
-import com.sergiolopez.voicecalltranslator.feature.common.domain.subscriber.CurrentUserSubscriber
+import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SignUpUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -16,13 +16,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
-    private val currentUserSubscriber: CurrentUserSubscriber,
+    private val firebaseAuthService: FirebaseAuthService,
     private val saveUserUseCase: SaveUserUseCase
 ) : VoiceCallTranslatorViewModel() {
-
-    init {
-        subscribeCurrentUser()
-    }
 
     private val _emailState = MutableStateFlow("")
     val emailState: StateFlow<String> = _emailState.asStateFlow()
@@ -38,12 +34,6 @@ class SignUpViewModel @Inject constructor(
 
     private val _signUpUiState = MutableStateFlow(SignUpUiState.LOADING)
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState
-
-    private fun subscribeCurrentUser() {
-        launchCatching {
-            currentUserSubscriber.subscribe()
-        }
-    }
 
     fun updateEmail(newEmail: String) {
         _emailState.value = newEmail
@@ -68,7 +58,7 @@ class SignUpViewModel @Inject constructor(
             _isPasswordError.value = true
         } else {
             launchCatching {
-                currentUserSubscriber.currentUserState.collect { user ->
+                firebaseAuthService.currentUser.collect { user ->
                     if (user is User.UserData) {
                         // TODO: What happen if this sync fails with the Database?
                         saveUserUseCase.invoke(user)

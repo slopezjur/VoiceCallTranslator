@@ -15,6 +15,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.ui.CallScreen
 import com.sergiolopez.voicecalltranslator.feature.contactlist.ui.ContactListScreen
 import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
 import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
+import com.sergiolopez.voicecalltranslator.feature.splash.ui.SplashScreen
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID_ARG
@@ -29,7 +30,7 @@ fun VoiceCallTranslatorApp() {
     Scaffold { innerPaddingModifier ->
         NavHost(
             navController = navigationState.navController,
-            startDestination = NavigationRoute.LOGIN.navigationName,
+            startDestination = NavigationRoute.SPLASH.navigationName,
             modifier = Modifier.padding(innerPaddingModifier)
         ) {
             notesGraph(
@@ -48,6 +49,16 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
 fun NavGraphBuilder.notesGraph(
     navigationState: NavigationState
 ) {
+    composable(NavigationAction.SplashNavigation.route) {
+        SplashScreen(
+            openAndPopUp = { navigationParams ->
+                navigationState.navigateAndPopUp(
+                    navigationParams = navigationParams
+                )
+            }
+        )
+    }
+
     composable(NavigationAction.LoginNavigation.route) {
         LoginScreen(
             openAndPopUp = { navigationParams ->

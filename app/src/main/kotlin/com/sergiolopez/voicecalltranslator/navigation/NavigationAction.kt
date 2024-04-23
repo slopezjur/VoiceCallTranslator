@@ -1,8 +1,13 @@
 package com.sergiolopez.voicecalltranslator.navigation
 
 sealed class NavigationAction(val route: String) {
+
+    data object SplashNavigation : NavigationAction(NavigationRoute.SPLASH.navigationName)
+
     data object LoginNavigation : NavigationAction(NavigationRoute.LOGIN.navigationName)
+
     data object SignUpNavigation : NavigationAction(NavigationRoute.SIGN_UP.navigationName)
+
     data object ContactListNavigation :
         NavigationAction(NavigationRoute.CONTACT_LIST.navigationName)
 
