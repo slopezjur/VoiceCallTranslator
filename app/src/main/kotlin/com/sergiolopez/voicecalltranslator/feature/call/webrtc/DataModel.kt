@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.webrtc
 
 enum class DataModelType {
-    StartAudioCall, StartVideoCall, Offer, Answer, IceCandidates, EndCall
+    StartAudioCall, Offer, Answer, IceCandidates, EndCall
 }
 
 data class DataModel(

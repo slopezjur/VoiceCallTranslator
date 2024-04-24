@@ -36,10 +36,11 @@ class FirebaseRepositoryMapper @Inject constructor() {
         return Call.CallData(
             callerId = callDatabase.callerId ?: "",
             calleeId = callDatabase.calleeId ?: "",
-            offerData = callDatabase.offerId ?: "",
-            answerData = callDatabase.answerId ?: "",
+            offerData = callDatabase.offerData ?: "",
+            answerData = callDatabase.answerData ?: "",
             isIncoming = callDatabase.isIncoming ?: false,
-            callStatus = callDatabase.callStatus ?: CallStatus.CALL_IN_PROGRESS
+            callStatus = callDatabase.callStatus ?: CallStatus.CALL_IN_PROGRESS,
+            timestamp = callDatabase.timestamp ?: 0
         )
     }
 
@@ -47,8 +48,8 @@ class FirebaseRepositoryMapper @Inject constructor() {
         return CallDatabase(
             callerId = call.callerId,
             calleeId = call.calleeId,
-            offerId = call.offerData,
-            answerId = call.answerData,
+            offerData = call.offerData,
+            answerData = call.answerData,
             isIncoming = call.isIncoming,
             callStatus = call.callStatus
         )

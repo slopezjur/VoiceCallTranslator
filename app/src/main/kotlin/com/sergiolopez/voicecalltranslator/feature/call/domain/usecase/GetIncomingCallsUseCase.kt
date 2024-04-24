@@ -5,11 +5,13 @@ import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseDatabaseR
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetCallListUseCase @Inject constructor(
+class GetIncomingCallsUseCase @Inject constructor(
     private val firebaseDatabaseRepository: FirebaseDatabaseRepository
 ) {
 
-    operator fun invoke(): Result<Flow<List<Call>>> {
-        return firebaseDatabaseRepository.getCallList()
+    operator fun invoke(calleeId: String): Result<Flow<List<Call.CallData>>> {
+        return firebaseDatabaseRepository.getIncomingCalls(
+            calleeId = calleeId
+        )
     }
 }

@@ -14,6 +14,7 @@ sealed class Call {
         val offerData: String?,
         val answerData: String?,
         val isIncoming: Boolean,
-        val callStatus: CallStatus
+        val callStatus: CallStatus,
+        val timestamp: Long
     ) : Parcelable, Call()
 }

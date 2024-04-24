@@ -15,9 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.launchCall
+import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.startNewCall
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.service.TelecomCallService.Companion.ACTION_OUTGOING_CALL
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
@@ -42,8 +41,7 @@ fun CallScreen(
     when (callUiState) {
         CallViewModel.CallUiState.STARTING -> {
             callViewModel.startCall(calleeId)
-            context.launchCall(
-                action = ACTION_OUTGOING_CALL,
+            context.startNewCall(
                 name = "Bob",
                 uri = Uri.parse(calleeId),
             )

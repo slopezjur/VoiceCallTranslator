@@ -24,16 +24,17 @@ import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCal
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCallAction
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.TelecomCallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.TelecomCallRepository
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * A simple BroadcastReceiver that routes the call notification actions to the TelecomCallRepository
  */
-@Singleton
-class TelecomCallBroadcast @Inject constructor(
-    private val telecomCallRepository: TelecomCallRepository
-) : BroadcastReceiver() {
+@AndroidEntryPoint
+class TelecomCallBroadcast @Inject constructor() : BroadcastReceiver() {
+
+    @Inject
+    lateinit var telecomCallRepository: TelecomCallRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         // Get the action or skip if none

@@ -37,6 +37,9 @@
         <receiver
             android:name=".feature.call.telecom.broadcast.TelecomCallBroadcast"
             android:exported="false" />
+        <service
+            android:name=".feature.common.domain.service.FirebaseService"
+            android:exported="false" />
     </application>
 
 </manifest>

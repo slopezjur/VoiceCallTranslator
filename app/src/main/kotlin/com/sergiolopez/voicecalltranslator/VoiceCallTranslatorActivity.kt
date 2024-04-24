@@ -10,15 +10,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.core.content.getSystemService
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.service.TelecomCallService
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.MyPeerObserver
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
+import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseService
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 import dagger.hilt.android.AndroidEntryPoint
-import org.webrtc.IceCandidate
-import org.webrtc.MediaStream
-import org.webrtc.PeerConnection
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,17 +23,10 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
     @Inject
     lateinit var saveUserUseCase: SaveUserUseCase
 
-    @Inject
-    lateinit var webRTCClient: WebRTCClient
-
-    private val target = "test2"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setupCallActivity()
-
-        setUpWebRtc(webRTCClient = webRTCClient)
 
         setContent {
             VoiceCallTranslatorTheme {
@@ -55,39 +44,6 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
         setTurnScreenOn(true)
 
         getSystemService<KeyguardManager>()?.requestDismissKeyguard(this, null)
-    }
-
-    private fun setUpWebRtc(webRTCClient: WebRTCClient) {
-        webRTCClient.initializeWebrtcClient("username", object : MyPeerObserver() {
-
-            override fun onAddStream(p0: MediaStream?) {
-                super.onAddStream(p0)
-                try {
-                    //p0?.audioTracks?.get(0)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-            }
-
-            override fun onIceCandidate(p0: IceCandidate?) {
-                super.onIceCandidate(p0)
-                p0?.let {
-                    webRTCClient.sendIceCandidate(target, it)
-                }
-            }
-
-            override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
-                super.onConnectionChange(newState)
-                if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
-                    TODO("Not yet implemented")
-                    // 1. change my status to in call
-                    //firebaseClient.changeMyStatus(UserStatus.IN_CALL)
-                    // 2. clear latest event inside my user section in firebase database
-                    //firebaseClient.clearLatestEvent()
-                }
-            }
-        })
     }
 
     private fun setUpPermissions(): MutableList<String> {
@@ -109,6 +65,11 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
             Intent(this, TelecomCallService::class.java).apply {
                 action = TelecomCallService.ACTION_UPDATE_CALL
             },
+        )
+        startService(
+            Intent(this, FirebaseService::class.java).apply {
+                action = FirebaseService.ACTION_UPDATE_CALL
+            }
         )
     }
 }

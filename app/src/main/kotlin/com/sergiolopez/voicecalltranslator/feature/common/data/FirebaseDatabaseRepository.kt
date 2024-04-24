@@ -41,15 +41,18 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
-    fun getCallList(): Result<Flow<List<Call>>> {
+    fun getIncomingCalls(calleeId: String): Result<Flow<List<Call.CallData>>> {
         return runCatching {
-            vtcDatabase.child(CALLS_TABLE_NAME).snapshots.map { dataSnapshot ->
-                dataSnapshot.children.mapNotNull {
-                    it.getValue<CallDatabase>()?.let { callData ->
-                        firebaseRepositoryMapper.mapCallDatabaseToCall(callData)
+            vtcDatabase.child(CALLS_TABLE_NAME).orderByChild(FIELD_CALLEE_ID).equalTo(calleeId)
+                .snapshots.map { dataSnapshot ->
+                    dataSnapshot.children.mapNotNull {
+                        it.getValue<CallDatabase>()?.let { call ->
+                            firebaseRepositoryMapper.mapCallDatabaseToCall(call)
+                        }
+                    }.sortedByDescending {
+                        it.timestamp
                     }
                 }
-            }
         }
     }
 
@@ -70,5 +73,6 @@ class FirebaseDatabaseRepository @Inject constructor(
         const val DATABASE_NAME = "vct"
         const val USERS_TABLE_NAME = "users"
         const val CALLS_TABLE_NAME = "calls"
+        const val FIELD_CALLEE_ID = "calleeId"
     }
 }
