@@ -38,7 +38,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.11"
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
 
     compileOptions {
@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.core.ktx)
     implementation(composeBom)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material.iconsext)
@@ -67,15 +68,15 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
+    implementation(libs.core.telecom)
+    implementation(libs.datastore.preferences)
     implementation(firebaseBom)
     implementation(libs.firebase.appcheck.debug)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database.ktx)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.core.telecom)
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
     implementation(libs.navigation.compose)
     implementation(libs.web.rtc)
 

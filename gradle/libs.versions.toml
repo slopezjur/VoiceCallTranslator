@@ -6,6 +6,7 @@ appcompat = "1.6.1"
 composeBom = "2024.04.01"
 composeMaterial3 = "1.2.1"
 coreKtx = "1.13.0"
+datastorePreferences = "1.1.1"
 espressoCore = "3.5.1"
 firebaseBom = "32.8.1"
 googleServices = "4.4.1"
@@ -16,7 +17,6 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 navigationCompose = "2.7.7"
 serialization = "1.6.3"
-serializationPlugin = "1.8.0"
 telecomVersion = "1.0.0-alpha03"
 viewmodelCompose = "2.7.0"
 webRtc = "1.0.32006"
@@ -38,6 +38,7 @@ compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 core-telecom = { group = "androidx.core", name = "core-telecom", version.ref = "telecomVersion" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
@@ -55,5 +56,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serializationPlugin" }
+kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
