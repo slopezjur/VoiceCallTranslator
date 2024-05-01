@@ -47,9 +47,8 @@ class WebRTCClient @Inject constructor(
     private val iceServer = listOf(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
             .createIceServer(),
-        /*PeerConnection.IceServer.builder("turn:a.relay.metered.ca:443?transport=tcp")
-            .setUsername("83eebabf8b4cce9d5dbcb649")
-            .setPassword("2D7JvfkOQtBdYW3R").createIceServer()*/
+        PeerConnection.IceServer.builder("stun:stun.relay.metered.ca:80")
+            .createIceServer()
     )
     private val localVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
     private val localAudioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints()) }
