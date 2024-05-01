@@ -52,9 +52,7 @@ private fun DropDownMenuView(
             modifier = Modifier.menuAnchor(),
             readOnly = true,
             value = selectedOptionText,
-            onValueChange = {
-                setUseSyntheticVoice.invoke(SyntheticVoiceOption.getSyntheticVoiceEnum(it))
-            },
+            onValueChange = {},
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
         )
         ExposedDropdownMenu(
@@ -68,6 +66,11 @@ private fun DropDownMenuView(
                     onClick = {
                         selectedOptionText = text
                         expanded = false
+                        setUseSyntheticVoice.invoke(
+                            SyntheticVoiceOption.getSyntheticVoiceEnum(
+                                text = text
+                            )
+                        )
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )

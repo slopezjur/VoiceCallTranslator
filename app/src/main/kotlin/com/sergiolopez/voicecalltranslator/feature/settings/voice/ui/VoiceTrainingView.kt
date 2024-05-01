@@ -44,6 +44,7 @@ internal fun VoiceTrainingView(
         )
     }
     if (voiceTrainingCompleted) {
+        Spacer(modifier = modifier.size(16.dp))
         Row(
             modifier = modifier,
             verticalAlignment = Alignment.CenterVertically

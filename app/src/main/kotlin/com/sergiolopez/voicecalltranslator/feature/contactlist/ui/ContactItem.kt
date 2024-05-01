@@ -20,7 +20,7 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun ContactItem(
-    user: User.UserData,
+    user: User,
     onContactUserClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {

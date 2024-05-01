@@ -8,7 +8,6 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetTeleco
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
-import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,15 +56,16 @@ class CallViewModel @Inject constructor(
     fun sendConnectionRequest(calleeId: String) {
         launchCatching {
             firebaseAuthService.currentUser.collect { user ->
-                if (user is User.UserData) {
+                user?.id?.let { userId ->
                     mainRepository.sendConnectionRequest(
-                        sender = user.id,
+                        sender = userId,
                         target = calleeId,
                         isVideoCall = false,
                         success = {},
                         viewModelScope = viewModelScope
                     )
                 }
+
             }
         }
     }

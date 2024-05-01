@@ -9,12 +9,12 @@ enum class SyntheticVoiceOption(val nameValue: Int) {
 
     companion object {
         fun getSyntheticVoiceEnum(text: String): SyntheticVoiceOption {
-            return when (text) {
-                MALE.name -> {
+            return when (text.lowercase()) {
+                MALE.name.lowercase() -> {
                     MALE
                 }
 
-                FEMALE.name -> {
+                FEMALE.name.lowercase() -> {
                     FEMALE
                 }
 

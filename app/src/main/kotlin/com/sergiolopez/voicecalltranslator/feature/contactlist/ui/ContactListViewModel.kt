@@ -19,14 +19,14 @@ class ContactListViewModel @Inject constructor(
     private val _contactListUiState = MutableStateFlow(ContactListUiState.CONTINUE)
     val contactListUiState: StateFlow<ContactListUiState> = _contactListUiState.asStateFlow()
 
-    private val _userList = MutableStateFlow(emptyList<User.UserData>())
-    val userList: StateFlow<List<User.UserData>> = _userList.asStateFlow()
+    private val _userList = MutableStateFlow(emptyList<User>())
+    val userList: StateFlow<List<User>> = _userList.asStateFlow()
 
     init {
         _contactListUiState.value = ContactListUiState.LOADING
         launchCatching {
             firebaseAuthService.currentUser.collect { user ->
-                if (user is User.UserData) {
+                if (user is User) {
                     launchCatching {
                         val result =
                             getUserListUseCase.invoke(

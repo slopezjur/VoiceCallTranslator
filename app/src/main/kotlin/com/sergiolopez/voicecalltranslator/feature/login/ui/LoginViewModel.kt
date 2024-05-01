@@ -40,7 +40,7 @@ class LoginViewModel @Inject constructor(
     fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
         launchCatching {
             firebaseAuthService.currentUser.collect { user ->
-                if (user is User.UserData) {
+                if (user is User) {
                     saveUserUseCase.invoke(user)
                     setLoggedAnNavigate(openAndPopUp)
                 }

@@ -23,12 +23,12 @@ class FirebaseDatabaseRepository @Inject constructor(
     private val database = FirebaseDatabase.getInstance()
     private val vtcDatabase = database.getReference(DATABASE_NAME)
 
-    fun getUserList(userId: String): Result<Flow<List<User.UserData>>> {
+    fun getUserList(userId: String): Result<Flow<List<User>>> {
         return runCatching {
             vtcDatabase.child(USERS_TABLE_NAME).snapshots.map { dataSnapshot ->
                 dataSnapshot.children.mapNotNull {
-                    it.getValue<UserDatabase>()?.let { userData ->
-                        firebaseRepositoryMapper.mapUserDatabaseToUserData(userData)
+                    it.getValue<UserDatabase>()?.let { user ->
+                        firebaseRepositoryMapper.mapUserDatabaseToUserData(user)
                     }
                 }.filterNot { user ->
                     user.id == userId
@@ -37,7 +37,7 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
-    suspend fun saveUser(user: User.UserData) {
+    suspend fun saveUser(user: User) {
         runCatching {
             val userData = firebaseRepositoryMapper.mapUserDataToUserDatabase(user)
             vtcDatabase.child(USERS_TABLE_NAME).child(user.id).setValue(userData).await()

@@ -8,7 +8,7 @@ class SaveUserUseCase @Inject constructor(
     private val firebaseDatabaseRepository: FirebaseDatabaseRepository
 ) {
 
-    suspend operator fun invoke(user: User.UserData) {
+    suspend operator fun invoke(user: User) {
         return firebaseDatabaseRepository.saveUser(user)
     }
 }

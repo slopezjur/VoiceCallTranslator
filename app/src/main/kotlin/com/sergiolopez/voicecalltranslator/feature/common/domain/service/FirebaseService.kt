@@ -44,13 +44,15 @@ class FirebaseService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
             firebaseAuthService.currentUser.collect { user ->
-                when (intent?.action) {
-                    ACTION_START_SERVICE -> startService(user)
-                    ACTION_INCOMING_CALL -> manageCall(user)
-                    ACTION_UPDATE_CALL -> manageCall(user)
+                user?.let {
+                    when (intent?.action) {
+                        ACTION_START_SERVICE -> startService(it)
+                        ACTION_INCOMING_CALL -> manageCall(it)
+                        ACTION_UPDATE_CALL -> manageCall(it)
 
-                    else -> {
-                        //throw IllegalArgumentException("Unknown action")
+                        else -> {
+                            //throw IllegalArgumentException("Unknown action")
+                        }
                     }
                 }
             }
@@ -60,52 +62,46 @@ class FirebaseService : Service() {
     }
 
     private fun startService(user: User) {
-        if (user is User.UserData) {
-            mainRepository.initFirebase(
-                userId = user.id,
-                scope = scope
-            )
-            initWebrtcClient(user)
-            manageCall(user)
-        }
+        mainRepository.initFirebase(
+            userId = user.id,
+            scope = scope
+        )
+        initWebrtcClient(user)
+        manageCall(user)
     }
 
     private fun initWebrtcClient(user: User) {
-        if (user is User.UserData) {
-            mainRepository.initWebrtcClient(user.id)
-        }
+        mainRepository.initWebrtcClient(user.id)
     }
 
     private fun manageCall(user: User) {
         scope.launch {
-            if (user is User.UserData) {
-                val result = getConnectionUpdateUseCase.invoke(user.id)
-                if (result.isSuccess) {
-                    result.getOrThrow().collect { call ->
-                        when (call.type) {
-                            DataModelType.StartAudioCall -> {
-                                val callData = Call.CallData(
-                                    callerId = call.sender ?: "",
-                                    calleeId = call.target,
-                                    isIncoming = true,
-                                    callStatus = CallStatus.INCOMING_CALL,
-                                    offerData = call.toString(),
-                                    answerData = "",
-                                    timestamp = call.timeStamp
-                                )
-                                launchIncomingCall(
-                                    call = callData
-                                )
-                            }
+            val result = getConnectionUpdateUseCase.invoke(user.id)
+            if (result.isSuccess) {
+                result.getOrThrow().collect { call ->
+                    when (call.type) {
+                        DataModelType.StartAudioCall -> {
+                            val callData = Call.CallData(
+                                callerId = call.sender ?: "",
+                                calleeId = call.target,
+                                isIncoming = true,
+                                callStatus = CallStatus.INCOMING_CALL,
+                                offerData = call.toString(),
+                                answerData = "",
+                                timestamp = call.timeStamp
+                            )
+                            launchIncomingCall(
+                                call = callData
+                            )
+                        }
 
-                            DataModelType.EndCall -> {
-                                initWebrtcClient(user)
-                                telecomCallManager
-                            }
+                        DataModelType.EndCall -> {
+                            initWebrtcClient(user)
+                            telecomCallManager
+                        }
 
-                            else -> {
-                                // DO NOTHING
-                            }
+                        else -> {
+                            // DO NOTHING
                         }
                     }
                 }

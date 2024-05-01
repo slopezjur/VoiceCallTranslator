@@ -59,7 +59,7 @@ class SignUpViewModel @Inject constructor(
         } else {
             launchCatching {
                 firebaseAuthService.currentUser.collect { user ->
-                    if (user is User.UserData) {
+                    if (user is User) {
                         // TODO: What happen if this sync fails with the Database?
                         saveUserUseCase.invoke(user)
                         _signUpUiState.value = SignUpUiState.LOGGED

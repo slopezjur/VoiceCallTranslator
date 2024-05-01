@@ -15,14 +15,14 @@ import javax.inject.Singleton
 @Singleton
 class FirebaseAuthService @Inject constructor() {
 
-    private val _currentUser: MutableStateFlow<User> = MutableStateFlow(User.UserNoData)
-    val currentUser: StateFlow<User>
+    private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
+    val currentUser: StateFlow<User?>
         get() = _currentUser.asStateFlow()
 
     init {
         val listener = FirebaseAuth.AuthStateListener { auth ->
             auth.currentUser?.let {
-                val user = User.UserData(
+                val user = User(
                     id = it.uid,
                     email = it.email ?: "",
                     creationDate = it.metadata?.creationTimestamp.toString(),
@@ -37,7 +37,7 @@ class FirebaseAuthService @Inject constructor() {
     }
 
     fun isUserLogged(): Boolean {
-        return Firebase.auth.currentUser != null && currentUser.value is User.UserData
+        return Firebase.auth.currentUser != null
     }
 
     suspend fun login(email: String, password: String) {
