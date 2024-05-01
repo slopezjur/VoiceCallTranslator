@@ -37,7 +37,7 @@ class FirebaseAuthService @Inject constructor() {
     }
 
     fun isUserLogged(): Boolean {
-        return Firebase.auth.currentUser != null
+        return Firebase.auth.currentUser != null && currentUser.value is User.UserData
     }
 
     suspend fun login(email: String, password: String) {

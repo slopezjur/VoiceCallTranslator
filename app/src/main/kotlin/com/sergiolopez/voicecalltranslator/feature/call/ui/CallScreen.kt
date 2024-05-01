@@ -1,6 +1,5 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +15,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.startNewCall
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
+import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
+import java.time.Instant
 
 @Composable
 fun CallScreen(
@@ -40,10 +43,24 @@ fun CallScreen(
 
     when (callUiState) {
         CallViewModel.CallUiState.STARTING -> {
-            callViewModel.startCall(calleeId)
+            //callViewModel.startCall(calleeId)
+            callViewModel.sendConnectionRequest(
+                calleeId = calleeId
+            )
             context.startNewCall(
-                name = "Bob",
-                uri = Uri.parse(calleeId),
+                call = Call.CallData(
+                    callerId = "",
+                    calleeId = calleeId,
+                    offerData = null,
+                    answerData = null,
+                    isIncoming = false,
+                    callStatus = CallStatus.CALLING,
+                    timestamp = Instant.now().epochSecond
+                )
+                /*DataModel(
+                    sender = calleeId,
+                    type = DataModelType.Offer
+                )*/
             )
             callViewModel.setCallUiState(CallViewModel.CallUiState.CALLING)
         }
@@ -58,7 +75,15 @@ fun CallScreen(
                 ) -> {
                     TelecomCallScreen(
                         telecomCall = telecomCall,
-                        onCallFinished = {}
+                        onCallFinished = {
+                            callViewModel.endCall()
+                            openAndPopUp.invoke(
+                                NavigationParams(
+                                    NavigationRoute.CONTACT_LIST.navigationName,
+                                    NavigationRoute.CALL.navigationName
+                                )
+                            )
+                        }
                     )
                     callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_IN_PROGRESS)
                 }

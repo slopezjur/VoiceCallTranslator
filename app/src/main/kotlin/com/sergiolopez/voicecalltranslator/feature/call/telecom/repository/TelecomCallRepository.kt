@@ -8,6 +8,7 @@ import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCallAction
 import kotlinx.coroutines.channels.Channel
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,7 +54,7 @@ class TelecomCallRepository @Inject constructor(
      * Register a new call with the provided attributes.
      * Use the [currentCall] StateFlow to receive status updates and process call related actions.
      */
-    suspend fun registerCall(displayName: String, address: Uri, isIncoming: Boolean) {
+    suspend fun registerCall(call: Call.CallData, isIncoming: Boolean) {
         // For simplicity we don't support multiple calls
         check(_currentCall.value !is TelecomCall.Registered) {
             "There cannot be more than one call at the same time."
@@ -60,8 +62,10 @@ class TelecomCallRepository @Inject constructor(
 
         // Create the call attributes
         val attributes = CallAttributesCompat(
-            displayName = displayName,
-            address = address,
+            displayName = call.calleeId,
+            address = Uri.parse(
+                Json.encodeToString(Call.CallData.serializer(), call)
+            ),
             direction = if (isIncoming) {
                 CallAttributesCompat.DIRECTION_INCOMING
             } else {

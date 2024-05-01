@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.gms.google.services)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.plugin.serialization)
 
     id("kotlin-kapt")
     id("kotlin-parcelize")

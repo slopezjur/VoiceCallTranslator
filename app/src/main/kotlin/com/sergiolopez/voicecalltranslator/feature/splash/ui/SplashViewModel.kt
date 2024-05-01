@@ -9,11 +9,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val firebaseAuthService: FirebaseAuthService
+    private val firebaseAuthService: FirebaseAuthService,
+    //private val webRtcManager: WebRtcManager,
+    //private val mainRepository: MainRepository
 ) : VoiceCallTranslatorViewModel() {
 
     fun onAppStart(openAndPopUp: (NavigationParams) -> Unit) {
         if (firebaseAuthService.isUserLogged()) {
+            launchCatching {
+                /*initWebrtcClient(
+                    // TODO : I don't like this!
+                    user = firebaseAuthService.currentUser.first() as User.UserData
+                )*/
+            }
             openAndPopUp(
                 NavigationParams(
                     route = NavigationRoute.CONTACT_LIST.navigationName,
@@ -29,4 +37,10 @@ class SplashViewModel @Inject constructor(
             )
         }
     }
+
+    /*private fun initWebrtcClient(user: User.UserData) {
+        mainRepository.initWebrtcClient(
+            username = user.id
+        )
+    }*/
 }

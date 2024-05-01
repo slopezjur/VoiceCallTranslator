@@ -5,6 +5,7 @@ import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
@@ -24,19 +25,34 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
     lateinit var saveUserUseCase: SaveUserUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            //val bundle = Bundle().apply { putBoolean(APP_ALREADY_RUNNING, true) }
 
-        setupCallActivity()
+            setupCallActivity()
 
-        setContent {
-            VoiceCallTranslatorTheme {
-                Surface {
-                    PermissionBox(permissions = setUpPermissions()) {
-                        VoiceCallTranslatorApp()
+            intent.extras?.let {
+                if (it.getBoolean(CALL_FROM_NOTIFICATION)) {
+                    Log.d("", "")
+                }
+            }
+
+            setContent {
+                VoiceCallTranslatorTheme {
+                    Surface {
+                        PermissionBox(permissions = setUpPermissions()) {
+                            VoiceCallTranslatorApp()
+                        }
                     }
                 }
             }
         }
+
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onPause() {
+        super.onSaveInstanceState(Bundle().apply { putBoolean(APP_ALREADY_RUNNING, true) })
+        super.onPause()
     }
 
     private fun setupCallActivity() {
@@ -68,8 +84,13 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
         )
         startService(
             Intent(this, FirebaseService::class.java).apply {
-                action = FirebaseService.ACTION_UPDATE_CALL
+                action = FirebaseService.ACTION_START_SERVICE
             }
         )
+    }
+
+    companion object {
+        const val CALL_FROM_NOTIFICATION = "CALL_FROM_NOTIFICATION"
+        const val APP_ALREADY_RUNNING = "APP_ALREADY_RUNNING"
     }
 }

@@ -100,7 +100,10 @@ class TelecomCallNotificationManager(private val context: Context) {
         val contentIntent = PendingIntent.getActivity(
             /* context = */ context,
             /* requestCode = */ 0,
-            /* intent = */ Intent(context, VoiceCallTranslatorActivity::class.java),
+            /* intent = */
+            Intent(context, VoiceCallTranslatorActivity::class.java).apply {
+                putExtra(VoiceCallTranslatorActivity.CALL_FROM_NOTIFICATION, true)
+            },
             /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 

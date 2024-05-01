@@ -1,11 +1,11 @@
 [versions]
 accompanist = "0.32.0"
-activity = "1.8.2"
+activity = "1.9.0"
 agp = "8.3.2"
 appcompat = "1.6.1"
-composeBom = "2024.04.00"
+composeBom = "2024.04.01"
 composeMaterial3 = "1.2.1"
-coreKtx = "1.12.0"
+coreKtx = "1.13.0"
 espressoCore = "3.5.1"
 firebaseBom = "32.8.1"
 googleServices = "4.4.1"
@@ -16,7 +16,8 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 navigationCompose = "2.7.7"
 serialization = "1.6.3"
-telecomVersion = "1.0.0-alpha02"
+serializationPlugin = "1.8.0"
+telecomVersion = "1.0.0-alpha03"
 viewmodelCompose = "2.7.0"
 webRtc = "1.0.32006"
 
@@ -51,7 +52,8 @@ web-rtc = { group = "org.webrtc", name = "google-webrtc", version.ref = "webRtc"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serializationPlugin" }
 

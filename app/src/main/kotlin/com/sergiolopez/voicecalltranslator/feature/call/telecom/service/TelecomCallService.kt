@@ -20,14 +20,15 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.content.PermissionChecker
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCallAction
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.TelecomCallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.TelecomCallRepository
+import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -38,6 +39,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 
@@ -60,9 +62,14 @@ class TelecomCallService : Service() {
     @Inject
     lateinit var telecomCallRepository: TelecomCallRepository
 
+    //@Inject
+    //lateinit var webRtcManager: WebRtcManager
+
+    @Inject
+    lateinit var mainRepository: MainRepository
+
     companion object {
-        internal const val EXTRA_NAME: String = "extra_name"
-        internal const val EXTRA_URI: String = "extra_uri"
+        internal const val EXTRA_CALL: String = "extra_call"
         internal const val ACTION_INCOMING_CALL = "incoming_call"
         internal const val ACTION_OUTGOING_CALL = "outgoing_call"
         internal const val ACTION_UPDATE_CALL = "update_call"
@@ -118,13 +125,7 @@ class TelecomCallService : Service() {
             return
         }
 
-        val name = intent.getStringExtra(EXTRA_NAME)!!
-        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(EXTRA_URI, Uri::class.java)!!
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra(EXTRA_URI)!!
-        }
+        val call = intent.getParcelableExtra<Call.CallData>(EXTRA_CALL)!!
 
         scope.launch {
             if (incoming) {
@@ -134,7 +135,7 @@ class TelecomCallService : Service() {
 
             launch {
                 // Register the call with the Telecom stack
-                telecomCallRepository.registerCall(name, uri, incoming)
+                telecomCallRepository.registerCall(call, incoming)
             }
 
             if (!incoming) {
@@ -169,6 +170,20 @@ class TelecomCallService : Service() {
                     if (audioJob == null || audioJob?.isActive == false) {
                         audioJob = scope.launch {
                             //AudioLoopSource.openAudioLoop()
+                            Log.d("INCOMING CALL: ", call.callAttributes.address.toString())
+                            //webRtcManager.answer(call.callAttributes.address)
+                            /*webRtcManager.managerWebRtc(
+                                dataModelType = DataModelType.Offer,
+                                address = call.callAttributes.address
+                            )*/
+                            val callData =
+                                Json.decodeFromString<Call.CallData>(call.callAttributes.address.toString())
+                            if (callData.isIncoming) {
+                                mainRepository.setTarget(callData.callerId)
+                                mainRepository.startCall()
+                            } else {
+                                mainRepository.setTarget(callData.calleeId)
+                            }
                         }
                     }
                 } else {

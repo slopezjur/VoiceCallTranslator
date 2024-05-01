@@ -6,6 +6,11 @@ import android.media.projection.MediaProjection
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
+import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
+import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.webrtc.AudioTrack
 import org.webrtc.Camera2Enumerator
@@ -29,10 +34,10 @@ import javax.inject.Singleton
 
 @Singleton
 class WebRTCClient @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase
 ) {
     //class variables
-    var listener: Listener? = null
     private lateinit var username: String
 
     //webrtc variables
@@ -70,6 +75,8 @@ class WebRTCClient @Inject constructor(
     private var screenCapturer: VideoCapturer? = null
     private val localScreenVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
     private var localScreenShareVideoTrack: VideoTrack? = null
+
+    private lateinit var scope: CoroutineScope
 
     //installing requirements section
     init {
@@ -118,12 +125,20 @@ class WebRTCClient @Inject constructor(
                 peerConnection?.setLocalDescription(object : MySdpObserver() {
                     override fun onSetSuccess() {
                         super.onSetSuccess()
-                        listener?.onTransferEventToSocket(
-                            DataModel(
-                                type = DataModelType.Offer,
-                                sender = username,
-                                target = target,
-                                data = desc?.description
+                        val dataModel = DataModel(
+                            type = DataModelType.Offer,
+                            sender = username,
+                            target = target,
+                            data = desc?.description
+                        )
+                        onTransferEventToSocket(
+                            dataModel
+                        )
+
+                        onRemoteSessionReceived(
+                            SessionDescription(
+                                SessionDescription.Type.OFFER,
+                                dataModel.data.toString()
                             )
                         )
                     }
@@ -133,24 +148,51 @@ class WebRTCClient @Inject constructor(
     }
 
     fun answer(target: String) {
-        peerConnection?.createAnswer(object : MySdpObserver() {
-            override fun onCreateSuccess(desc: SessionDescription?) {
-                super.onCreateSuccess(desc)
-                peerConnection?.setLocalDescription(object : MySdpObserver() {
-                    override fun onSetSuccess() {
-                        super.onSetSuccess()
-                        listener?.onTransferEventToSocket(
-                            DataModel(
+        try {
+            peerConnection?.createAnswer(object : MySdpObserver() {
+                override fun onCreateSuccess(desc: SessionDescription?) {
+                    super.onCreateSuccess(desc)
+                    peerConnection?.setLocalDescription(object : MySdpObserver() {
+                        override fun onSetSuccess() {
+                            super.onSetSuccess()
+                            val dataModel = DataModel(
                                 type = DataModelType.Answer,
                                 sender = username,
                                 target = target,
                                 data = desc?.description
                             )
-                        )
-                    }
-                }, desc)
-            }
-        }, mediaConstraint)
+                            onRemoteSessionReceived(
+                                SessionDescription(
+                                    SessionDescription.Type.ANSWER,
+                                    dataModel.data.toString()
+                                )
+                            )
+                            // TODO : Update Firebase with the Answer
+                            onTransferEventToSocket(
+                                dataModel
+                            )
+                        }
+                    }, desc)
+                }
+
+                override fun onCreateFailure(p0: String?) {
+                    Log.d("Such a BIG FAIL: ", p0.toString())
+                }
+
+                override fun onSetFailure(p0: String?) {
+                    Log.d("Such a BIG FAIL: ", p0.toString())
+                }
+            }, mediaConstraint)
+
+        } catch (e: Exception) {
+            Log.d("Such a BIG FAIL: ", e.toString())
+        }
+    }
+
+    private fun onTransferEventToSocket(dataModel: DataModel) {
+        scope.launch {
+            sendConnectionUpdateUseCase.invoke(dataModel)
+        }
     }
 
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
@@ -163,7 +205,7 @@ class WebRTCClient @Inject constructor(
 
     fun sendIceCandidate(target: String, iceCandidate: IceCandidate) {
         addIceCandidateToPeer(iceCandidate)
-        listener?.onTransferEventToSocket(
+        onTransferEventToSocket(
             DataModel(
                 type = DataModelType.IceCandidates,
                 sender = username,
@@ -328,8 +370,7 @@ class WebRTCClient @Inject constructor(
         })
     }
 
-
-    interface Listener {
-        fun onTransferEventToSocket(data: DataModel)
+    fun setScope(scope: CoroutineScope) {
+        this.scope = scope
     }
 }
