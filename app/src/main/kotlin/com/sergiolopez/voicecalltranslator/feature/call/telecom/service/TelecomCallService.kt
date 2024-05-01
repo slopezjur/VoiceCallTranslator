@@ -164,6 +164,9 @@ class TelecomCallService : Service() {
             }
 
             is TelecomCall.Registered -> {
+                val callData =
+                    Json.decodeFromString<Call.CallData>(call.callAttributes.address.toString())
+
                 // Update the call state.
                 // For this sample it means start/stop the audio loop
                 if (call.isActive && !call.isOnHold && !call.isMuted && hasMicPermission()) {
@@ -176,12 +179,13 @@ class TelecomCallService : Service() {
                                 dataModelType = DataModelType.Offer,
                                 address = call.callAttributes.address
                             )*/
-                            val callData =
-                                Json.decodeFromString<Call.CallData>(call.callAttributes.address.toString())
+
                             if (callData.isIncoming) {
+                                mainRepository.initLocalSurfaceView()
                                 mainRepository.setTarget(callData.callerId)
                                 mainRepository.startCall()
                             } else {
+                                mainRepository.initLocalSurfaceView()
                                 mainRepository.setTarget(callData.calleeId)
                             }
                         }

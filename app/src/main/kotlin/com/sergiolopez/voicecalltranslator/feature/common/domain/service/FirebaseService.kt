@@ -14,6 +14,7 @@ import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,10 +62,17 @@ class FirebaseService : Service() {
     private fun startService(user: User) {
         if (user is User.UserData) {
             mainRepository.initFirebase(
-                userId = user.id
+                userId = user.id,
+                scope = scope
             )
-            mainRepository.initWebrtcClient(user.id)
+            initWebrtcClient(user)
             manageCall(user)
+        }
+    }
+
+    private fun initWebrtcClient(user: User) {
+        if (user is User.UserData) {
+            mainRepository.initWebrtcClient(user.id)
         }
     }
 
@@ -74,19 +82,30 @@ class FirebaseService : Service() {
                 val result = getConnectionUpdateUseCase.invoke(user.id)
                 if (result.isSuccess) {
                     result.getOrThrow().collect { call ->
-                        if (call.type == DataModelType.StartAudioCall) {
-                            val callData = Call.CallData(
-                                callerId = call.sender ?: "",
-                                calleeId = call.target,
-                                isIncoming = true,
-                                callStatus = CallStatus.INCOMING_CALL,
-                                offerData = call.toString(),
-                                answerData = "",
-                                timestamp = call.timeStamp
-                            )
-                            launchIncomingCall(
-                                call = callData
-                            )
+                        when (call.type) {
+                            DataModelType.StartAudioCall -> {
+                                val callData = Call.CallData(
+                                    callerId = call.sender ?: "",
+                                    calleeId = call.target,
+                                    isIncoming = true,
+                                    callStatus = CallStatus.INCOMING_CALL,
+                                    offerData = call.toString(),
+                                    answerData = "",
+                                    timestamp = call.timeStamp
+                                )
+                                launchIncomingCall(
+                                    call = callData
+                                )
+                            }
+
+                            DataModelType.EndCall -> {
+                                initWebrtcClient(user)
+                                telecomCallManager
+                            }
+
+                            else -> {
+                                // DO NOTHING
+                            }
                         }
                     }
                 }
@@ -94,8 +113,9 @@ class FirebaseService : Service() {
         }
     }
 
-    private fun updateServiceState(user: User) {
-        TODO("Not yet implemented")
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
     }
 
     override fun onBind(p0: Intent?): IBinder? = null

@@ -1,29 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.call.domain
 
-import android.net.Uri
-import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
-import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.AnswerCallUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.IceCandidateSerializer
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.MyPeerObserver
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
-import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import org.webrtc.IceCandidate
-import org.webrtc.MediaStream
-import org.webrtc.PeerConnection
-import org.webrtc.SessionDescription
-import org.webrtc.SurfaceViewRenderer
-import javax.inject.Inject
-import javax.inject.Singleton
-
-@OptIn(DelicateCoroutinesApi::class)
+/*@OptIn(DelicateCoroutinesApi::class)
 @Singleton
 class WebRtcManager @Inject constructor(
     private val webRTCClient: WebRTCClient,
@@ -206,4 +183,4 @@ class WebRtcManager @Inject constructor(
             target = target ?: displayName.toString()
         )
     }*/
-}
+}*/

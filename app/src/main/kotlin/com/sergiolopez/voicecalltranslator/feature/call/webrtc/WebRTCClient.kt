@@ -49,8 +49,7 @@ class WebRTCClient @Inject constructor(
             .createIceServer(),
         /*PeerConnection.IceServer.builder("turn:a.relay.metered.ca:443?transport=tcp")
             .setUsername("83eebabf8b4cce9d5dbcb649")
-            .setPassword("2D7JvfkOQtBdYW3R").createIceServer()
-            */
+            .setPassword("2D7JvfkOQtBdYW3R").createIceServer()*/
     )
     private val localVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
     private val localAudioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints()) }
@@ -114,6 +113,7 @@ class WebRTCClient @Inject constructor(
     }
 
     private fun createPeerConnection(observer: PeerConnection.Observer): PeerConnection? {
+        Log.d("VCT_LOGS createPeerConnection", iceServer.toString())
         return peerConnectionFactory.createPeerConnection(iceServer, observer)
     }
 
@@ -134,13 +134,14 @@ class WebRTCClient @Inject constructor(
                         onTransferEventToSocket(
                             dataModel
                         )
+                        Log.d("VCT_LOGS call", dataModel.toString())
 
-                        onRemoteSessionReceived(
+                        /*onRemoteSessionReceived(
                             SessionDescription(
                                 SessionDescription.Type.OFFER,
                                 dataModel.data.toString()
                             )
-                        )
+                        )*/
                     }
                 }, desc)
             }
@@ -161,16 +162,17 @@ class WebRTCClient @Inject constructor(
                                 target = target,
                                 data = desc?.description
                             )
-                            onRemoteSessionReceived(
+                            /*onRemoteSessionReceived(
                                 SessionDescription(
                                     SessionDescription.Type.ANSWER,
                                     dataModel.data.toString()
                                 )
-                            )
+                            )*/
                             // TODO : Update Firebase with the Answer
                             onTransferEventToSocket(
                                 dataModel
                             )
+                            Log.d("VCT_LOGS answer", dataModel.toString())
                         }
                     }, desc)
                 }
@@ -205,14 +207,16 @@ class WebRTCClient @Inject constructor(
 
     fun sendIceCandidate(target: String, iceCandidate: IceCandidate) {
         addIceCandidateToPeer(iceCandidate)
-        onTransferEventToSocket(
-            DataModel(
-                type = DataModelType.IceCandidates,
-                sender = username,
-                target = target,
-                data = Json.encodeToString(IceCandidateSerializer, iceCandidate)
-            )
+        val dataModel = DataModel(
+            type = DataModelType.IceCandidates,
+            sender = username,
+            target = target,
+            data = Json.encodeToString(IceCandidateSerializer, iceCandidate)
         )
+        onTransferEventToSocket(
+            dataModel
+        )
+        Log.d("VCT_LOGS sendIceCandidate", dataModel.toString())
     }
 
     fun closeConnection() {
@@ -264,18 +268,14 @@ class WebRTCClient @Inject constructor(
         initSurfaceView(view)
     }
 
-    fun initLocalSurfaceView(localView: SurfaceViewRenderer, isVideoCall: Boolean) {
-        this.localSurfaceView = localView
-        initSurfaceView(localView)
-        startLocalStreaming(localView, isVideoCall)
+    fun initLocalSurfaceView() {
+        //this.localSurfaceView = localView
+        //initSurfaceView(localView)
+        startLocalStreaming()
     }
 
-    private fun startLocalStreaming(localView: SurfaceViewRenderer, isVideoCall: Boolean) {
+    private fun startLocalStreaming() {
         localStream = peerConnectionFactory.createLocalMediaStream(localStreamId)
-        if (isVideoCall) {
-            startCapturingCamera(localView)
-        }
-
         localAudioTrack =
             peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)
         localStream?.addTrack(localAudioTrack)

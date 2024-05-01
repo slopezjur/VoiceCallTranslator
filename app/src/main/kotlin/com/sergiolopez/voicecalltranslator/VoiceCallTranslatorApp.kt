@@ -24,13 +24,17 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.navigation.NavigationState
 
 @Composable
-fun VoiceCallTranslatorApp() {
+fun VoiceCallTranslatorApp(callFromNotification: Boolean) {
     val navigationState = rememberNavigationState()
 
     Scaffold { innerPaddingModifier ->
         NavHost(
             navController = navigationState.navController,
-            startDestination = NavigationRoute.SPLASH.navigationName,
+            startDestination = if (callFromNotification) {
+                NavigationRoute.CALL.navigationName
+            } else {
+                NavigationRoute.SPLASH.navigationName
+            },
             modifier = Modifier.padding(innerPaddingModifier)
         ) {
             notesGraph(

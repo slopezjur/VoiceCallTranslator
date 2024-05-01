@@ -5,7 +5,6 @@ import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
@@ -25,34 +24,29 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
     lateinit var saveUserUseCase: SaveUserUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (savedInstanceState == null) {
-            //val bundle = Bundle().apply { putBoolean(APP_ALREADY_RUNNING, true) }
+        super.onCreate(savedInstanceState)
 
-            setupCallActivity()
+        setupCallActivity()
 
-            intent.extras?.let {
-                if (it.getBoolean(CALL_FROM_NOTIFICATION)) {
-                    Log.d("", "")
-                }
+        var callFromNotification = false
+
+        intent.extras?.let {
+            if (it.getBoolean(CALL_FROM_NOTIFICATION)) {
+                callFromNotification = true
             }
+        }
 
-            setContent {
-                VoiceCallTranslatorTheme {
-                    Surface {
-                        PermissionBox(permissions = setUpPermissions()) {
-                            VoiceCallTranslatorApp()
-                        }
+        setContent {
+            VoiceCallTranslatorTheme {
+                Surface {
+                    PermissionBox(permissions = setUpPermissions()) {
+                        VoiceCallTranslatorApp(
+                            callFromNotification = callFromNotification
+                        )
                     }
                 }
             }
         }
-
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onPause() {
-        super.onSaveInstanceState(Bundle().apply { putBoolean(APP_ALREADY_RUNNING, true) })
-        super.onPause()
     }
 
     private fun setupCallActivity() {

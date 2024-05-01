@@ -1,6 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge
 
 import android.content.Intent
+import android.util.Log
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.ClearCallUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
@@ -8,8 +9,6 @@ import com.sergiolopez.voicecalltranslator.feature.call.webrtc.IceCandidateSeria
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.MyPeerObserver
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.webrtc.IceCandidate
@@ -27,8 +26,7 @@ class MainRepository @Inject constructor(
     private val getConnectionUpdateUseCase: GetConnectionUpdateUseCase,
     private val clearCallUseCase: ClearCallUseCase
 ) {
-
-    private var target: String? = null
+    private lateinit var target: String
     private var remoteView: SurfaceViewRenderer? = null
 
     private lateinit var scope: CoroutineScope
@@ -41,9 +39,10 @@ class MainRepository @Inject constructor(
         //firebaseClient.observeUsersStatus(status)
     }
 
-    fun initFirebase(userId: String) {
-        scope = CoroutineScope(SupervisorJob())
-        scope.launch {
+    fun initFirebase(userId: String, scope: CoroutineScope) {
+        this.target = userId
+        this.scope = scope
+        this.scope.launch {
             val result = getConnectionUpdateUseCase.invoke(userId)
             if (result.isSuccess) {
                 result.getOrThrow().collect { event ->
@@ -56,7 +55,7 @@ class MainRepository @Inject constructor(
                                     event.data.toString()
                                 )
                             )
-                            webRTCClient.answer(target!!)
+                            webRTCClient.answer(target)
                         }
 
                         DataModelType.Answer -> {
@@ -81,7 +80,7 @@ class MainRepository @Inject constructor(
                         }
 
                         DataModelType.EndCall -> {
-                            endCall(event.target)
+                            endCall(target)
                         }
 
                         else -> Unit
@@ -120,6 +119,7 @@ class MainRepository @Inject constructor(
 
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
+                Log.d("VCT_LOGS onAddStream", p0.toString())
                 try {
                     p0?.videoTracks?.get(0)?.addSink(remoteView)
                 } catch (e: Exception) {
@@ -130,25 +130,28 @@ class MainRepository @Inject constructor(
 
             override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
+                Log.d("VCT_LOGS onIceCandidate", p0.toString())
                 p0?.let {
-                    webRTCClient.sendIceCandidate(target!!, it)
+                    webRTCClient.sendIceCandidate(target, it)
                 }
             }
 
             override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
                 super.onConnectionChange(newState)
+                Log.d("VCT_LOGS onConnectionChange", newState.toString())
                 if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
                     // 1. change my status to in call
                     //changeMyStatus(UserStatus.IN_CALL)
                     // 2. clear latest event inside my user section in firebase database
                     //onTransferEventToSocket()
+                    Log.d("LET'S GOO!", "LET'S GOO!")
                 }
             }
         })
     }
 
-    fun initLocalSurfaceView(view: SurfaceViewRenderer, isVideoCall: Boolean) {
-        webRTCClient.initLocalSurfaceView(view, isVideoCall)
+    fun initLocalSurfaceView() {
+        webRTCClient.initLocalSurfaceView()
     }
 
     fun initRemoteSurfaceView(view: SurfaceViewRenderer) {
@@ -157,23 +160,23 @@ class MainRepository @Inject constructor(
     }
 
     fun startCall() {
-        webRTCClient.call(target!!)
+        webRTCClient.call(target)
     }
 
-    fun endCall(userId: String) {
+    private fun endCall(target: String) {
         webRTCClient.closeConnection()
-        clearCall(userId = userId)
+        clearCall(userId = target)
         //changeMyStatus(UserStatus.ONLINE)
-        scope.cancel()
     }
 
-    suspend fun sendEndCall() {
+    fun sendEndCall(target: String) {
         onTransferEventToSocket(
             DataModel(
                 type = DataModelType.EndCall,
-                target = target!!
+                target = target
             )
         )
+        endCall(target)
     }
 
     /*private fun changeMyStatus(status: UserStatus) {

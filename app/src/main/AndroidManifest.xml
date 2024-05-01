@@ -24,6 +24,7 @@
         android:turnScreenOn="true">
         <activity
             android:name=".VoiceCallTranslatorActivity"
+            android:screenOrientation="portrait"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

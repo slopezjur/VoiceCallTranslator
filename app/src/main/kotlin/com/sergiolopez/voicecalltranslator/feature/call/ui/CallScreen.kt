@@ -44,24 +44,26 @@ fun CallScreen(
     when (callUiState) {
         CallViewModel.CallUiState.STARTING -> {
             //callViewModel.startCall(calleeId)
-            callViewModel.sendConnectionRequest(
-                calleeId = calleeId
-            )
-            context.startNewCall(
-                call = Call.CallData(
-                    callerId = "",
-                    calleeId = calleeId,
-                    offerData = null,
-                    answerData = null,
-                    isIncoming = false,
-                    callStatus = CallStatus.CALLING,
-                    timestamp = Instant.now().epochSecond
+            if (calleeId != "-1") {
+                callViewModel.sendConnectionRequest(
+                    calleeId = calleeId
                 )
-                /*DataModel(
+                context.startNewCall(
+                    call = Call.CallData(
+                        callerId = "",
+                        calleeId = calleeId,
+                        offerData = null,
+                        answerData = null,
+                        isIncoming = false,
+                        callStatus = CallStatus.CALLING,
+                        timestamp = Instant.now().epochSecond
+                    )
+                    /*DataModel(
                     sender = calleeId,
                     type = DataModelType.Offer
                 )*/
-            )
+                )
+            }
             callViewModel.setCallUiState(CallViewModel.CallUiState.CALLING)
         }
 
@@ -76,7 +78,7 @@ fun CallScreen(
                     TelecomCallScreen(
                         telecomCall = telecomCall,
                         onCallFinished = {
-                            callViewModel.endCall()
+                            callViewModel.sendEndCall(calleeId)
                             openAndPopUp.invoke(
                                 NavigationParams(
                                     NavigationRoute.CONTACT_LIST.navigationName,

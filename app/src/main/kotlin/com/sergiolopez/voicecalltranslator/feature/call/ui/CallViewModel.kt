@@ -1,5 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
+import android.telecom.DisconnectCause
 import androidx.lifecycle.viewModelScope
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
@@ -36,6 +37,17 @@ class CallViewModel @Inject constructor(
     val callState: StateFlow<Call>
         get() = _callState.asStateFlow()
 
+    private fun endCallAndUnregister(): () -> Unit = {
+        val telecomCall = _telecomCallState.value
+        if (telecomCall is TelecomCall.Registered) {
+            _telecomCallState.value = TelecomCall.Unregistered(
+                id = telecomCall.id,
+                callAttributes = telecomCall.callAttributes,
+                disconnectCause = DisconnectCause(DisconnectCause.CANCELED)
+            )
+        }
+    }
+
     suspend fun subscribeTelecomCallState() {
         getTelecomCallUseCase.invoke().collect {
             _telecomCallState.value = it
@@ -58,14 +70,8 @@ class CallViewModel @Inject constructor(
         }
     }
 
-    fun endCall() {
-        launchCatching {
-            firebaseAuthService.currentUser.collect { user ->
-                if (user is User.UserData) {
-                    mainRepository.endCall(user.id)
-                }
-            }
-        }
+    fun sendEndCall(calleeId: String) {
+        mainRepository.sendEndCall(calleeId)
     }
 
 
