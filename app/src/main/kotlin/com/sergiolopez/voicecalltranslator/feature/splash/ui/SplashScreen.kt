@@ -14,19 +14,32 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
+import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 import kotlinx.coroutines.delay
 
-private const val SPLASH_TIMEOUT = 1000L
+private const val SPLASH_TIMEOUT = 500L
 
 @Composable
 fun SplashScreen(
     openAndPopUp: (NavigationParams) -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel()
+) {
+    SplashScreenContent()
+
+    LaunchedEffect(true) {
+        delay(SPLASH_TIMEOUT)
+        viewModel.onAppStart(openAndPopUp)
+    }
+}
+
+@Composable
+private fun SplashScreenContent(
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -43,9 +56,14 @@ fun SplashScreen(
             color = MaterialTheme.colorScheme.primary
         )
     }
+}
 
-    LaunchedEffect(true) {
-        delay(SPLASH_TIMEOUT)
-        viewModel.onAppStart(openAndPopUp)
+@PreviewLightDark
+@Composable
+fun SignUpScreenPreview() {
+    VoiceCallTranslatorPreview {
+        SplashScreenContent(
+            modifier = Modifier
+        )
     }
 }

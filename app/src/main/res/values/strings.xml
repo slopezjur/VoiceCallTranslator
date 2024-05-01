@@ -8,4 +8,15 @@
     <string name="sign_up">Sign Up</string>
     <string name="call_dialog_title">Call %1$s?</string>
     <string name="call_dialog_subtitle">The call will start immediately.</string>
+    <string name="voice_settings">Voice settings</string>
+    <string name="account_settings">Account settings</string>
+    <string name="synthetic_voice">Synthetic voice</string>
+    <string name="none">None</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="use_synthetic_voice">Use synthetic voice</string>
+    <string name="voice_training">Voice training</string>
+    <string name="start">Start</string>
+    <string name="restart">Restart</string>
+    <string name="use_trained_voice">Use trained voice</string>
 </resources>

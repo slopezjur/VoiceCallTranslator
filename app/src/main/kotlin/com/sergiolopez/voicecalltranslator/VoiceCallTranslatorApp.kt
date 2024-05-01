@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.sergiolopez.voicecalltranslator.feature.call.ui.CallScreen
 import com.sergiolopez.voicecalltranslator.feature.contactlist.ui.ContactListScreen
 import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
+import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.VoiceSettingsScreen
 import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
 import com.sergiolopez.voicecalltranslator.feature.splash.ui.SplashScreen
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
@@ -104,6 +105,16 @@ fun NavGraphBuilder.notesGraph(
                 )
             },
             calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID
+        )
+    }
+
+    composable(NavigationAction.VoiceSettingsNavigation.route) {
+        VoiceSettingsScreen(
+            openAndPopUp = { navigationParams ->
+                navigationState.navigate(
+                    route = navigationParams.route
+                )
+            }
         )
     }
 }
