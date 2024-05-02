@@ -1,6 +1,5 @@
 package com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge
 
-import android.content.Intent
 import android.util.Log
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.ClearCallUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnectionUpdateUseCase
@@ -15,7 +14,6 @@ import org.webrtc.IceCandidate
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
-import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,17 +25,8 @@ class MainRepository @Inject constructor(
     private val clearCallUseCase: ClearCallUseCase
 ) {
     private lateinit var target: String
-    private var remoteView: SurfaceViewRenderer? = null
 
     private lateinit var scope: CoroutineScope
-
-    fun login(username: String, password: String, isDone: (Boolean, String?) -> Unit) {
-        //firebaseClient.login(username, password, isDone)
-    }
-
-    fun observeUsersStatus(status: (List<Pair<String, String>>) -> Unit) {
-        //firebaseClient.observeUsersStatus(status)
-    }
 
     fun initFirebase(userId: String, scope: CoroutineScope) {
         this.target = userId
@@ -120,12 +109,6 @@ class MainRepository @Inject constructor(
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
                 Log.d("VCT_LOGS onAddStream", p0.toString())
-                try {
-                    p0?.videoTracks?.get(0)?.addSink(remoteView)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
             }
 
             override fun onIceCandidate(p0: IceCandidate?) {
@@ -154,11 +137,6 @@ class MainRepository @Inject constructor(
         webRTCClient.initLocalSurfaceView()
     }
 
-    fun initRemoteSurfaceView(view: SurfaceViewRenderer) {
-        webRTCClient.initRemoteSurfaceView(view)
-        this.remoteView = view
-    }
-
     fun startCall() {
         webRTCClient.call(target)
     }
@@ -166,7 +144,6 @@ class MainRepository @Inject constructor(
     private fun endCall(target: String) {
         webRTCClient.closeConnection()
         clearCall(userId = target)
-        //changeMyStatus(UserStatus.ONLINE)
     }
 
     fun sendEndCall(target: String) {
@@ -179,20 +156,8 @@ class MainRepository @Inject constructor(
         endCall(target)
     }
 
-    /*private fun changeMyStatus(status: UserStatus) {
-        firebaseClient.changeMyStatus(status)
-    }*/
-
     fun toggleAudio(shouldBeMuted: Boolean) {
         webRTCClient.toggleAudio(shouldBeMuted)
-    }
-
-    fun toggleVideo(shouldBeMuted: Boolean) {
-        webRTCClient.toggleVideo(shouldBeMuted)
-    }
-
-    fun switchCamera() {
-        webRTCClient.switchCamera()
     }
 
     private fun onTransferEventToSocket(data: DataModel) {
@@ -204,18 +169,6 @@ class MainRepository @Inject constructor(
     private fun clearCall(userId: String) {
         scope.launch {
             clearCallUseCase.invoke(userId)
-        }
-    }
-
-    fun setScreenCaptureIntent(screenPermissionIntent: Intent) {
-        webRTCClient.setPermissionIntent(screenPermissionIntent)
-    }
-
-    fun toggleScreenShare(isStarting: Boolean) {
-        if (isStarting) {
-            webRTCClient.startScreenCapturing()
-        } else {
-            webRTCClient.stopScreenCapturing()
         }
     }
 }

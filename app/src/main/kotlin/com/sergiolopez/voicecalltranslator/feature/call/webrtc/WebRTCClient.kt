@@ -1,11 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.webrtc
 
 import android.content.Context
-import android.content.Intent
-import android.media.projection.MediaProjection
-import android.util.DisplayMetrics
 import android.util.Log
-import android.view.WindowManager
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
@@ -23,12 +19,7 @@ import org.webrtc.MediaConstraints
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
-import org.webrtc.ScreenCapturerAndroid
 import org.webrtc.SessionDescription
-import org.webrtc.SurfaceTextureHelper
-import org.webrtc.SurfaceViewRenderer
-import org.webrtc.VideoCapturer
-import org.webrtc.VideoTrack
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -50,33 +41,19 @@ class WebRTCClient @Inject constructor(
         PeerConnection.IceServer.builder("stun:stun.relay.metered.ca:80")
             .createIceServer()
     )
-    private val localVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
     private val localAudioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints()) }
-    private val videoCapturer = getVideoCapturer(context)
-    private var surfaceTextureHelper: SurfaceTextureHelper? = null
     private val mediaConstraint = MediaConstraints().apply {
-        mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
         mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
     }
 
     //call variables
-    private lateinit var localSurfaceView: SurfaceViewRenderer
-    private lateinit var remoteSurfaceView: SurfaceViewRenderer
     private var localStream: MediaStream? = null
     private var localTrackId = ""
     private var localStreamId = ""
     private var localAudioTrack: AudioTrack? = null
-    private var localVideoTrack: VideoTrack? = null
-
-    //screen casting
-    private var permissionIntent: Intent? = null
-    private var screenCapturer: VideoCapturer? = null
-    private val localScreenVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
-    private var localScreenShareVideoTrack: VideoTrack? = null
 
     private lateinit var scope: CoroutineScope
 
-    //installing requirements section
     init {
         initPeerConnectionFactory()
     }
@@ -220,17 +197,11 @@ class WebRTCClient @Inject constructor(
 
     fun closeConnection() {
         try {
-            videoCapturer.dispose()
-            screenCapturer?.dispose()
             localStream?.dispose()
             peerConnection?.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
-
-    fun switchCamera() {
-        videoCapturer.switchCamera(null)
     }
 
     fun toggleAudio(shouldBeMuted: Boolean) {
@@ -239,32 +210,6 @@ class WebRTCClient @Inject constructor(
         } else {
             localStream?.addTrack(localAudioTrack)
         }
-    }
-
-    fun toggleVideo(shouldBeMuted: Boolean) {
-        try {
-            if (shouldBeMuted) {
-                stopCapturingCamera()
-            } else {
-                startCapturingCamera(localSurfaceView)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    //streaming section
-    private fun initSurfaceView(view: SurfaceViewRenderer) {
-        view.run {
-            setMirror(false)
-            setEnableHardwareScaler(true)
-            init(eglBaseContext, null)
-        }
-    }
-
-    fun initRemoteSurfaceView(view: SurfaceViewRenderer) {
-        this.remoteSurfaceView = view
-        initSurfaceView(view)
     }
 
     fun initLocalSurfaceView() {
@@ -281,25 +226,6 @@ class WebRTCClient @Inject constructor(
         peerConnection?.addStream(localStream)
     }
 
-    private fun startCapturingCamera(localView: SurfaceViewRenderer) {
-        surfaceTextureHelper = SurfaceTextureHelper.create(
-            Thread.currentThread().name, eglBaseContext
-        )
-
-        videoCapturer.initialize(
-            surfaceTextureHelper, context, localVideoSource.capturerObserver
-        )
-
-        videoCapturer.startCapture(
-            720, 480, 20
-        )
-
-        localVideoTrack =
-            peerConnectionFactory.createVideoTrack(localTrackId + "_video", localVideoSource)
-        localVideoTrack?.addSink(localView)
-        localStream?.addTrack(localVideoTrack)
-    }
-
     private fun getVideoCapturer(context: Context): CameraVideoCapturer =
         Camera2Enumerator(context).run {
             deviceNames.find {
@@ -308,66 +234,6 @@ class WebRTCClient @Inject constructor(
                 createCapturer(it, null)
             } ?: throw IllegalStateException()
         }
-
-    private fun stopCapturingCamera() {
-
-        videoCapturer.dispose()
-        localVideoTrack?.removeSink(localSurfaceView)
-        localSurfaceView.clearImage()
-        localStream?.removeTrack(localVideoTrack)
-        localVideoTrack?.dispose()
-    }
-
-    //screen capture section
-
-    fun setPermissionIntent(screenPermissionIntent: Intent) {
-        this.permissionIntent = screenPermissionIntent
-    }
-
-    fun startScreenCapturing() {
-        val displayMetrics = DisplayMetrics()
-        val windowsManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        windowsManager.defaultDisplay.getMetrics(displayMetrics)
-
-        val screenWidthPixels = displayMetrics.widthPixels
-        val screenHeightPixels = displayMetrics.heightPixels
-
-        val surfaceTextureHelper = SurfaceTextureHelper.create(
-            Thread.currentThread().name, eglBaseContext
-        )
-
-        screenCapturer = createScreenCapturer()
-        screenCapturer!!.initialize(
-            surfaceTextureHelper, context, localScreenVideoSource.capturerObserver
-        )
-        screenCapturer!!.startCapture(screenWidthPixels, screenHeightPixels, 15)
-
-        localScreenShareVideoTrack =
-            peerConnectionFactory.createVideoTrack(localTrackId + "_video", localScreenVideoSource)
-        localScreenShareVideoTrack?.addSink(localSurfaceView)
-        localStream?.addTrack(localScreenShareVideoTrack)
-        peerConnection?.addStream(localStream)
-
-    }
-
-    fun stopScreenCapturing() {
-        screenCapturer?.stopCapture()
-        screenCapturer?.dispose()
-        localScreenShareVideoTrack?.removeSink(localSurfaceView)
-        localSurfaceView.clearImage()
-        localStream?.removeTrack(localScreenShareVideoTrack)
-        localScreenShareVideoTrack?.dispose()
-
-    }
-
-    private fun createScreenCapturer(): VideoCapturer {
-        return ScreenCapturerAndroid(permissionIntent, object : MediaProjection.Callback() {
-            override fun onStop() {
-                super.onStop()
-                Log.d("permissions", "onStop: permission of screen casting is stopped")
-            }
-        })
-    }
 
     fun setScope(scope: CoroutineScope) {
         this.scope = scope
