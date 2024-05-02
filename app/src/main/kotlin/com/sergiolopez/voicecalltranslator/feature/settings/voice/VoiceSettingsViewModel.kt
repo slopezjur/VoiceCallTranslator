@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.voice
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
-import com.sergiolopez.voicecalltranslator.datastore.VoiceSettingsDataStore
+import com.sergiolopez.voicecalltranslator.feature.common.datastore.VoiceSettingsDataStore
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.VoiceSettingsData
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.SyntheticVoiceOption

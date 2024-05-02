@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.datastore
+package com.sergiolopez.voicecalltranslator.feature.common.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
