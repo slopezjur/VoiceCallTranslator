@@ -92,7 +92,7 @@ internal fun TelecomCallScreen(
         is TelecomCall.Unregistered, TelecomCall.None -> {
             // If there is no call invoke finish after a small delay
             LaunchedEffect(Unit) {
-                delay(1500)
+                delay(500)
                 onCallFinished()
             }
             // Show call ended when there is no active call

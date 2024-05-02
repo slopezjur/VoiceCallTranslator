@@ -169,29 +169,37 @@ class TelecomCallService : Service() {
 
                 // Update the call state.
                 // For this sample it means start/stop the audio loop
-                if (call.isActive && !call.isOnHold && !call.isMuted && hasMicPermission()) {
-                    if (audioJob == null || audioJob?.isActive == false) {
-                        audioJob = scope.launch {
-                            //AudioLoopSource.openAudioLoop()
-                            Log.d("INCOMING CALL: ", call.callAttributes.address.toString())
-                            //webRtcManager.answer(call.callAttributes.address)
-                            /*webRtcManager.managerWebRtc(
-                                dataModelType = DataModelType.Offer,
-                                address = call.callAttributes.address
-                            )*/
-
-                            if (callData.isIncoming) {
-                                mainRepository.initLocalSurfaceView()
-                                mainRepository.setTarget(callData.callerId)
-                                mainRepository.startCall()
-                            } else {
-                                mainRepository.initLocalSurfaceView()
-                                mainRepository.setTarget(callData.calleeId)
+                when {
+                    call.isActive && !call.isOnHold && hasMicPermission() -> {
+                        if (audioJob == null || audioJob?.isActive == false) {
+                            audioJob = scope.launch {
+                                //AudioLoopSource.openAudioLoop()
+                                Log.d("INCOMING CALL: ", call.callAttributes.address.toString())
+                                //webRtcManager.answer(call.callAttributes.address)
+                                /*webRtcManager.managerWebRtc(
+                                            dataModelType = DataModelType.Offer,
+                                            address = call.callAttributes.address
+                                        )*/
                             }
                         }
+
+                        if (callData.isIncoming) {
+                            mainRepository.initLocalSurfaceView()
+                            mainRepository.setTarget(callData.callerId)
+                            mainRepository.startCall()
+                        } else {
+                            mainRepository.initLocalSurfaceView()
+                            mainRepository.setTarget(callData.calleeId)
+                        }
+
+                        mainRepository.toggleAudio(
+                            shouldBeMuted = call.isMuted
+                        )
                     }
-                } else {
-                    audioJob?.cancel()
+
+                    else -> {
+                        audioJob?.cancel()
+                    }
                 }
             }
 

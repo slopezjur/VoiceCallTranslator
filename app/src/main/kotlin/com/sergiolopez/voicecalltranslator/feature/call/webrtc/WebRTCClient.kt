@@ -9,19 +9,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.webrtc.AudioTrack
-import org.webrtc.Camera2Enumerator
-import org.webrtc.CameraVideoCapturer
-import org.webrtc.DefaultVideoDecoderFactory
-import org.webrtc.DefaultVideoEncoderFactory
-import org.webrtc.EglBase
 import org.webrtc.IceCandidate
 import org.webrtc.MediaConstraints
-import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
+import org.webrtc.RtpSender
 import org.webrtc.SessionDescription
 import javax.inject.Inject
 import javax.inject.Singleton
+
 
 @Singleton
 class WebRTCClient @Inject constructor(
@@ -32,7 +28,6 @@ class WebRTCClient @Inject constructor(
     private lateinit var username: String
 
     //webrtc variables
-    private val eglBaseContext = EglBase.create().eglBaseContext
     private val peerConnectionFactory by lazy { createPeerConnectionFactory() }
     private var peerConnection: PeerConnection? = null
     private val iceServer = listOf(
@@ -47,10 +42,9 @@ class WebRTCClient @Inject constructor(
     }
 
     //call variables
-    private var localStream: MediaStream? = null
     private var localTrackId = ""
-    private var localStreamId = ""
     private var localAudioTrack: AudioTrack? = null
+    private var rtpSenderTrack: RtpSender? = null
 
     private lateinit var scope: CoroutineScope
 
@@ -65,15 +59,23 @@ class WebRTCClient @Inject constructor(
         PeerConnectionFactory.initialize(options)
     }
 
+    /*private fun createPeerConnectionFactory(): PeerConnectionFactory {
+        val adm = JavaAudioDeviceModule.builder(context)
+            .setAudioSource(MediaRecorder.AudioSource.MIC) //Or MediaRecorder.AudioSource.REMOTE_SUBMIX
+            .createAudioDeviceModule()
+
+        return PeerConnectionFactory.builder().apply {
+
+            setAudioDeviceModule(adm)
+        }.setOptions(PeerConnectionFactory.Options().apply {
+            disableNetworkMonitor = false
+            disableEncryption = false
+        }).createPeerConnectionFactory()
+    }*/
+
     private fun createPeerConnectionFactory(): PeerConnectionFactory {
         return PeerConnectionFactory.builder()
-            .setVideoDecoderFactory(
-                DefaultVideoDecoderFactory(eglBaseContext)
-            ).setVideoEncoderFactory(
-                DefaultVideoEncoderFactory(
-                    eglBaseContext, true, true
-                )
-            ).setOptions(PeerConnectionFactory.Options().apply {
+            .setOptions(PeerConnectionFactory.Options().apply {
                 disableNetworkMonitor = false
                 disableEncryption = false
             }).createPeerConnectionFactory()
@@ -84,7 +86,6 @@ class WebRTCClient @Inject constructor(
     ) {
         this.username = username
         localTrackId = "${username}_track"
-        localStreamId = "${username}_stream"
         peerConnection = createPeerConnection(observer)
     }
 
@@ -197,18 +198,24 @@ class WebRTCClient @Inject constructor(
 
     fun closeConnection() {
         try {
-            localStream?.dispose()
             peerConnection?.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
+    // TODO : This is not working. Maybe downgrading library version and using old method?
     fun toggleAudio(shouldBeMuted: Boolean) {
         if (shouldBeMuted) {
-            localStream?.removeTrack(localAudioTrack)
+            rtpSenderTrack?.let {
+                peerConnection?.removeTrack(rtpSenderTrack)
+            }
         } else {
-            localStream?.addTrack(localAudioTrack)
+            localAudioTrack?.let {
+                if (peerConnection?.senders?.size == 0) {
+                    rtpSenderTrack = peerConnection?.addTrack(localAudioTrack)
+                }
+            }
         }
     }
 
@@ -219,21 +226,10 @@ class WebRTCClient @Inject constructor(
     }
 
     private fun startLocalStreaming() {
-        localStream = peerConnectionFactory.createLocalMediaStream(localStreamId)
         localAudioTrack =
             peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)
-        localStream?.addTrack(localAudioTrack)
-        peerConnection?.addStream(localStream)
+        rtpSenderTrack = peerConnection?.addTrack(localAudioTrack)
     }
-
-    private fun getVideoCapturer(context: Context): CameraVideoCapturer =
-        Camera2Enumerator(context).run {
-            deviceNames.find {
-                isFrontFacing(it)
-            }?.let {
-                createCapturer(it, null)
-            } ?: throw IllegalStateException()
-        }
 
     fun setScope(scope: CoroutineScope) {
         this.scope = scope
