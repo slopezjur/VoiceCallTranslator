@@ -20,7 +20,8 @@ import com.sergiolopez.voicecalltranslator.R
 internal fun SyntheticVoiceView(
     dropDownExpanded: Boolean,
     syntheticVoiceOption: SyntheticVoiceOption,
-    setSyntheticVoice: (SyntheticVoiceOption) -> Unit
+    setSyntheticVoice: (SyntheticVoiceOption) -> Unit,
+    useTrainedVoice: Boolean
 ) {
     Text(
         text = stringResource(id = R.string.synthetic_voice),
@@ -29,7 +30,8 @@ internal fun SyntheticVoiceView(
     DropDownMenuView(
         dropDownExpanded = dropDownExpanded,
         syntheticVoiceOption = syntheticVoiceOption,
-        setUseSyntheticVoice = setSyntheticVoice
+        setUseSyntheticVoice = setSyntheticVoice,
+        useTrainedVoice = useTrainedVoice
     )
 }
 
@@ -38,7 +40,8 @@ internal fun SyntheticVoiceView(
 private fun DropDownMenuView(
     dropDownExpanded: Boolean,
     syntheticVoiceOption: SyntheticVoiceOption,
-    setUseSyntheticVoice: (SyntheticVoiceOption) -> Unit
+    setUseSyntheticVoice: (SyntheticVoiceOption) -> Unit,
+    useTrainedVoice: Boolean
 ) {
     var expanded by remember { mutableStateOf(dropDownExpanded) }
     val defaultDropDownMenu = stringResource(id = syntheticVoiceOption.nameValue)
@@ -46,14 +49,15 @@ private fun DropDownMenuView(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = { expanded = it && !useTrainedVoice },
     ) {
         TextField(
             modifier = Modifier.menuAnchor(),
             readOnly = true,
             value = selectedOptionText,
             onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            enabled = !useTrainedVoice
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -73,6 +77,7 @@ private fun DropDownMenuView(
                         )
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    enabled = !useTrainedVoice
                 )
             }
         }

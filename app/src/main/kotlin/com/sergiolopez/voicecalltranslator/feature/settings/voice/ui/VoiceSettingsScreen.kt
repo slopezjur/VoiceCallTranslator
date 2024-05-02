@@ -70,7 +70,8 @@ private fun VoiceSettingsScreenContent(
         SyntheticVoiceView(
             dropDownExpanded = dropDownExpanded,
             syntheticVoiceOption = voiceSettingsData.syntheticVoiceOption,
-            setSyntheticVoice = setSyntheticVoice
+            setSyntheticVoice = setSyntheticVoice,
+            useTrainedVoice = voiceSettingsData.useTrainedVoice
         )
         Spacer(modifier = modifier.size(16.dp))
         VoiceTrainingView(
