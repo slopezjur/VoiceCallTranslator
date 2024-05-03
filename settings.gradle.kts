@@ -18,7 +18,7 @@ dependencyResolutionManagement {
         mavenCentral()
 
         // WebRTC support
-        jcenter()
+        //jcenter()
     }
 }
 

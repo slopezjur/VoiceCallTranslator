@@ -2,6 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.call.webrtc
 
 import android.content.Context
 import android.util.Log
+import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioProcessor
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
@@ -15,6 +16,7 @@ import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.RtpSender
 import org.webrtc.SessionDescription
+import org.webrtc.audio.JavaAudioDeviceModule
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,7 +24,8 @@ import javax.inject.Singleton
 @Singleton
 class WebRTCClient @Inject constructor(
     private val context: Context,
-    private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase
+    private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
+    private val audioProcessor: AudioProcessor
 ) {
     //class variables
     private lateinit var username: String
@@ -59,27 +62,26 @@ class WebRTCClient @Inject constructor(
         PeerConnectionFactory.initialize(options)
     }
 
-    /*private fun createPeerConnectionFactory(): PeerConnectionFactory {
+    private fun createPeerConnectionFactory(): PeerConnectionFactory {
         val adm = JavaAudioDeviceModule.builder(context)
-            .setAudioSource(MediaRecorder.AudioSource.MIC) //Or MediaRecorder.AudioSource.REMOTE_SUBMIX
+            .setAudioRecordDataCallback(audioProcessor)
             .createAudioDeviceModule()
-
         return PeerConnectionFactory.builder().apply {
-
             setAudioDeviceModule(adm)
         }.setOptions(PeerConnectionFactory.Options().apply {
             disableNetworkMonitor = false
             disableEncryption = false
         }).createPeerConnectionFactory()
-    }*/
+    }
 
-    private fun createPeerConnectionFactory(): PeerConnectionFactory {
+    /*private fun createPeerConnectionFactory(): PeerConnectionFactory {
         return PeerConnectionFactory.builder()
             .setOptions(PeerConnectionFactory.Options().apply {
                 disableNetworkMonitor = false
                 disableEncryption = false
+
             }).createPeerConnectionFactory()
-    }
+    }*/
 
     fun initializeWebrtcClient(
         username: String, observer: PeerConnection.Observer
@@ -198,6 +200,10 @@ class WebRTCClient @Inject constructor(
 
     fun closeConnection() {
         try {
+            // TODO : It does not stop the communication...
+            rtpSenderTrack?.let {
+                peerConnection?.removeTrack(rtpSenderTrack)
+            }
             peerConnection?.close()
         } catch (e: Exception) {
             e.printStackTrace()
