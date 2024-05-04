@@ -24,6 +24,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.content.PermissionChecker
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCallAction
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.TelecomCallNotificationManager
@@ -31,7 +32,6 @@ import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.Telec
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -70,6 +70,8 @@ class TelecomCallService : Service() {
 
     companion object {
         internal const val EXTRA_CALL: String = "extra_call"
+        internal const val EXTRA_USER_ID: String = "extra_user_id"
+        internal const val ACTION_INIT_WEB_RTC = "init_webrtc"
         internal const val ACTION_INCOMING_CALL = "incoming_call"
         internal const val ACTION_OUTGOING_CALL = "outgoing_call"
         internal const val ACTION_UPDATE_CALL = "update_call"
@@ -78,7 +80,6 @@ class TelecomCallService : Service() {
     private lateinit var notificationManager: TelecomCallNotificationManager
 
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
-    private var audioJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -94,6 +95,7 @@ class TelecomCallService : Service() {
                 stopSelf()
             }
             .launchIn(scope)
+
     }
 
     override fun onDestroy() {
@@ -109,6 +111,7 @@ class TelecomCallService : Service() {
         }
 
         when (intent.action) {
+            ACTION_INIT_WEB_RTC -> initWebRtcClient(intent = intent)
             ACTION_INCOMING_CALL -> registerCall(intent = intent, incoming = true)
             ACTION_OUTGOING_CALL -> registerCall(intent = intent, incoming = false)
             ACTION_UPDATE_CALL -> updateServiceState(telecomCallRepository.currentCall.value)
@@ -117,6 +120,13 @@ class TelecomCallService : Service() {
         }
 
         return START_STICKY
+    }
+
+    private fun initWebRtcClient(
+        intent: Intent
+    ) {
+        val userId = intent.getStringExtra(EXTRA_USER_ID)!!
+        mainRepository.initWebrtcClient(username = userId)
     }
 
     private fun registerCall(intent: Intent, incoming: Boolean) {
@@ -141,9 +151,12 @@ class TelecomCallService : Service() {
             if (!incoming) {
                 // If doing an outgoing call, fake the other end picks it up for demo purposes.
                 delay(2000)
+
+                //if (mainRepository.currentCall.value is Call.CallData && ((mainRepository.currentCall.value as Call.CallData).callStatus == CallStatus.CALLING)) {
                 (telecomCallRepository.currentCall.value as? TelecomCall.Registered)?.processAction(
                     TelecomCallAction.Activate,
                 )
+                //}
             }
         }
     }
@@ -159,8 +172,10 @@ class TelecomCallService : Service() {
 
         when (call) {
             is TelecomCall.None -> {
-                // Stop any call tasks, in this demo we stop the audio loop
-                audioJob?.cancel()
+                //val callData = Json.decodeFromString<Call.CallData>(call.callAttributes.address.toString())
+                if (mainRepository.isNewCall() || mainRepository.isIncomingCall() || mainRepository.isInProgressCall()) {
+                    mainRepository.endCurrentCall()
+                }
             }
 
             is TelecomCall.Registered -> {
@@ -171,43 +186,61 @@ class TelecomCallService : Service() {
                 // For this sample it means start/stop the audio loop
                 when {
                     call.isActive && !call.isOnHold && hasMicPermission() -> {
-                        if (audioJob == null || audioJob?.isActive == false) {
-                            audioJob = scope.launch {
-                                //AudioLoopSource.openAudioLoop()
-                                Log.d("INCOMING CALL: ", call.callAttributes.address.toString())
-                                //webRtcManager.answer(call.callAttributes.address)
-                                /*webRtcManager.managerWebRtc(
-                                            dataModelType = DataModelType.Offer,
-                                            address = call.callAttributes.address
-                                        )*/
+                        //AudioLoopSource.openAudioLoop()
+                        Log.d("INCOMING CALL: ", call.callAttributes.address.toString())
+                        //webRtcManager.answer(call.callAttributes.address)
+                        /*webRtcManager.managerWebRtc(
+                                    dataModelType = DataModelType.Offer,
+                                    address = call.callAttributes.address
+                                )*/
+
+                        // TODO : Checking two conditions since TelecomCall does not include the current Call status...
+                        if (callData.callStatus != CallStatus.CALL_IN_PROGRESS && isValidMainRepoCallData()) {
+                            mainRepository.initLocalSurfaceView()
+                            mainRepository.setCallData(callData = callData)
+                            if (callData.isIncoming) {
+                                mainRepository.setTarget(callData.callerId)
+                                mainRepository.startCall()
+                            } else {
+                                mainRepository.setTarget(callData.calleeId)
                             }
                         }
 
-                        if (callData.isIncoming) {
-                            mainRepository.initLocalSurfaceView()
-                            mainRepository.setTarget(callData.callerId)
-                            mainRepository.startCall()
-                        } else {
-                            mainRepository.initLocalSurfaceView()
-                            mainRepository.setTarget(callData.calleeId)
-                        }
-
-                        mainRepository.toggleAudio(
+                        /*mainRepository.toggleAudio(
                             shouldBeMuted = call.isMuted
-                        )
+                        )*/
                     }
 
                     else -> {
-                        audioJob?.cancel()
                     }
                 }
             }
 
             is TelecomCall.Unregistered -> {
-                // Stop service and clean resources
+                val callData =
+                    Json.decodeFromString<Call.CallData>(call.callAttributes.address.toString())
+                if (callData.isIncoming) {
+                    // Stop service and clean resources
+                    mainRepository.sendEndCall(callData.callerId)
+                } else {
+
+                    mainRepository.sendEndCall(callData.calleeId)
+                }
                 stopSelf()
             }
         }
+    }
+
+    private fun isValidMainRepoCallData(): Boolean {
+        return if (mainRepository.currentCall.value is Call.CallData) {
+            getCallData().callStatus != CallStatus.CALL_IN_PROGRESS
+        } else {
+            true
+        }
+    }
+
+    private fun getCallData(): Call.CallData {
+        return mainRepository.currentCall.value as Call.CallData
     }
 
     override fun onBind(intent: Intent): IBinder? = null

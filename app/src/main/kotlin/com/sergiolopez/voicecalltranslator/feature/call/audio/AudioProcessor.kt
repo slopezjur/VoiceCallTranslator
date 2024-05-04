@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import org.webrtc.audio.AudioRecordDataCallback
 import java.io.File
 import java.io.FileOutputStream
@@ -21,8 +22,10 @@ class AudioProcessor @Inject constructor(
     private val context: Context
 ) : AudioRecordDataCallback {
 
+    private lateinit var scope: CoroutineScope
+
     private val bufferQueue: Queue<ByteBuffer> = ConcurrentLinkedQueue() //LinkedList()
-    private val delayBuffersCount = 300  // 3 seconds delay with expected 10ms buffer after reading
+    private val delayBuffersCount = 50  // 0.5 seconds delay with expected 10ms buffer after reading
     private var count = 0
 
     private val byteBufferList = mutableListOf<ByteBuffer>()
@@ -171,5 +174,9 @@ class AudioProcessor @Inject constructor(
         }
 
         return output
+    }
+
+    fun setScope(scope: CoroutineScope) {
+        this.scope = scope
     }
 }

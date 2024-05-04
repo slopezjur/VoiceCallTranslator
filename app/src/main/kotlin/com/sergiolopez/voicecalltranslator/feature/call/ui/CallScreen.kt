@@ -27,6 +27,7 @@ import java.time.Instant
 fun CallScreen(
     openAndPopUp: (NavigationParams) -> Unit,
     calleeId: String,
+    restartFirebaseService: () -> Unit,
     callViewModel: CallViewModel = hiltViewModel()
 ) {
     val callUiState = callViewModel.callUiState.collectAsState().value
@@ -67,6 +68,17 @@ fun CallScreen(
             callViewModel.setCallUiState(CallViewModel.CallUiState.CALLING)
         }
 
+        CallViewModel.CallUiState.CALL_FINISHED -> {
+            // TODO : Already Unregistered from onCallFinished?
+            //callViewModel.endCallAndUnregister().invoke()
+            openAndPopUp.invoke(
+                NavigationParams(
+                    NavigationRoute.CONTACT_LIST.navigationName,
+                    NavigationRoute.CALL.navigationName
+                )
+            )
+        }
+
         else -> {
             when {
                 (isCallingAndHasOngoingCall(
@@ -78,13 +90,9 @@ fun CallScreen(
                     TelecomCallScreen(
                         telecomCall = telecomCall,
                         onCallFinished = {
-                            callViewModel.sendEndCall(calleeId)
-                            openAndPopUp.invoke(
-                                NavigationParams(
-                                    NavigationRoute.CONTACT_LIST.navigationName,
-                                    NavigationRoute.CALL.navigationName
-                                )
-                            )
+                            //callViewModel.sendEndCall(calleeId)
+                            callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_FINISHED)
+                            restartFirebaseService.invoke()
                         }
                     )
                     callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_IN_PROGRESS)

@@ -31,11 +31,17 @@ import javax.inject.Singleton
  */
 @Singleton
 class TelecomCallRepository @Inject constructor(
-    context: Context
+    private val context: Context
 ) {
-    private var callsManager: CallsManager
+    private lateinit var callsManager: CallsManager
+
+    private var reallyBigError = false
 
     init {
+        initCallsManager()
+    }
+
+    private fun initCallsManager() {
         // Create the Jetpack Telecom entry point
         callsManager = CallsManager(context).apply {
             // Register with the telecom interface with the supported capabilities
@@ -130,8 +136,12 @@ class TelecomCallRepository @Inject constructor(
             }
         } catch (e: Exception) {
             Log.d("Really big error: ", e.toString())
+            reallyBigError = true
         } finally {
             _currentCall.value = TelecomCall.None
+            if (reallyBigError) {
+                initCallsManager()
+            }
         }
     }
 

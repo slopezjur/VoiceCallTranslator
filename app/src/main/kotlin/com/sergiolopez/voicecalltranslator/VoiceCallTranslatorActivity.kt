@@ -41,11 +41,16 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
                 Surface {
                     PermissionBox(permissions = setUpPermissions()) {
                         VoiceCallTranslatorApp(
-                            callFromNotification = callFromNotification
+                            callFromNotification = callFromNotification,
+                            restartFirebaseService = startFirebaseService
                         )
                     }
                 }
             }
+        }
+
+        if (!callFromNotification) {
+            startFirebaseService.invoke()
         }
     }
 
@@ -68,6 +73,14 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
         return permissions
     }
 
+    private val startFirebaseService: () -> Unit = {
+        startService(
+            Intent(this, FirebaseService::class.java).apply {
+                action = FirebaseService.ACTION_START_SERVICE
+            }
+        )
+    }
+
     override fun onResume() {
         super.onResume()
         // Force the service to update in case something change like Mic permissions.
@@ -75,11 +88,6 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
             Intent(this, TelecomCallService::class.java).apply {
                 action = TelecomCallService.ACTION_UPDATE_CALL
             },
-        )
-        startService(
-            Intent(this, FirebaseService::class.java).apply {
-                action = FirebaseService.ACTION_START_SERVICE
-            }
         )
     }
 

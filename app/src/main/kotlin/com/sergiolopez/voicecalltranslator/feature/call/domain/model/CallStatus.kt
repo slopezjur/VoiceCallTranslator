@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 enum class CallStatus {
     CALLING,
     INCOMING_CALL,
-    CALL_IN_PROGRESS
+    CALL_IN_PROGRESS,
+    CALL_FINISHED
 }

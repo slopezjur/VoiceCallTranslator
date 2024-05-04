@@ -1,7 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
 import android.telecom.DisconnectCause
-import androidx.lifecycle.viewModelScope
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetTelecomCallUseCase
@@ -36,7 +35,7 @@ class CallViewModel @Inject constructor(
     val callState: StateFlow<Call>
         get() = _callState.asStateFlow()
 
-    private fun endCallAndUnregister(): () -> Unit = {
+    fun endCallAndUnregister(): () -> Unit = {
         val telecomCall = _telecomCallState.value
         if (telecomCall is TelecomCall.Registered) {
             _telecomCallState.value = TelecomCall.Unregistered(
@@ -44,6 +43,7 @@ class CallViewModel @Inject constructor(
                 callAttributes = telecomCall.callAttributes,
                 disconnectCause = DisconnectCause(DisconnectCause.CANCELED)
             )
+            //mainRepository.sendEndCall(calleeId)
         }
     }
 
@@ -60,18 +60,12 @@ class CallViewModel @Inject constructor(
                     mainRepository.sendConnectionRequest(
                         sender = userId,
                         target = calleeId,
-                        isVideoCall = false,
-                        success = {},
-                        viewModelScope = viewModelScope
+                        isVideoCall = false
                     )
                 }
 
             }
         }
-    }
-
-    fun sendEndCall(calleeId: String) {
-        mainRepository.sendEndCall(calleeId)
     }
 
 
@@ -83,6 +77,7 @@ class CallViewModel @Inject constructor(
         STARTING,
         CALLING,
         CALL_IN_PROGRESS,
-        ERROR
+        ERROR,
+        CALL_FINISHED
     }
 }

@@ -3,7 +3,8 @@ package com.sergiolopez.voicecalltranslator.feature.common.domain.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager
+import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.endCall
+import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.initWebRtc
 import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.launchIncomingCall
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
@@ -14,7 +15,6 @@ import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,9 +25,6 @@ class FirebaseService : Service() {
     lateinit var getConnectionUpdateUseCase: GetConnectionUpdateUseCase
 
     @Inject
-    lateinit var telecomCallManager: TelecomCallManager
-
-    @Inject
     lateinit var firebaseAuthService: FirebaseAuthService
 
     @Inject
@@ -35,8 +32,6 @@ class FirebaseService : Service() {
 
     companion object {
         internal const val ACTION_START_SERVICE = "start_service"
-        internal const val ACTION_INCOMING_CALL = "incoming_call"
-        internal const val ACTION_UPDATE_CALL = "update_call"
     }
 
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
@@ -47,8 +42,6 @@ class FirebaseService : Service() {
                 user?.let {
                     when (intent?.action) {
                         ACTION_START_SERVICE -> startService(it)
-                        ACTION_INCOMING_CALL -> manageCall(it)
-                        ACTION_UPDATE_CALL -> manageCall(it)
 
                         else -> {
                             //throw IllegalArgumentException("Unknown action")
@@ -66,12 +59,8 @@ class FirebaseService : Service() {
             userId = user.id,
             scope = scope
         )
-        initWebrtcClient(user)
+        initWebRtc(user.id)
         manageCall(user)
-    }
-
-    private fun initWebrtcClient(user: User) {
-        mainRepository.initWebrtcClient(user.id)
     }
 
     private fun manageCall(user: User) {
@@ -96,8 +85,20 @@ class FirebaseService : Service() {
                         }
 
                         DataModelType.EndCall -> {
-                            initWebrtcClient(user)
-                            telecomCallManager
+                            //initWebrtcClient(user)
+                            // TODO : send proper Call information
+                            val callData = Call.CallData(
+                                callerId = call.sender ?: "",
+                                calleeId = call.target,
+                                isIncoming = false,
+                                callStatus = CallStatus.CALL_FINISHED,
+                                offerData = call.toString(),
+                                answerData = "",
+                                timestamp = call.timeStamp
+                            )
+                            endCall(
+                                call = callData
+                            )
                         }
 
                         else -> {
@@ -107,11 +108,6 @@ class FirebaseService : Service() {
                 }
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel()
     }
 
     override fun onBind(p0: Intent?): IBinder? = null

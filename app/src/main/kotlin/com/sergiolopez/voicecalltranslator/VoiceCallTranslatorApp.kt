@@ -25,7 +25,10 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.navigation.NavigationState
 
 @Composable
-fun VoiceCallTranslatorApp(callFromNotification: Boolean) {
+fun VoiceCallTranslatorApp(
+    callFromNotification: Boolean,
+    restartFirebaseService: () -> Unit
+) {
     val navigationState = rememberNavigationState()
 
     Scaffold { innerPaddingModifier ->
@@ -39,7 +42,8 @@ fun VoiceCallTranslatorApp(callFromNotification: Boolean) {
             modifier = Modifier.padding(innerPaddingModifier)
         ) {
             notesGraph(
-                navigationState = navigationState
+                navigationState = navigationState,
+                restartFirebaseService = restartFirebaseService
             )
         }
     }
@@ -52,7 +56,8 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
     }
 
 fun NavGraphBuilder.notesGraph(
-    navigationState: NavigationState
+    navigationState: NavigationState,
+    restartFirebaseService: () -> Unit
 ) {
     composable(NavigationAction.SplashNavigation.route) {
         SplashScreen(
@@ -104,7 +109,8 @@ fun NavGraphBuilder.notesGraph(
                     navigationParams = navigationParams
                 )
             },
-            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID
+            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID,
+            restartFirebaseService = restartFirebaseService
         )
     }
 

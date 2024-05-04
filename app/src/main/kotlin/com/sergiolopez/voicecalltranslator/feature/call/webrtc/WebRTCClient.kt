@@ -200,10 +200,9 @@ class WebRTCClient @Inject constructor(
 
     fun closeConnection() {
         try {
-            // TODO : It does not stop the communication...
-            rtpSenderTrack?.let {
-                peerConnection?.removeTrack(rtpSenderTrack)
-            }
+            localAudioTrack?.dispose()
+            // TODO : Can we remove the track for this version?
+            //rtpSenderTrack?.dispose()
             peerConnection?.close()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -212,16 +211,20 @@ class WebRTCClient @Inject constructor(
 
     // TODO : This is not working. Maybe downgrading library version and using old method?
     fun toggleAudio(shouldBeMuted: Boolean) {
-        if (shouldBeMuted) {
-            rtpSenderTrack?.let {
-                peerConnection?.removeTrack(rtpSenderTrack)
-            }
-        } else {
-            localAudioTrack?.let {
-                if (peerConnection?.senders?.size == 0) {
-                    rtpSenderTrack = peerConnection?.addTrack(localAudioTrack)
+        try {
+            if (shouldBeMuted) {
+                rtpSenderTrack?.let {
+                    peerConnection?.removeTrack(rtpSenderTrack)
+                }
+            } else {
+                localAudioTrack?.let {
+                    if (peerConnection?.senders?.size == 0) {
+                        rtpSenderTrack = peerConnection?.addTrack(localAudioTrack)
+                    }
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -232,12 +235,21 @@ class WebRTCClient @Inject constructor(
     }
 
     private fun startLocalStreaming() {
-        localAudioTrack =
-            peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)
-        rtpSenderTrack = peerConnection?.addTrack(localAudioTrack)
+        // TODO : java.lang.IllegalStateException: C++ addTrack failed.
+        // Fails when try to add a new tracker after a previous call
+        try {
+            localAudioTrack =
+                peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)
+            rtpSenderTrack = peerConnection?.addTrack(localAudioTrack)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun setScope(scope: CoroutineScope) {
         this.scope = scope
+        audioProcessor.setScope(
+            scope = scope
+        )
     }
 }

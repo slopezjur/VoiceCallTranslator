@@ -12,6 +12,15 @@ class TelecomCallManager @Inject constructor() {
 
     companion object {
 
+        fun Context.initWebRtc(userId: String) {
+            startService(
+                Intent(this, TelecomCallService::class.java).apply {
+                    this.action = TelecomCallService.ACTION_INIT_WEB_RTC
+                    putExtra(TelecomCallService.EXTRA_USER_ID, userId)
+                },
+            )
+        }
+
         fun Context.startNewCall(call: Call.CallData) {
             startService(
                 Intent(this, TelecomCallService::class.java).apply {
@@ -25,6 +34,15 @@ class TelecomCallManager @Inject constructor() {
             startService(
                 Intent(this, TelecomCallService::class.java).apply {
                     this.action = TelecomCallService.ACTION_INCOMING_CALL
+                    putExtra(TelecomCallService.EXTRA_CALL, call)
+                },
+            )
+        }
+
+        fun Context.endCall(call: Call.CallData) {
+            startService(
+                Intent(this, TelecomCallService::class.java).apply {
+                    this.action = TelecomCallService.ACTION_UPDATE_CALL
                     putExtra(TelecomCallService.EXTRA_CALL, call)
                 },
             )
