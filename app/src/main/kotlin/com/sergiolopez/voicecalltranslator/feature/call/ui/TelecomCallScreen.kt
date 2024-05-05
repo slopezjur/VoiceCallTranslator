@@ -1,153 +1,73 @@
-/*
- * Copyright 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
-import android.Manifest
-import android.telecom.DisconnectCause
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.SendToMobile
-import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.ArrowDropUp
-import androidx.compose.material.icons.rounded.BluetoothAudio
 import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.MicOff
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Phone
-import androidx.compose.material.icons.rounded.PhonePaused
-import androidx.compose.material.icons.rounded.SpeakerPhone
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.telecom.CallEndpointCompat
-import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_BLUETOOTH
-import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_SPEAKER
-import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_STREAMING
-import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_WIRED_HEADSET
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCallAction
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.repository.TelecomCallRepository
-import kotlinx.coroutines.delay
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 
-/**
- * This composable observes the current state of the call and updates the UI based on its attributes
- *
- * Note: this only contains UI logic. All the telecom related actions are in [TelecomCallRepository]
- */
 @Composable
 internal fun TelecomCallScreen(
-    telecomCall: TelecomCall,
-    onCallFinished: () -> Unit
+    callUiState: CallViewModel.CallUiState,
+    call: Call,
+    onCallStatus: (CallViewModel.CallUiState) -> Unit,
 ) {
-    when (val newCall = telecomCall) {
-        is TelecomCall.Unregistered, TelecomCall.None -> {
-            // If there is no call invoke finish after a small delay
-            LaunchedEffect(Unit) {
-                delay(500)
-                onCallFinished()
+    if (call is Call.CallData) {
+        TelecomCallScreenContent(
+            name = call.callerId,
+            info = call.offerData,
+            incoming = call.isIncoming,
+            isActive = callUiState == CallViewModel.CallUiState.CALL_IN_PROGRESS,
+            isMuted = false,
+            onCallAction = { callAction ->
+                when (callAction) {
+                    CallAction.Answer -> {
+                        onCallStatus.invoke(CallViewModel.CallUiState.ANSWERING)
+                    }
+
+                    CallAction.ToggleMute -> {
+                        Unit
+                    }
+
+                    CallAction.Disconnect -> {
+                        onCallStatus.invoke(CallViewModel.CallUiState.FINISHING_CALL)
+                    }
+                }
             }
-            // Show call ended when there is no active call
-            NoCallScreen()
-        }
-
-        is TelecomCall.Registered -> {
-            // Call screen only contains the logic to represent the values of the active call
-            // and process user input by calling the processAction of the active call.
-            CallScreen(
-                name = newCall.callAttributes.displayName.toString(),
-                info = newCall.callAttributes.address.toString(),
-                incoming = newCall.isIncoming(),
-                isActive = newCall.isActive,
-                isOnHold = newCall.isOnHold,
-                isMuted = newCall.isMuted,
-                errorCode = newCall.errorCode,
-                currentEndpoint = newCall.currentCallEndpoint,
-                endpoints = newCall.availableCallEndpoints,
-                onCallAction = newCall::processAction,
-            )
-        }
+        )
     }
 }
 
 @Composable
-private fun NoCallScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = "Call ended", style = MaterialTheme.typography.titleLarge)
-    }
-}
-
-@Composable
-private fun CallScreen(
+private fun TelecomCallScreenContent(
     name: String,
     info: String,
     incoming: Boolean,
     isActive: Boolean,
-    isOnHold: Boolean,
     isMuted: Boolean,
-    errorCode: Int?,
-    currentEndpoint: CallEndpointCompat?,
-    endpoints: List<CallEndpointCompat>,
-    onCallAction: (TelecomCallAction) -> Unit,
+    onCallAction: (CallAction) -> Unit,
 ) {
-
-    if (errorCode != null) {
-        Toast.makeText(LocalContext.current, "errorCode=($errorCode)", Toast.LENGTH_SHORT).show()
-    }
-
     Column(
         Modifier
             .fillMaxSize(),
@@ -160,10 +80,7 @@ private fun CallScreen(
         } else {
             OngoingCallActions(
                 isActive = isActive,
-                isOnHold = isOnHold,
                 isMuted = isMuted,
-                currentEndpoint = currentEndpoint,
-                endpoints = endpoints,
                 onCallAction = onCallAction,
             )
         }
@@ -173,11 +90,8 @@ private fun CallScreen(
 @Composable
 private fun OngoingCallActions(
     isActive: Boolean,
-    isOnHold: Boolean,
     isMuted: Boolean,
-    currentEndpoint: CallEndpointCompat?,
-    endpoints: List<CallEndpointCompat>,
-    onCallAction: (TelecomCallAction) -> Unit,
+    onCallAction: (CallAction) -> Unit,
 ) {
     Column(
         Modifier
@@ -190,20 +104,13 @@ private fun OngoingCallActions(
     ) {
         CallControls(
             isActive = isActive,
-            isOnHold = isOnHold,
             isMuted = isMuted,
-            endpointType = currentEndpoint?.type ?: CallEndpointCompat.TYPE_UNKNOWN,
-            availableTypes = endpoints,
             onCallAction = onCallAction,
         )
         FloatingActionButton(
             onClick = {
                 onCallAction(
-                    TelecomCallAction.Disconnect(
-                        DisconnectCause(
-                            DisconnectCause.LOCAL,
-                        ),
-                    ),
+                    CallAction.Disconnect,
                 )
             },
             containerColor = MaterialTheme.colorScheme.error,
@@ -218,7 +125,7 @@ private fun OngoingCallActions(
 }
 
 @Composable
-private fun IncomingCallActions(onCallAction: (TelecomCallAction) -> Unit) {
+private fun IncomingCallActions(onCallAction: (CallAction) -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -228,11 +135,7 @@ private fun IncomingCallActions(onCallAction: (TelecomCallAction) -> Unit) {
         FloatingActionButton(
             onClick = {
                 onCallAction(
-                    TelecomCallAction.Disconnect(
-                        DisconnectCause(
-                            DisconnectCause.REJECTED,
-                        ),
-                    ),
+                    CallAction.Disconnect,
                 )
             },
             containerColor = MaterialTheme.colorScheme.error,
@@ -246,7 +149,7 @@ private fun IncomingCallActions(onCallAction: (TelecomCallAction) -> Unit) {
         FloatingActionButton(
             onClick = {
                 onCallAction(
-                    TelecomCallAction.Answer,
+                    CallAction.Answer,
                 )
             },
             containerColor = MaterialTheme.colorScheme.primary,
@@ -277,173 +180,29 @@ private fun CallInfoCard(name: String, info: String, isActive: Boolean) {
     }
 }
 
-/**
- * Displays the call controls based on the current call attributes
- */
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun CallControls(
     isActive: Boolean,
-    isOnHold: Boolean,
     isMuted: Boolean,
-    endpointType: @CallEndpointCompat.Companion.EndpointType Int,
-    availableTypes: List<CallEndpointCompat>,
-    onCallAction: (TelecomCallAction) -> Unit,
+    onCallAction: (CallAction) -> Unit,
 ) {
-    val micPermission = rememberPermissionState(permission = Manifest.permission.RECORD_AUDIO)
-    var showRationale by remember(micPermission.status) {
-        mutableStateOf(false)
-    }
-
-    var showEndPoints by remember {
-        mutableStateOf(false)
-    }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        if (micPermission.status.isGranted) {
-            IconToggleButton(
-                checked = isMuted,
-                onCheckedChange = {
-                    onCallAction(TelecomCallAction.ToggleMute(it))
-                },
-            ) {
-                if (isMuted) {
-                    Icon(imageVector = Icons.Rounded.MicOff, contentDescription = "Mic on")
-                } else {
-                    Icon(imageVector = Icons.Rounded.Mic, contentDescription = "Mic off")
-                }
-            }
-        } else {
-            IconButton(
-                onClick = {
-                    if (micPermission.status.shouldShowRationale) {
-                        showRationale = true
-                    } else {
-                        micPermission.launchPermissionRequest()
-                    }
-                },
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.MicOff,
-                    contentDescription = "Missing mic permission",
-                    tint = MaterialTheme.colorScheme.error,
-                )
-            }
-        }
-        Box {
-            IconButton(onClick = { showEndPoints = !showEndPoints }) {
-                Icon(
-                    getEndpointIcon(endpointType),
-                    contentDescription = "Toggle Endpoints",
-                )
-                Icon(
-                    if (showEndPoints) {
-                        Icons.Rounded.ArrowDropUp
-                    } else {
-                        Icons.Rounded.ArrowDropDown
-                    },
-                    contentDescription = "Localized description",
-                    modifier = Modifier.align(Alignment.TopEnd),
-                )
-            }
-            DropdownMenu(
-                expanded = showEndPoints,
-                onDismissRequest = { showEndPoints = false },
-            ) {
-                availableTypes.forEach { it ->
-                    CallEndPointItem(
-                        endPoint = it,
-                        onDeviceSelected = {
-                            onCallAction(TelecomCallAction.SwitchAudioEndpoint(it.identifier))
-                            showEndPoints = false
-                        },
-                    )
-                }
-            }
-        }
         IconToggleButton(
-            enabled = isActive,
-            checked = isOnHold,
+            checked = isMuted,
             onCheckedChange = {
-                val action = if (it) {
-                    TelecomCallAction.Hold
-                } else {
-                    TelecomCallAction.Activate
-                }
-                onCallAction(action)
+                onCallAction(CallAction.ToggleMute)
             },
         ) {
-            Icon(
-                imageVector = Icons.Rounded.PhonePaused,
-                contentDescription = "Pause or resume call",
-            )
+            if (isMuted) {
+                Icon(imageVector = Icons.Rounded.MicOff, contentDescription = "Mic on")
+            } else {
+                Icon(imageVector = Icons.Rounded.Mic, contentDescription = "Mic off")
+            }
         }
     }
-
-    // Show a rationale dialog if user didn't accepted the permissions
-    if (showRationale) {
-        RationaleMicDialog(
-            onResult = { request ->
-                if (request) {
-                    micPermission.launchPermissionRequest()
-                }
-                showRationale = false
-            },
-        )
-    }
-}
-
-@Composable
-private fun CallEndPointItem(
-    endPoint: CallEndpointCompat,
-    onDeviceSelected: (CallEndpointCompat) -> Unit,
-) {
-    DropdownMenuItem(
-        text = { Text(text = endPoint.name.toString()) },
-        onClick = { onDeviceSelected(endPoint) },
-        leadingIcon = {
-            Icon(
-                getEndpointIcon(endPoint.type),
-                contentDescription = endPoint.name.toString(),
-            )
-        },
-    )
-}
-
-private fun getEndpointIcon(type: @CallEndpointCompat.Companion.EndpointType Int): ImageVector {
-    return when (type) {
-        TYPE_BLUETOOTH -> Icons.Rounded.BluetoothAudio
-        TYPE_SPEAKER -> Icons.Rounded.SpeakerPhone
-        TYPE_STREAMING -> Icons.AutoMirrored.Rounded.SendToMobile
-        TYPE_WIRED_HEADSET -> Icons.Rounded.Headphones
-        else -> Icons.Rounded.Phone
-    }
-}
-
-@Composable
-private fun RationaleMicDialog(onResult: (Boolean) -> Unit) {
-    AlertDialog(
-        onDismissRequest = { onResult(false) },
-        confirmButton = {
-            TextButton(onClick = { onResult(true) }) {
-                Text(text = "Continue")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { onResult(false) }) {
-                Text(text = "Cancel")
-            }
-        },
-        title = {
-            Text(text = "Mic permission required")
-        },
-        text = {
-            Text(text = "In order to speak in a call we need mic permission. Please press continue and grant the permission in the next dialog.")
-        },
-    )
 }

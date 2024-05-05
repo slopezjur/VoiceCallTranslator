@@ -95,9 +95,9 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
-    suspend fun clearCall(userId: String) {
+    suspend fun clearCall(target: String) {
         runCatching {
-            vtcDatabase.child(CALLS_TABLE_NAME).child(userId).removeValue().await()
+            vtcDatabase.child(CALLS_TABLE_NAME).child(target).removeValue().await()
         }
     }
 

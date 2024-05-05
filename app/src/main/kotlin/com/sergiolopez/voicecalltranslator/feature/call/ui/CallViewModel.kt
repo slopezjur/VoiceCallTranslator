@@ -1,10 +1,8 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
-import android.telecom.DisconnectCause
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
-import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetTelecomCallUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +13,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CallViewModel @Inject constructor(
-    private val getTelecomCallUseCase: GetTelecomCallUseCase,
     //private val webRtcManager: WebRtcManager,
     private val mainRepository: MainRepository,
     private val firebaseAuthService: FirebaseAuthService
@@ -26,48 +23,59 @@ class CallViewModel @Inject constructor(
         get() = _callUiState.asStateFlow()
 
 
-    private val _telecomCallState = MutableStateFlow<TelecomCall>(TelecomCall.None)
-    val telecomCallState: StateFlow<TelecomCall>
-        get() = _telecomCallState.asStateFlow()
-
-
     private val _callState = MutableStateFlow<Call>(Call.CallNoData)
     val callState: StateFlow<Call>
         get() = _callState.asStateFlow()
 
-    fun endCallAndUnregister(): () -> Unit = {
-        val telecomCall = _telecomCallState.value
-        if (telecomCall is TelecomCall.Registered) {
-            _telecomCallState.value = TelecomCall.Unregistered(
-                id = telecomCall.id,
-                callAttributes = telecomCall.callAttributes,
-                disconnectCause = DisconnectCause(DisconnectCause.CANCELED)
-            )
-            //mainRepository.sendEndCall(calleeId)
-        }
+    init {
+        subscribeCallState()
     }
 
-    suspend fun subscribeTelecomCallState() {
-        getTelecomCallUseCase.invoke().collect {
-            _telecomCallState.value = it
+    fun setCallState(callData: Call.CallData) {
+        _callState.value = callData
+    }
+
+    private fun subscribeCallState() {
+        launchCatching {
+            mainRepository.currentCall.collect {
+                _callState.value = it
+            }
         }
     }
 
     fun sendConnectionRequest(calleeId: String) {
         launchCatching {
-            firebaseAuthService.currentUser.collect { user ->
-                user?.id?.let { userId ->
-                    mainRepository.sendConnectionRequest(
-                        sender = userId,
-                        target = calleeId,
-                        isVideoCall = false
-                    )
-                }
+            mainRepository.sendConnectionRequest(
+                target = calleeId
+            )
+        }
+        setCallUiState(CallUiState.CALLING)
+    }
 
+    fun answerCall() {
+        if (_callState.value is Call.CallData) {
+            val callData = _callState.value as Call.CallData
+            if (callData.isIncoming && callData.callStatus == CallStatus.INCOMING_CALL) {
+                mainRepository.setTarget(callData.callerId)
+                mainRepository.startCall(callData = callData)
+            } else {
+                // TODO : This is necessary?
+                mainRepository.setTarget(callData.calleeId)
             }
+
+            setCallUiState(CallUiState.CALL_IN_PROGRESS)
         }
     }
 
+    fun sendEndCall() {
+        if (callState.value is Call.CallData) {
+            mainRepository.sendEndCall(
+                target = (callState.value as Call.CallData).calleeId
+            )
+        }
+
+        setCallUiState(CallUiState.CALL_FINISHED)
+    }
 
     fun setCallUiState(callUiState: CallUiState) {
         _callUiState.value = callUiState
@@ -76,8 +84,11 @@ class CallViewModel @Inject constructor(
     enum class CallUiState {
         STARTING,
         CALLING,
+        INCOMING_CALL,
+        ANSWERING,
         CALL_IN_PROGRESS,
         ERROR,
+        FINISHING_CALL,
         CALL_FINISHED
     }
 }

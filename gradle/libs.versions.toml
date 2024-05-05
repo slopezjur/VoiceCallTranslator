@@ -17,7 +17,6 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 navigationCompose = "2.7.7"
 serialization = "1.6.3"
-telecomVersion = "1.0.0-alpha03"
 webRtc = "1.0.32006"
 
 [libraries]
@@ -35,7 +34,6 @@ compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-core-telecom = { group = "androidx.core", name = "core-telecom", version.ref = "telecomVersion" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }

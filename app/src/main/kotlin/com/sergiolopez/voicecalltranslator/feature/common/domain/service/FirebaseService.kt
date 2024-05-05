@@ -3,12 +3,10 @@ package com.sergiolopez.voicecalltranslator.feature.common.domain.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.endCall
-import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.initWebRtc
-import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.launchIncomingCall
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnectionUpdateUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
@@ -30,11 +28,18 @@ class FirebaseService : Service() {
     @Inject
     lateinit var mainRepository: MainRepository
 
+    private lateinit var callNotificationManager: CallNotificationManager
+
     companion object {
         internal const val ACTION_START_SERVICE = "start_service"
     }
 
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
+
+    override fun onCreate() {
+        super.onCreate()
+        callNotificationManager = CallNotificationManager(applicationContext)
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
@@ -59,7 +64,7 @@ class FirebaseService : Service() {
             userId = user.id,
             scope = scope
         )
-        initWebRtc(user.id)
+        mainRepository.initWebrtcClient(username = user.id)
         manageCall(user)
     }
 
@@ -70,34 +75,41 @@ class FirebaseService : Service() {
                 result.getOrThrow().collect { call ->
                     when (call.type) {
                         DataModelType.StartAudioCall -> {
-                            val callData = Call.CallData(
-                                callerId = call.sender ?: "",
-                                calleeId = call.target,
-                                isIncoming = true,
-                                callStatus = CallStatus.INCOMING_CALL,
-                                offerData = call.toString(),
-                                answerData = "",
-                                timestamp = call.timeStamp
-                            )
+                            val callData = if (mainRepository.currentCall.value is Call.CallData) {
+                                mainRepository.currentCall.value as Call.CallData
+                            } else {
+                                Call.CallData(
+                                    callerId = call.sender ?: "",
+                                    calleeId = call.target,
+                                    isIncoming = true,
+                                    callStatus = CallStatus.INCOMING_CALL,
+                                    offerData = call.toString(),
+                                    answerData = "",
+                                    timestamp = call.timeStamp
+                                )
+                            }
                             launchIncomingCall(
-                                call = callData
+                                callData = callData
                             )
                         }
 
                         DataModelType.EndCall -> {
                             //initWebrtcClient(user)
-                            // TODO : send proper Call information
-                            val callData = Call.CallData(
-                                callerId = call.sender ?: "",
-                                calleeId = call.target,
-                                isIncoming = false,
-                                callStatus = CallStatus.CALL_FINISHED,
-                                offerData = call.toString(),
-                                answerData = "",
-                                timestamp = call.timeStamp
-                            )
+                            val callData = if (mainRepository.currentCall.value is Call.CallData) {
+                                mainRepository.currentCall.value as Call.CallData
+                            } else {
+                                Call.CallData(
+                                    callerId = call.sender ?: "",
+                                    calleeId = call.target,
+                                    isIncoming = false,
+                                    callStatus = CallStatus.CALL_FINISHED,
+                                    offerData = call.toString(),
+                                    answerData = "",
+                                    timestamp = call.timeStamp
+                                )
+                            }
                             endCall(
-                                call = callData
+                                callData = callData
                             )
                         }
 
@@ -108,6 +120,41 @@ class FirebaseService : Service() {
                 }
             }
         }
+    }
+
+    private fun launchIncomingCall(callData: Call.CallData) {
+        callNotificationManager.updateCallNotification(callData)
+        if (callData.callStatus == CallStatus.CALLING || callData.callStatus == CallStatus.CALL_IN_PROGRESS) {
+            if (callData.isIncoming) {
+                mainRepository.setTarget(callData.callerId)
+                mainRepository.startCall(callData = callData)
+            } else {
+                // TODO : This is necessary?
+                mainRepository.setTarget(callData.calleeId)
+            }
+        }
+    }
+
+    private fun endCall(callData: Call.CallData) {
+        callNotificationManager.updateCallNotification(callData)
+        /*if (callData.isIncoming) {
+            mainRepository.sendEndCall(callData.callerId)
+        } else {
+
+            mainRepository.sendEndCall(callData.calleeId)
+        }*/
+    }
+
+    private fun isValidMainRepoCallData(): Boolean {
+        return if (mainRepository.currentCall.value is Call.CallData) {
+            getCallData().callStatus != CallStatus.CALL_IN_PROGRESS
+        } else {
+            true
+        }
+    }
+
+    private fun getCallData(): Call.CallData {
+        return mainRepository.currentCall.value as Call.CallData
     }
 
     override fun onBind(p0: Intent?): IBinder? = null

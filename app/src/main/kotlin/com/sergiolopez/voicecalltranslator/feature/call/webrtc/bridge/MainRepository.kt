@@ -19,6 +19,7 @@ import org.webrtc.IceCandidate
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,7 +41,7 @@ class MainRepository @Inject constructor(
     private lateinit var scope: CoroutineScope
 
     fun initFirebase(userId: String, scope: CoroutineScope) {
-        this.target = userId
+        this.userId = userId
         this.scope = scope
         this.scope.launch {
             val result = getConnectionUpdateUseCase.invoke(userId)
@@ -91,24 +92,26 @@ class MainRepository @Inject constructor(
     }
 
     fun sendConnectionRequest(
-        sender: String,
         target: String,
-        isVideoCall: Boolean
     ) {
-        //scope = viewModelScope
+        this.target = target
         scope.launch {
             val dataModel = DataModel(
-                sender = sender,
-                type = if (isVideoCall) DataModelType.StartVideoCall else DataModelType.StartAudioCall,
+                sender = userId,
+                type = DataModelType.StartAudioCall,
                 target = target
             )
-            if (_currentCall.value is Call.CallData) {
-                _currentCall.value = (_currentCall.value as Call.CallData).copy(
-                    callerId = sender,
-                    calleeId = target,
-                    callStatus = CallStatus.CALLING
-                )
-            }
+
+            _currentCall.value = Call.CallData(
+                callerId = userId,
+                calleeId = target,
+                offerData = "",
+                answerData = "",
+                isIncoming = false,
+                callStatus = CallStatus.CALLING,
+                timestamp = Instant.now().epochSecond
+            )
+
             sendConnectionUpdateUseCase.invoke(
                 dataModel
             )
@@ -168,7 +171,9 @@ class MainRepository @Inject constructor(
                     }
 
                     PeerConnection.PeerConnectionState.CLOSED -> {
-                        Unit
+                        updateCallStatus(
+                            callStatus = CallStatus.CALL_FINISHED
+                        )
                     }
 
                     null -> TODO()
@@ -185,15 +190,9 @@ class MainRepository @Inject constructor(
         }
     }
 
-    fun initLocalSurfaceView() {
+    fun startCall(callData: Call.CallData) {
         webRTCClient.initLocalSurfaceView()
-    }
-
-    fun setCallData(callData: Call.CallData) {
         _currentCall.value = callData
-    }
-
-    fun startCall() {
         webRTCClient.call(target)
     }
 
@@ -210,7 +209,7 @@ class MainRepository @Inject constructor(
             )
         )
         webRTCClient.closeConnection()
-        clearCall(userId = target)
+        clearCall(target = target)
         updateCallStatus(
             callStatus = CallStatus.CALL_FINISHED
         )
@@ -226,9 +225,9 @@ class MainRepository @Inject constructor(
         }
     }
 
-    private fun clearCall(userId: String) {
+    private fun clearCall(target: String) {
         scope.launch {
-            clearCallUseCase.invoke(userId)
+            clearCallUseCase.invoke(target)
         }
     }
 

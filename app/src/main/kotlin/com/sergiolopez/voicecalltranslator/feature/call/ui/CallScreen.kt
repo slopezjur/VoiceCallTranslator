@@ -1,76 +1,142 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.sergiolopez.voicecalltranslator.feature.call.domain.TelecomCallManager.Companion.startNewCall
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
+import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
+import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
-import java.time.Instant
+import kotlinx.coroutines.delay
 
 @Composable
 fun CallScreen(
     openAndPopUp: (NavigationParams) -> Unit,
     calleeId: String,
+    navigationCallExtra: NavigationCallExtra,
     restartFirebaseService: () -> Unit,
     callViewModel: CallViewModel = hiltViewModel()
 ) {
     val callUiState = callViewModel.callUiState.collectAsState().value
+    val call = callViewModel.callState.collectAsState().value
 
-    val context = LocalContext.current
+    if (callUiState == CallViewModel.CallUiState.STARTING && navigationCallExtra.hasCallData && calleeId == CALLEE_DEFAULT_ID) {
+        val callData = navigationCallExtra.call as Call.CallData
+        callViewModel.setCallState(
+            callData = callData
+        )
+        when (callData.callStatus) {
+            CallStatus.INCOMING_CALL -> {
+                callViewModel.setCallUiState(CallViewModel.CallUiState.INCOMING_CALL)
+            }
 
-    val telecomCall by callViewModel.telecomCallState.collectAsState()
+            CallStatus.CALL_IN_PROGRESS -> {
+                callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_IN_PROGRESS)
+            }
 
-    LaunchedEffect(Unit) {
-        callViewModel.subscribeTelecomCallState()
+            else -> {
+                // All good?
+                Unit
+            }
+        }
     }
 
-    val hasOngoingCall = telecomCall is TelecomCall.Registered
+    val sendConnectionRequest: (String) -> Unit = {
+        callViewModel.sendConnectionRequest(it)
+    }
 
+    val answerCall: () -> Unit = {
+        callViewModel.answerCall()
+    }
+
+    val sendEndCall: () -> Unit = {
+        callViewModel.sendEndCall()
+    }
+
+    val setCallUiState: (CallViewModel.CallUiState) -> Unit = {
+        callViewModel.setCallUiState(it)
+    }
+
+    CallScreenContent(
+        openAndPopUp = openAndPopUp,
+        restartFirebaseService = restartFirebaseService,
+        callUiState = callUiState,
+        calleeId = calleeId,
+        call = call,
+        sendConnectionRequest = sendConnectionRequest,
+        answerCall = answerCall,
+        sendEndCall = sendEndCall,
+        setCallUiState = setCallUiState
+    )
+}
+
+@Composable
+fun CallScreenContent(
+    openAndPopUp: (NavigationParams) -> Unit,
+    restartFirebaseService: () -> Unit,
+    callUiState: CallViewModel.CallUiState,
+    calleeId: String,
+    call: Call,
+    sendConnectionRequest: (String) -> Unit,
+    answerCall: () -> Unit,
+    sendEndCall: () -> Unit,
+    setCallUiState: (CallViewModel.CallUiState) -> Unit,
+) {
     when (callUiState) {
-        CallViewModel.CallUiState.STARTING -> {
-            //callViewModel.startCall(calleeId)
-            if (calleeId != "-1") {
-                callViewModel.sendConnectionRequest(
-                    calleeId = calleeId
-                )
-                context.startNewCall(
-                    call = Call.CallData(
-                        callerId = "",
-                        calleeId = calleeId,
-                        offerData = null,
-                        answerData = null,
-                        isIncoming = false,
-                        callStatus = CallStatus.CALLING,
-                        timestamp = Instant.now().epochSecond
-                    )
-                    /*DataModel(
-                    sender = calleeId,
-                    type = DataModelType.Offer
-                )*/
-                )
+        CallViewModel.CallUiState.STARTING -> when (call) {
+            is Call.CallData -> {
+                if (call.callStatus != CallStatus.CALL_IN_PROGRESS && !call.isIncoming) {
+                    sendConnectionRequest.invoke(call.calleeId)
+                }
             }
-            callViewModel.setCallUiState(CallViewModel.CallUiState.CALLING)
+
+            else -> {
+                if (calleeId != CALLEE_DEFAULT_ID) {
+                    sendConnectionRequest.invoke(calleeId)
+                }
+            }
         }
 
-        CallViewModel.CallUiState.CALL_FINISHED -> {
-            // TODO : Already Unregistered from onCallFinished?
-            //callViewModel.endCallAndUnregister().invoke()
+        CallViewModel.CallUiState.ANSWERING -> {
+            answerCall.invoke()
+        }
+
+        CallViewModel.CallUiState.ERROR -> {
+            Column(
+                Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(text = "REALLY BIG ERROR!")
+            }
+        }
+
+        CallViewModel.CallUiState.FINISHING_CALL -> {
+            // TODO : Reset from ViewModel?
+            restartFirebaseService.invoke()
+            sendEndCall()
+            // If there is no call invoke finish after a small delay
+            LaunchedEffect(Unit) {
+                delay(1000)
+            }
+            // Show call ended when there is no active call
+            NoCallScreen()
             openAndPopUp.invoke(
                 NavigationParams(
                     NavigationRoute.CONTACT_LIST.navigationName,
@@ -79,57 +145,41 @@ fun CallScreen(
             )
         }
 
-        else -> {
-            when {
-                (isCallingAndHasOngoingCall(
-                    callUiState = callUiState,
-                    hasOngoingCall = hasOngoingCall
-                )) || isCallInProgress(
-                    callUiState = callUiState
-                ) -> {
-                    TelecomCallScreen(
-                        telecomCall = telecomCall,
-                        onCallFinished = {
-                            //callViewModel.sendEndCall(calleeId)
-                            callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_FINISHED)
-                            restartFirebaseService.invoke()
-                        }
-                    )
-                    callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_IN_PROGRESS)
-                }
+        CallViewModel.CallUiState.CALL_FINISHED -> {
+            Unit
+        }
 
-                else -> {
-                    Column(
-                        Modifier
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        CircularProgressIndicator()
-                    }
+        else -> {
+            TelecomCallScreen(
+                callUiState = callUiState,
+                call = call,
+                onCallStatus = {
+                    setCallUiState(it)
                 }
-            }
+            )
+
+            /*Column(
+                Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                CircularProgressIndicator()
+            }*/
         }
     }
 }
 
 @Composable
-private fun isCallingAndHasOngoingCall(
-    callUiState: CallViewModel.CallUiState,
-    hasOngoingCall: Boolean
-) = callUiState == CallViewModel.CallUiState.CALLING && hasOngoingCall
-
-@Composable
-private fun isCallInProgress(callUiState: CallViewModel.CallUiState) =
-    callUiState == CallViewModel.CallUiState.CALL_IN_PROGRESS
-
-@Composable
-fun CallScreenContent(
-    openAndPopUp: (NavigationParams) -> Unit,
-    calleeId: String,
-    callUiState: CallViewModel.CallUiState
-) {
-    Text(text = calleeId)
+private fun NoCallScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = "Call ended", style = MaterialTheme.typography.titleLarge)
+    }
 }
 
 @PreviewLightDark
@@ -138,8 +188,14 @@ fun CallScreenPreview() {
     VoiceCallTranslatorPreview {
         CallScreenContent(
             openAndPopUp = {},
-            calleeId = "01",
-            callUiState = CallViewModel.CallUiState.CALL_IN_PROGRESS
+            restartFirebaseService = {},
+            callUiState = CallViewModel.CallUiState.CALL_IN_PROGRESS,
+            calleeId = CALLEE_DEFAULT_ID,
+            call = Call.CallNoData,
+            sendConnectionRequest = {},
+            answerCall = {},
+            sendEndCall = {},
+            setCallUiState = {},
         )
     }
 }

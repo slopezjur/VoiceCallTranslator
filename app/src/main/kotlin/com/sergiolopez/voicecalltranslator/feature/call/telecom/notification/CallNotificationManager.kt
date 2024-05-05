@@ -24,8 +24,8 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
-import android.telecom.DisconnectCause
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -33,23 +33,19 @@ import androidx.core.app.Person
 import androidx.core.content.PermissionChecker
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorActivity
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.broadcast.TelecomCallBroadcast
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCall
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.model.TelecomCallAction
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
+import com.sergiolopez.voicecalltranslator.feature.call.telecom.broadcast.CallBroadcast
 
-/**
- * Handles call status changes and updates the notification accordingly. For more guidance around
- * notifications check https://developer.android.com/develop/ui/views/notifications
- *
- * @see updateCallNotification
- */
-class TelecomCallNotificationManager(private val context: Context) {
+class CallNotificationManager(private val context: Context) {
 
     internal companion object {
-        const val TELECOM_NOTIFICATION_ID = 200
-        const val TELECOM_NOTIFICATION_ACTION = "telecom_action"
-        const val TELECOM_NOTIFICATION_INCOMING_CHANNEL_ID = "telecom_incoming_channel"
-        const val TELECOM_NOTIFICATION_ONGOING_CHANNEL_ID = "telecom_ongoing_channel"
+        const val CALL_NOTIFICATION_ID = 200
+        const val CALL_DATA_ACTION = "call_data_action"
+        const val CALL_NOTIFICATION_ACTION = "call_notification_action"
+        const val CALL_NOTIFICATION_INCOMING_CHANNEL_ID = "call_incoming_channel"
+        const val CALL_NOTIFICATION_ONGOING_CHANNEL_ID = "call_ongoing_channel"
 
         private val ringToneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
     }
@@ -57,11 +53,7 @@ class TelecomCallNotificationManager(private val context: Context) {
     private val notificationManager: NotificationManagerCompat =
         NotificationManagerCompat.from(context)
 
-    /**
-     * Updates, creates or dismisses a CallStyle notification based on the given [TelecomCall]
-     */
-    fun updateCallNotification(call: TelecomCall) {
-        // If notifications are not granted, skip it.
+    fun updateCallNotification(call: Call.CallData) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             PermissionChecker.checkSelfPermission(
                 context,
@@ -71,68 +63,74 @@ class TelecomCallNotificationManager(private val context: Context) {
             return
         }
 
-        // Ensure that the channel is created
         createNotificationChannels()
 
-        // Update or dismiss notification
-        when (call) {
-            TelecomCall.None, is TelecomCall.Unregistered -> {
-                notificationManager.cancel(TELECOM_NOTIFICATION_ID)
+        when (call.callStatus) {
+            CallStatus.CALL_FINISHED -> {
+                notificationManager.cancel(CALL_NOTIFICATION_ID)
             }
 
-            is TelecomCall.Registered -> {
+            CallStatus.INCOMING_CALL,
+            CallStatus.CALL_IN_PROGRESS -> {
                 val notification = createNotification(call)
-                notificationManager.notify(TELECOM_NOTIFICATION_ID, notification)
+                notificationManager.notify(CALL_NOTIFICATION_ID, notification)
+            }
+
+            else -> {
+                Unit
             }
         }
     }
 
-    private fun createNotification(call: TelecomCall.Registered): Notification {
-        // To display the caller information
+    private fun createNotification(callData: Call.CallData): Notification {
         val caller = Person.Builder()
-            .setName(call.callAttributes.displayName)
-            .setUri(call.callAttributes.address.toString())
+            .setName(callData.callerId)
+            .setUri(Uri.parse("Calling").toString())
             .setImportant(true)
             .build()
 
-        // Defines the full screen notification activity or the activity to launch once the user taps
-        // on the notification
         val contentIntent = PendingIntent.getActivity(
             /* context = */ context,
             /* requestCode = */ 0,
             /* intent = */
             Intent(context, VoiceCallTranslatorActivity::class.java).apply {
-                putExtra(VoiceCallTranslatorActivity.CALL_FROM_NOTIFICATION, true)
+                putExtra(VoiceCallTranslatorActivity.CALL_DATA_FROM_NOTIFICATION, callData)
             },
             /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        // Define the call style based on the call state and set the right actions
-        val isIncoming = call.isIncoming() && !call.isActive
+        val isIncoming = callData.isIncoming && (callData.callStatus == CallStatus.INCOMING_CALL)
         val callStyle = if (isIncoming) {
             NotificationCompat.CallStyle.forIncomingCall(
                 caller,
                 getPendingIntent(
-                    TelecomCallAction.Disconnect(
-                        DisconnectCause(DisconnectCause.REJECTED),
+                    callData = callData.copy(
+                        callStatus = CallStatus.CALL_FINISHED
                     ),
+                    callAction = CallAction.Disconnect
                 ),
-                getPendingIntent(TelecomCallAction.Answer),
+                getPendingIntent(
+                    callData = callData.copy(
+                        callStatus = CallStatus.CALL_IN_PROGRESS
+                    ),
+                    callAction = CallAction.Answer
+                ),
             )
         } else {
             NotificationCompat.CallStyle.forOngoingCall(
                 caller,
                 getPendingIntent(
-                    TelecomCallAction.Disconnect(
-                        DisconnectCause(DisconnectCause.LOCAL),
+                    callData = callData.copy(
+                        callStatus = CallStatus.CALL_FINISHED
                     ),
+                    callAction = CallAction.Disconnect
                 ),
             )
         }
         val channelId = if (isIncoming) {
-            TELECOM_NOTIFICATION_INCOMING_CHANNEL_ID
+            CALL_NOTIFICATION_INCOMING_CHANNEL_ID
         } else {
-            TELECOM_NOTIFICATION_ONGOING_CHANNEL_ID
+            CALL_NOTIFICATION_ONGOING_CHANNEL_ID
         }
 
         val builder = NotificationCompat.Builder(context, channelId)
@@ -143,27 +141,28 @@ class TelecomCallNotificationManager(private val context: Context) {
             .setStyle(callStyle)
 
         // TODO figure out why custom actions are not working
-        if (call.isOnHold) {
+        /*if (call.isOnHold) {
             builder.addAction(
                 R.drawable.ic_phone_paused_24, "Resume",
                 getPendingIntent(
                     TelecomCallAction.Activate,
                 ),
             )
-        }
+        }*/
         return builder.build()
     }
 
-    /**
-     * Creates a PendingIntent for the given [TelecomCallAction]. Since the actions are parcelable
-     * we can directly pass them as extra parameters in the bundle.
-     */
-    private fun getPendingIntent(action: TelecomCallAction): PendingIntent {
-        val callIntent = Intent(context, TelecomCallBroadcast::class.java)
-        callIntent.putExtra(
-            TELECOM_NOTIFICATION_ACTION,
-            action,
-        )
+    private fun getPendingIntent(callData: Call.CallData, callAction: CallAction): PendingIntent {
+        val callIntent = Intent(context, CallBroadcast::class.java).apply {
+            putExtra(
+                CALL_DATA_ACTION,
+                callData,
+            )
+            putExtra(
+                CALL_NOTIFICATION_ACTION,
+                callAction,
+            )
+        }
 
         return PendingIntent.getBroadcast(
             context,
@@ -175,7 +174,7 @@ class TelecomCallNotificationManager(private val context: Context) {
 
     private fun createNotificationChannels() {
         val incomingChannel = NotificationChannelCompat.Builder(
-            TELECOM_NOTIFICATION_INCOMING_CHANNEL_ID,
+            CALL_NOTIFICATION_INCOMING_CHANNEL_ID,
             NotificationManagerCompat.IMPORTANCE_HIGH,
         ).setName("Incoming calls")
             .setDescription("Handles the notifications when receiving a call")
@@ -187,7 +186,7 @@ class TelecomCallNotificationManager(private val context: Context) {
             ).build()
 
         val ongoingChannel = NotificationChannelCompat.Builder(
-            TELECOM_NOTIFICATION_ONGOING_CHANNEL_ID,
+            CALL_NOTIFICATION_ONGOING_CHANNEL_ID,
             NotificationManagerCompat.IMPORTANCE_DEFAULT,
         ).setName("Ongoing calls").setDescription("Displays the ongoing call notifications").build()
 

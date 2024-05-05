@@ -21,20 +21,21 @@ import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID_ARG
 import com.sergiolopez.voicecalltranslator.navigation.NavigationAction
+import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.navigation.NavigationState
 
 @Composable
 fun VoiceCallTranslatorApp(
-    callFromNotification: Boolean,
-    restartFirebaseService: () -> Unit
+    restartFirebaseService: () -> Unit,
+    navigationCallExtra: NavigationCallExtra
 ) {
     val navigationState = rememberNavigationState()
 
     Scaffold { innerPaddingModifier ->
         NavHost(
             navController = navigationState.navController,
-            startDestination = if (callFromNotification) {
+            startDestination = if (navigationCallExtra.hasCallData) {
                 NavigationRoute.CALL.navigationName
             } else {
                 NavigationRoute.SPLASH.navigationName
@@ -43,7 +44,8 @@ fun VoiceCallTranslatorApp(
         ) {
             notesGraph(
                 navigationState = navigationState,
-                restartFirebaseService = restartFirebaseService
+                restartFirebaseService = restartFirebaseService,
+                navigationCallExtra = navigationCallExtra
             )
         }
     }
@@ -57,7 +59,8 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
 
 fun NavGraphBuilder.notesGraph(
     navigationState: NavigationState,
-    restartFirebaseService: () -> Unit
+    restartFirebaseService: () -> Unit,
+    navigationCallExtra: NavigationCallExtra
 ) {
     composable(NavigationAction.SplashNavigation.route) {
         SplashScreen(
@@ -110,6 +113,7 @@ fun NavGraphBuilder.notesGraph(
                 )
             },
             calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID,
+            navigationCallExtra = navigationCallExtra,
             restartFirebaseService = restartFirebaseService
         )
     }

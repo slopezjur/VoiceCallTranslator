@@ -36,11 +36,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".feature.call.telecom.service.TelecomCallService"
-            android:exported="false" />
         <receiver
-            android:name=".feature.call.telecom.broadcast.TelecomCallBroadcast"
+            android:name=".feature.call.telecom.broadcast.CallBroadcast"
             android:exported="false" />
         <service
             android:name=".feature.common.domain.service.FirebaseService"

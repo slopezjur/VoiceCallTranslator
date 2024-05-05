@@ -9,9 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.core.content.getSystemService
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.service.TelecomCallService
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseService
+import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,11 +29,18 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
 
         setupCallActivity()
 
-        var callFromNotification = false
+        var navigationCallExtra = NavigationCallExtra(
+            call = Call.CallNoData,
+            hasCallData = false
+        )
 
         intent.extras?.let {
-            if (it.getBoolean(CALL_FROM_NOTIFICATION)) {
-                callFromNotification = true
+            val result = intent.getParcelableExtra<Call.CallData>(CALL_DATA_FROM_NOTIFICATION)
+            if (result != null) {
+                navigationCallExtra = NavigationCallExtra(
+                    call = result,
+                    hasCallData = true
+                )
             }
         }
 
@@ -41,7 +49,7 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
                 Surface {
                     PermissionBox(permissions = setUpPermissions()) {
                         VoiceCallTranslatorApp(
-                            callFromNotification = callFromNotification,
+                            navigationCallExtra = navigationCallExtra,
                             restartFirebaseService = startFirebaseService
                         )
                     }
@@ -49,7 +57,7 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
             }
         }
 
-        if (!callFromNotification) {
+        if (!navigationCallExtra.hasCallData) {
             startFirebaseService.invoke()
         }
     }
@@ -81,7 +89,7 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
         )
     }
 
-    override fun onResume() {
+    /*override fun onResume() {
         super.onResume()
         // Force the service to update in case something change like Mic permissions.
         startService(
@@ -89,10 +97,10 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
                 action = TelecomCallService.ACTION_UPDATE_CALL
             },
         )
-    }
+    }*/
 
     companion object {
-        const val CALL_FROM_NOTIFICATION = "CALL_FROM_NOTIFICATION"
+        const val CALL_DATA_FROM_NOTIFICATION = "call_data_from_notification"
         const val APP_ALREADY_RUNNING = "APP_ALREADY_RUNNING"
     }
 }

@@ -6,9 +6,9 @@ import javax.inject.Inject
 class ClearCallUseCase @Inject constructor(
     private val firebaseDatabaseRepository: FirebaseDatabaseRepository
 ) {
-    suspend fun invoke(userId: String) {
+    suspend fun invoke(target: String) {
         return firebaseDatabaseRepository.clearCall(
-            userId = userId
+            target = target
         )
     }
 }
