@@ -3,7 +3,6 @@ package com.sergiolopez.voicecalltranslator.feature.call.domain.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
 sealed interface CallAction : Parcelable {
 
     @Parcelize
