@@ -29,17 +29,14 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
 
         setupCallActivity()
 
-        var navigationCallExtra = NavigationCallExtra(
-            call = Call.CallNoData,
-            hasCallData = false
-        )
+        var navigationCallExtra = initNavigationCallExtra()
 
         intent.extras?.let {
             val result = intent.getParcelableExtra<Call.CallData>(CALL_DATA_FROM_NOTIFICATION)
             if (result != null) {
                 navigationCallExtra = NavigationCallExtra(
                     call = result,
-                    hasCallData = true
+                    hasCallData = true,
                 )
             }
         }
@@ -68,6 +65,11 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
 
         getSystemService<KeyguardManager>()?.requestDismissKeyguard(this, null)
     }
+
+    private fun initNavigationCallExtra() = NavigationCallExtra(
+        call = Call.CallNoData,
+        hasCallData = false,
+    )
 
     private fun setUpPermissions(): MutableList<String> {
         val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)

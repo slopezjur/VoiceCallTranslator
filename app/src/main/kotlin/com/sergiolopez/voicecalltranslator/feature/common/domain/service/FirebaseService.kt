@@ -123,7 +123,6 @@ class FirebaseService : Service() {
     }
 
     private fun launchIncomingCall(callData: Call.CallData) {
-        callNotificationManager.updateCallNotification(callData)
         if (callData.callStatus == CallStatus.CALLING || callData.callStatus == CallStatus.CALL_IN_PROGRESS) {
             if (callData.isIncoming) {
                 mainRepository.setTarget(callData.callerId)
@@ -133,16 +132,16 @@ class FirebaseService : Service() {
                 mainRepository.setTarget(callData.calleeId)
             }
         }
+        callNotificationManager.updateCallNotification(callData)
     }
 
     private fun endCall(callData: Call.CallData) {
         callNotificationManager.updateCallNotification(callData)
-        /*if (callData.isIncoming) {
+        if (callData.isIncoming) {
             mainRepository.sendEndCall(callData.callerId)
         } else {
-
             mainRepository.sendEndCall(callData.calleeId)
-        }*/
+        }
     }
 
     private fun isValidMainRepoCallData(): Boolean {

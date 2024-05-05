@@ -31,10 +31,6 @@ class CallViewModel @Inject constructor(
         subscribeCallState()
     }
 
-    fun setCallState(callData: Call.CallData) {
-        _callState.value = callData
-    }
-
     private fun subscribeCallState() {
         launchCatching {
             mainRepository.currentCall.collect {

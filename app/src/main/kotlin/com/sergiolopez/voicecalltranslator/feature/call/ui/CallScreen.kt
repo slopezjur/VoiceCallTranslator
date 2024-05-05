@@ -37,9 +37,6 @@ fun CallScreen(
 
     if (callUiState == CallViewModel.CallUiState.STARTING && navigationCallExtra.hasCallData && calleeId == CALLEE_DEFAULT_ID) {
         val callData = navigationCallExtra.call as Call.CallData
-        callViewModel.setCallState(
-            callData = callData
-        )
         when (callData.callStatus) {
             CallStatus.INCOMING_CALL -> {
                 callViewModel.setCallUiState(CallViewModel.CallUiState.INCOMING_CALL)
@@ -117,36 +114,27 @@ fun CallScreenContent(
         }
 
         CallViewModel.CallUiState.ERROR -> {
-            Column(
-                Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(text = "REALLY BIG ERROR!")
+            CallDismissedFromReceiver()
+            LaunchedEffect(Unit) {
+                delay(1000)
+                setCallUiState.invoke(CallViewModel.CallUiState.CALL_FINISHED)
             }
         }
 
         CallViewModel.CallUiState.FINISHING_CALL -> {
             // TODO : Reset from ViewModel?
-            restartFirebaseService.invoke()
             sendEndCall()
             // If there is no call invoke finish after a small delay
             LaunchedEffect(Unit) {
-                delay(1000)
+                delay(3000)
             }
             // Show call ended when there is no active call
             NoCallScreen()
-            openAndPopUp.invoke(
-                NavigationParams(
-                    NavigationRoute.CONTACT_LIST.navigationName,
-                    NavigationRoute.CALL.navigationName
-                )
-            )
         }
 
         CallViewModel.CallUiState.CALL_FINISHED -> {
-            Unit
+            restartFirebaseService.invoke()
+            navigateToContactList(openAndPopUp)
         }
 
         else -> {
@@ -170,6 +158,15 @@ fun CallScreenContent(
     }
 }
 
+private fun navigateToContactList(openAndPopUp: (NavigationParams) -> Unit) {
+    openAndPopUp.invoke(
+        NavigationParams(
+            NavigationRoute.CONTACT_LIST.navigationName,
+            NavigationRoute.CALL.navigationName
+        )
+    )
+}
+
 @Composable
 private fun NoCallScreen() {
     Box(
@@ -179,6 +176,26 @@ private fun NoCallScreen() {
         contentAlignment = Alignment.Center,
     ) {
         Text(text = "Call ended", style = MaterialTheme.typography.titleLarge)
+    }
+}
+
+@Composable
+private fun CallDismissedFromReceiver() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(text = "Call ended", style = MaterialTheme.typography.titleLarge)
+            Text(text = "REALLY BIG ERROR!")
+        }
     }
 }
 

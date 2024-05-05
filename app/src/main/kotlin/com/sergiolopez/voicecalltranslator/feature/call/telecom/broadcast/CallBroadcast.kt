@@ -44,7 +44,7 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
 
                     CallAction.Disconnect -> {
                         mainRepository.setTarget(target = callData.callerId)
-                        mainRepository.sendEndCall(target = callData.calleeId)
+                        mainRepository.sendEndCall(target = callData.callerId)
                         CallNotificationManager(context).updateCallNotification(callData)
                     }
 

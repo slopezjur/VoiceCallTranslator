@@ -209,10 +209,11 @@ class MainRepository @Inject constructor(
             )
         )
         webRTCClient.closeConnection()
-        clearCall(target = target)
         updateCallStatus(
             callStatus = CallStatus.CALL_FINISHED
         )
+        clearCall(target = target)
+        endCurrentCall()
     }
 
     fun toggleAudio(shouldBeMuted: Boolean) {
@@ -231,11 +232,8 @@ class MainRepository @Inject constructor(
         }
     }
 
-    fun endCurrentCall() {
-        if (_currentCall.value is Call.CallData) {
-            val callData = getCallData()
-            sendEndCall(callData.callerId)
-        }
+    private fun endCurrentCall() {
+        _currentCall.value = Call.CallNoData
     }
 
     fun isNewCall(): Boolean {

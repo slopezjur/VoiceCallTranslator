@@ -1,5 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,10 @@ internal fun TelecomCallScreen(
                 }
             }
         )
+    } else {
+        // IF we are here...
+        //onCallStatus.invoke(CallViewModel.CallUiState.ERROR)
+        Log.d("TelecomCallScreen", "Error")
     }
 }
 

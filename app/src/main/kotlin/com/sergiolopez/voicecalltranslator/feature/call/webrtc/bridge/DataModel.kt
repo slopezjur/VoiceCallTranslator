@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 enum class DataModelType {
-    StartAudioCall, StartVideoCall, Offer, Answer, IceCandidates, EndCall
+    StartAudioCall, Offer, Answer, IceCandidates, EndCall
 }
 
 
