@@ -4,7 +4,6 @@ import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,18 +13,16 @@ import javax.inject.Inject
 @HiltViewModel
 class CallViewModel @Inject constructor(
     //private val webRtcManager: WebRtcManager,
-    private val mainRepository: MainRepository,
-    private val firebaseAuthService: FirebaseAuthService
+    private val mainRepository: MainRepository
 ) : VoiceCallTranslatorViewModel() {
-
-    private val _callUiState = MutableStateFlow(CallUiState.STARTING)
-    val callUiState: StateFlow<CallUiState>
-        get() = _callUiState.asStateFlow()
-
 
     private val _callState = MutableStateFlow<Call>(Call.CallNoData)
     val callState: StateFlow<Call>
         get() = _callState.asStateFlow()
+
+    private val _callStatusState = MutableStateFlow(CallStatus.STARTING)
+    val callStatusState: StateFlow<CallStatus>
+        get() = _callStatusState.asStateFlow()
 
     init {
         subscribeCallState()
@@ -33,8 +30,12 @@ class CallViewModel @Inject constructor(
 
     private fun subscribeCallState() {
         launchCatching {
-            mainRepository.currentCall.collect {
-                _callState.value = it
+            mainRepository.currentCall.collect { call ->
+                _callState.value = call
+
+                if (call is Call.CallData) {
+                    _callStatusState.value = call.callStatus
+                }
             }
         }
     }
@@ -45,7 +46,6 @@ class CallViewModel @Inject constructor(
                 target = calleeId
             )
         }
-        setCallUiState(CallUiState.CALLING)
     }
 
     fun answerCall() {
@@ -59,32 +59,24 @@ class CallViewModel @Inject constructor(
                 mainRepository.setTarget(callData.calleeId)
             }
 
-            setCallUiState(CallUiState.CALL_IN_PROGRESS)
+            //setCallUiState(CallUiState.CALL_IN_PROGRESS)
         }
     }
 
     fun sendEndCall() {
-        if (callState.value is Call.CallData) {
+        if (_callState.value is Call.CallData) {
+            val callData = (_callState.value as Call.CallData)
             mainRepository.sendEndCall(
-                target = (callState.value as Call.CallData).calleeId
+                target = if (callData.isIncoming) {
+                    callData.callerId
+                } else {
+                    callData.calleeId
+                }
             )
         }
-
-        setCallUiState(CallUiState.CALL_FINISHED)
     }
 
-    fun setCallUiState(callUiState: CallUiState) {
-        _callUiState.value = callUiState
-    }
-
-    enum class CallUiState {
-        STARTING,
-        CALLING,
-        INCOMING_CALL,
-        ANSWERING,
-        CALL_IN_PROGRESS,
-        ERROR,
-        FINISHING_CALL,
-        CALL_FINISHED
+    fun shouldBeMuted(shouldBeMuted: Boolean) {
+        mainRepository.toggleAudio(shouldBeMuted = shouldBeMuted)
     }
 }

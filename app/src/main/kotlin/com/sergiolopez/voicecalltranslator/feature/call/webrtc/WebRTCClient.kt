@@ -86,6 +86,7 @@ class WebRTCClient @Inject constructor(
     fun initializeWebrtcClient(
         username: String, observer: PeerConnection.Observer
     ) {
+        Log.d("VCT_LOGS initializeWebrtcClient: ", "initializeWebrtcClient $username")
         this.username = username
         localTrackId = "${username}_track"
         peerConnection = createPeerConnection(observer)
@@ -157,16 +158,16 @@ class WebRTCClient @Inject constructor(
                 }
 
                 override fun onCreateFailure(p0: String?) {
-                    Log.d("Such a BIG FAIL: ", p0.toString())
+                    Log.d("VCT_LOGS onCreateFailure: ", p0.toString())
                 }
 
                 override fun onSetFailure(p0: String?) {
-                    Log.d("Such a BIG FAIL: ", p0.toString())
+                    Log.d("VCT_LOGS onSetFailure: ", p0.toString())
                 }
             }, mediaConstraint)
 
         } catch (e: Exception) {
-            Log.d("Such a BIG FAIL: ", e.toString())
+            Log.d("VCT_LOGS createAnswer: ", e.toString())
         }
     }
 
@@ -200,41 +201,27 @@ class WebRTCClient @Inject constructor(
 
     fun closeConnection() {
         try {
-            localAudioTrack?.dispose()
-            // TODO : Can we remove the track for this version?
-            //rtpSenderTrack?.dispose()
+            localAudioTrack = null
+            rtpSenderTrack = null
             peerConnection?.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    // TODO : This is not working. Maybe downgrading library version and using old method?
     fun toggleAudio(shouldBeMuted: Boolean) {
         try {
             if (shouldBeMuted) {
-                rtpSenderTrack?.let {
-                    peerConnection?.removeTrack(rtpSenderTrack)
-                }
+                rtpSenderTrack?.track()?.setEnabled(false)
             } else {
-                localAudioTrack?.let {
-                    if (peerConnection?.senders?.size == 0) {
-                        rtpSenderTrack = peerConnection?.addTrack(localAudioTrack)
-                    }
-                }
+                rtpSenderTrack?.track()?.setEnabled(true)
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun initLocalSurfaceView() {
-        //this.localSurfaceView = localView
-        //initSurfaceView(localView)
-        startLocalStreaming()
-    }
-
-    private fun startLocalStreaming() {
+    fun startLocalStreaming() {
         // TODO : java.lang.IllegalStateException: C++ addTrack failed.
         // Fails when try to add a new tracker after a previous call
         try {

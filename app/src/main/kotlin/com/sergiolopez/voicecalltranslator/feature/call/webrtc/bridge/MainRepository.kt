@@ -30,18 +30,55 @@ class MainRepository @Inject constructor(
     private val getConnectionUpdateUseCase: GetConnectionUpdateUseCase,
     private val clearCallUseCase: ClearCallUseCase
 ) {
-    // Keeps track of the current TelecomCall state
+    // Keeps track of the current Call state
     private var _currentCall: MutableStateFlow<Call> = MutableStateFlow(Call.CallNoData)
     val currentCall: StateFlow<Call>
         get() = _currentCall.asStateFlow()
 
     private lateinit var userId: String
     private lateinit var target: String
+    private lateinit var startFirebaseService: () -> Unit
 
     private lateinit var scope: CoroutineScope
 
-    fun initFirebase(userId: String, scope: CoroutineScope) {
+    fun initWebrtcClient(username: String) {
+        webRTCClient.setScope(scope = scope)
+        webRTCClient.initializeWebrtcClient(username, object : MyPeerObserver() {
+
+            override fun onAddStream(p0: MediaStream?) {
+                super.onAddStream(p0)
+                Log.d("VCT_LOGS onAddStream", p0.toString())
+            }
+
+            override fun onIceCandidate(p0: IceCandidate?) {
+                super.onIceCandidate(p0)
+                Log.d("VCT_LOGS onIceCandidate", p0.toString())
+                p0?.let {
+                    webRTCClient.sendIceCandidate(target, it)
+                }
+            }
+
+            override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
+                super.onConnectionChange(newState)
+                Log.d("VCT_LOGS onConnectionChange", newState.toString())
+                if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
+                    // 1. change my status to in call
+                    //changeMyStatus(UserStatus.IN_CALL)
+                    // 2. clear latest event inside my user section in firebase database
+                    //onTransferEventToSocket()
+                    updateCallStatus(
+                        callStatus = CallStatus.CALL_IN_PROGRESS
+                    )
+                    Log.d("VCT_LOGS LET'S GOO!", "LET'S GOO!")
+                }
+            }
+        })
+    }
+
+    fun initFirebase(userId: String, scope: CoroutineScope, startFirebaseService: () -> Unit) {
+        Log.d("VCT_LOGS initFirebase: ", userId)
         this.userId = userId
+        this.startFirebaseService = startFirebaseService
         this.scope = scope
         this.scope.launch {
             val result = getConnectionUpdateUseCase.invoke(userId)
@@ -56,6 +93,7 @@ class MainRepository @Inject constructor(
                                     event.data.toString()
                                 )
                             )
+                            updateCallStatus(CallStatus.ANSWERING)
                             webRTCClient.answer(target)
                         }
 
@@ -91,108 +129,48 @@ class MainRepository @Inject constructor(
         }
     }
 
-    fun sendConnectionRequest(
-        target: String,
-    ) {
-        this.target = target
-        scope.launch {
-            val dataModel = DataModel(
-                sender = userId,
-                type = DataModelType.StartAudioCall,
-                target = target
-            )
-
-            _currentCall.value = Call.CallData(
-                callerId = userId,
-                calleeId = target,
-                offerData = "",
-                answerData = "",
-                isIncoming = false,
-                callStatus = CallStatus.CALLING,
-                timestamp = Instant.now().epochSecond
-            )
-
-            sendConnectionUpdateUseCase.invoke(
-                dataModel
-            )
-        }
+    fun setNewCallData(newCallData: Call.CallData) {
+        _currentCall.value = newCallData
     }
 
     fun setTarget(target: String) {
         this.target = target
     }
 
-    fun initWebrtcClient(username: String) {
-        webRTCClient.setScope(scope = scope)
-        webRTCClient.initializeWebrtcClient(username, object : MyPeerObserver() {
+    fun sendConnectionRequest(
+        target: String,
+    ) {
+        this.target = target
+        val dataModel = DataModel(
+            sender = userId,
+            type = DataModelType.StartAudioCall,
+            target = target
+        )
 
-            override fun onAddStream(p0: MediaStream?) {
-                super.onAddStream(p0)
-                Log.d("VCT_LOGS onAddStream", p0.toString())
-            }
+        _currentCall.value = Call.CallData(
+            callerId = userId,
+            calleeId = target,
+            offerData = "",
+            answerData = "",
+            isIncoming = false,
+            callStatus = CallStatus.CALLING,
+            timestamp = Instant.now().epochSecond
+        )
 
-            override fun onIceCandidate(p0: IceCandidate?) {
-                super.onIceCandidate(p0)
-                Log.d("VCT_LOGS onIceCandidate", p0.toString())
-                p0?.let {
-                    webRTCClient.sendIceCandidate(target, it)
-                }
-            }
+        webRTCClient.startLocalStreaming()
 
-            override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
-                super.onConnectionChange(newState)
-                Log.d("VCT_LOGS onConnectionChange", newState.toString())
-                when (newState) {
-                    PeerConnection.PeerConnectionState.NEW -> {
-                        Unit
-                    }
-
-                    PeerConnection.PeerConnectionState.CONNECTING -> {
-                        Unit
-                    }
-
-                    PeerConnection.PeerConnectionState.CONNECTED -> {
-                        // 1. change my status to in call
-                        //changeMyStatus(UserStatus.IN_CALL)
-                        // 2. clear latest event inside my user section in firebase database
-                        //onTransferEventToSocket()
-                        updateCallStatus(
-                            callStatus = CallStatus.CALL_IN_PROGRESS
-                        )
-                        Log.d("LET'S GOO!", "LET'S GOO!")
-                    }
-
-                    PeerConnection.PeerConnectionState.DISCONNECTED -> {
-                        Unit
-                    }
-
-                    PeerConnection.PeerConnectionState.FAILED -> {
-                        Unit
-                    }
-
-                    PeerConnection.PeerConnectionState.CLOSED -> {
-                        updateCallStatus(
-                            callStatus = CallStatus.CALL_FINISHED
-                        )
-                    }
-
-                    null -> TODO()
-                }
-            }
-        })
-    }
-
-    private fun updateCallStatus(callStatus: CallStatus) {
-        if (_currentCall.value is Call.CallData) {
-            _currentCall.value = (_currentCall.value as Call.CallData).copy(
-                callStatus = callStatus
+        scope.launch {
+            sendConnectionUpdateUseCase.invoke(
+                dataModel
             )
         }
     }
 
     fun startCall(callData: Call.CallData) {
-        webRTCClient.initLocalSurfaceView()
-        _currentCall.value = callData
+        webRTCClient.startLocalStreaming()
+        _currentCall.value = callData.copy(
+            callStatus = CallStatus.ANSWERING
+        )
         webRTCClient.call(target)
     }
 
@@ -208,12 +186,18 @@ class MainRepository @Inject constructor(
                 target = target
             )
         )
-        webRTCClient.closeConnection()
+        endCall(target = target)
+    }
+
+    fun endCall(target: String) {
+
         updateCallStatus(
             callStatus = CallStatus.CALL_FINISHED
         )
+        webRTCClient.closeConnection()
         clearCall(target = target)
-        endCurrentCall()
+        _currentCall.value = Call.CallNoData
+        startFirebaseService.invoke()
     }
 
     fun toggleAudio(shouldBeMuted: Boolean) {
@@ -232,36 +216,13 @@ class MainRepository @Inject constructor(
         }
     }
 
-    private fun endCurrentCall() {
-        _currentCall.value = Call.CallNoData
-    }
-
-    fun isNewCall(): Boolean {
-        return checkCallStatus(
-            callStatus = CallStatus.CALLING
-        )
-    }
-
-    fun isIncomingCall(): Boolean {
-        return checkCallStatus(
-            callStatus = CallStatus.INCOMING_CALL
-        )
-    }
-
-    fun isInProgressCall(): Boolean {
-        return checkCallStatus(
-            callStatus = CallStatus.CALL_IN_PROGRESS
-        )
+    private fun updateCallStatus(callStatus: CallStatus) {
+        if (_currentCall.value is Call.CallData) {
+            _currentCall.value = (_currentCall.value as Call.CallData).copy(
+                callStatus = callStatus
+            )
+        }
     }
 
     private fun getCallData() = (_currentCall.value as Call.CallData)
-
-    private fun checkCallStatus(callStatus: CallStatus): Boolean {
-        return if (_currentCall.value is Call.CallData) {
-            val callData = getCallData()
-            callData.callStatus == callStatus
-        } else {
-            false
-        }
-    }
 }

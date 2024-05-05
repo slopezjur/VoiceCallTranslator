@@ -5,24 +5,20 @@ import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.core.content.getSystemService
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
-import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseService
 import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class VoiceCallTranslatorActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var saveUserUseCase: SaveUserUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +43,10 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
                     PermissionBox(permissions = setUpPermissions()) {
                         VoiceCallTranslatorApp(
                             navigationCallExtra = navigationCallExtra,
-                            restartFirebaseService = startFirebaseService
+                            restartFirebaseService = {
+                                Log.d("VCT_LOGS restartFirebaseService: ", "restartFirebaseService")
+                                startFirebaseService.invoke()
+                            }
                         )
                     }
                 }

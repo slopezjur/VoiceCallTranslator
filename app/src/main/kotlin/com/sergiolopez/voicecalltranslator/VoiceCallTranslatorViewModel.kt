@@ -18,6 +18,6 @@ open class VoiceCallTranslatorViewModel : ViewModel() {
         )
 
     companion object {
-        const val ERROR_TAG = "EXPLOSION!"
+        const val ERROR_TAG = "VCT_LOGS EXPLOSION!"
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
 import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
@@ -32,26 +33,9 @@ fun CallScreen(
     restartFirebaseService: () -> Unit,
     callViewModel: CallViewModel = hiltViewModel()
 ) {
-    val callUiState = callViewModel.callUiState.collectAsState().value
     val call = callViewModel.callState.collectAsState().value
 
-    if (callUiState == CallViewModel.CallUiState.STARTING && navigationCallExtra.hasCallData && calleeId == CALLEE_DEFAULT_ID) {
-        val callData = navigationCallExtra.call as Call.CallData
-        when (callData.callStatus) {
-            CallStatus.INCOMING_CALL -> {
-                callViewModel.setCallUiState(CallViewModel.CallUiState.INCOMING_CALL)
-            }
-
-            CallStatus.CALL_IN_PROGRESS -> {
-                callViewModel.setCallUiState(CallViewModel.CallUiState.CALL_IN_PROGRESS)
-            }
-
-            else -> {
-                // All good?
-                Unit
-            }
-        }
-    }
+    val callUiState = callViewModel.callStatusState.collectAsState().value
 
     val sendConnectionRequest: (String) -> Unit = {
         callViewModel.sendConnectionRequest(it)
@@ -65,20 +49,22 @@ fun CallScreen(
         callViewModel.sendEndCall()
     }
 
-    val setCallUiState: (CallViewModel.CallUiState) -> Unit = {
-        callViewModel.setCallUiState(it)
+    val shouldBeMuted: (Boolean) -> Unit = {
+        callViewModel.shouldBeMuted(
+            shouldBeMuted = it
+        )
     }
 
     CallScreenContent(
         openAndPopUp = openAndPopUp,
         restartFirebaseService = restartFirebaseService,
-        callUiState = callUiState,
+        callStatus = callUiState,
         calleeId = calleeId,
         call = call,
         sendConnectionRequest = sendConnectionRequest,
         answerCall = answerCall,
         sendEndCall = sendEndCall,
-        setCallUiState = setCallUiState
+        shouldBeMuted = shouldBeMuted
     )
 }
 
@@ -86,16 +72,17 @@ fun CallScreen(
 fun CallScreenContent(
     openAndPopUp: (NavigationParams) -> Unit,
     restartFirebaseService: () -> Unit,
-    callUiState: CallViewModel.CallUiState,
+    callStatus: CallStatus,
     calleeId: String,
     call: Call,
     sendConnectionRequest: (String) -> Unit,
     answerCall: () -> Unit,
     sendEndCall: () -> Unit,
-    setCallUiState: (CallViewModel.CallUiState) -> Unit,
+    shouldBeMuted: (Boolean) -> Unit
 ) {
-    when (callUiState) {
-        CallViewModel.CallUiState.STARTING -> when (call) {
+    when (callStatus) {
+        CallStatus.STARTING -> when (call) {
+            // TODO : Unnecessary now?
             is Call.CallData -> {
                 if (call.callStatus != CallStatus.CALL_IN_PROGRESS && !call.isIncoming) {
                     sendConnectionRequest.invoke(call.calleeId)
@@ -109,40 +96,35 @@ fun CallScreenContent(
             }
         }
 
-        CallViewModel.CallUiState.ANSWERING -> {
-            answerCall.invoke()
-        }
-
-        CallViewModel.CallUiState.ERROR -> {
-            CallDismissedFromReceiver()
-            LaunchedEffect(Unit) {
-                delay(1000)
-                setCallUiState.invoke(CallViewModel.CallUiState.CALL_FINISHED)
-            }
-        }
-
-        CallViewModel.CallUiState.FINISHING_CALL -> {
-            // TODO : Reset from ViewModel?
-            sendEndCall()
+        CallStatus.CALL_FINISHED -> {
             // If there is no call invoke finish after a small delay
             LaunchedEffect(Unit) {
-                delay(3000)
+                //restartFirebaseService.invoke()
+                delay(1500)
+                navigateToContactList(openAndPopUp)
             }
             // Show call ended when there is no active call
             NoCallScreen()
         }
 
-        CallViewModel.CallUiState.CALL_FINISHED -> {
-            restartFirebaseService.invoke()
-            navigateToContactList(openAndPopUp)
-        }
-
         else -> {
             TelecomCallScreen(
-                callUiState = callUiState,
+                callStatus = callStatus,
                 call = call,
-                onCallStatus = {
-                    setCallUiState(it)
+                onCallAction = {
+                    when (it) {
+                        is CallAction.Answer -> {
+                            answerCall.invoke()
+                        }
+
+                        is CallAction.ToggleMute -> {
+                            shouldBeMuted.invoke(it.isMuted)
+                        }
+
+                        is CallAction.Disconnect -> {
+                            sendEndCall.invoke()
+                        }
+                    }
                 }
             )
 
@@ -206,13 +188,13 @@ fun CallScreenPreview() {
         CallScreenContent(
             openAndPopUp = {},
             restartFirebaseService = {},
-            callUiState = CallViewModel.CallUiState.CALL_IN_PROGRESS,
+            callStatus = CallStatus.CALL_IN_PROGRESS,
             calleeId = CALLEE_DEFAULT_ID,
             call = Call.CallNoData,
             sendConnectionRequest = {},
             answerCall = {},
             sendEndCall = {},
-            setCallUiState = {},
+            shouldBeMuted = {}
         )
     }
 }

@@ -20,6 +20,10 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -27,32 +31,36 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 
 @Composable
 internal fun TelecomCallScreen(
-    callUiState: CallViewModel.CallUiState,
+    callStatus: CallStatus,
     call: Call,
-    onCallStatus: (CallViewModel.CallUiState) -> Unit,
+    onCallAction: (CallAction) -> Unit
 ) {
     if (call is Call.CallData) {
+        var isMuted by remember { mutableStateOf(false) }
+
         TelecomCallScreenContent(
             name = call.callerId,
             info = call.offerData,
             incoming = call.isIncoming,
-            isActive = callUiState == CallViewModel.CallUiState.CALL_IN_PROGRESS,
-            isMuted = false,
+            isActive = callStatus == CallStatus.CALL_IN_PROGRESS,
+            isMuted = isMuted,
             onCallAction = { callAction ->
                 when (callAction) {
-                    CallAction.Answer -> {
-                        onCallStatus.invoke(CallViewModel.CallUiState.ANSWERING)
+                    is CallAction.Answer -> {
+                        onCallAction.invoke(CallAction.Answer)
                     }
 
-                    CallAction.ToggleMute -> {
-                        Unit
+                    is CallAction.ToggleMute -> {
+                        isMuted = callAction.isMuted
+                        onCallAction.invoke(CallAction.ToggleMute(isMuted))
                     }
 
-                    CallAction.Disconnect -> {
-                        onCallStatus.invoke(CallViewModel.CallUiState.FINISHING_CALL)
+                    is CallAction.Disconnect -> {
+                        onCallAction.invoke(CallAction.Disconnect)
                     }
                 }
             }
@@ -60,7 +68,7 @@ internal fun TelecomCallScreen(
     } else {
         // IF we are here...
         //onCallStatus.invoke(CallViewModel.CallUiState.ERROR)
-        Log.d("TelecomCallScreen", "Error")
+        Log.d("VCT_LOGS: TelecomCallScreen", "$callStatus $call")
     }
 }
 
@@ -84,7 +92,6 @@ private fun TelecomCallScreenContent(
             IncomingCallActions(onCallAction)
         } else {
             OngoingCallActions(
-                isActive = isActive,
                 isMuted = isMuted,
                 onCallAction = onCallAction,
             )
@@ -94,7 +101,6 @@ private fun TelecomCallScreenContent(
 
 @Composable
 private fun OngoingCallActions(
-    isActive: Boolean,
     isMuted: Boolean,
     onCallAction: (CallAction) -> Unit,
 ) {
@@ -108,7 +114,6 @@ private fun OngoingCallActions(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CallControls(
-            isActive = isActive,
             isMuted = isMuted,
             onCallAction = onCallAction,
         )
@@ -140,7 +145,7 @@ private fun IncomingCallActions(onCallAction: (CallAction) -> Unit) {
         FloatingActionButton(
             onClick = {
                 onCallAction(
-                    CallAction.Disconnect,
+                    CallAction.Disconnect
                 )
             },
             containerColor = MaterialTheme.colorScheme.error,
@@ -154,7 +159,7 @@ private fun IncomingCallActions(onCallAction: (CallAction) -> Unit) {
         FloatingActionButton(
             onClick = {
                 onCallAction(
-                    CallAction.Answer,
+                    CallAction.Answer
                 )
             },
             containerColor = MaterialTheme.colorScheme.primary,
@@ -187,7 +192,6 @@ private fun CallInfoCard(name: String, info: String, isActive: Boolean) {
 
 @Composable
 private fun CallControls(
-    isActive: Boolean,
     isMuted: Boolean,
     onCallAction: (CallAction) -> Unit,
 ) {
@@ -200,7 +204,11 @@ private fun CallControls(
         IconToggleButton(
             checked = isMuted,
             onCheckedChange = {
-                onCallAction(CallAction.ToggleMute)
+                onCallAction(
+                    CallAction.ToggleMute(
+                        isMuted = it
+                    )
+                )
             },
         ) {
             if (isMuted) {

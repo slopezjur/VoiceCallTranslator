@@ -3,6 +3,7 @@ package com.sergiolopez.voicecalltranslator.feature.common.domain.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnectionUpdateUseCase
@@ -13,6 +14,7 @@ import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,31 +39,40 @@ class FirebaseService : Service() {
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 
     override fun onCreate() {
+        Log.d("VCT_LOGS FirebaseService: ", "onCreate")
         super.onCreate()
         callNotificationManager = CallNotificationManager(applicationContext)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        scope.launch {
-            firebaseAuthService.currentUser.collect { user ->
-                user?.let {
-                    when (intent?.action) {
-                        ACTION_START_SERVICE -> startService(it)
+        when (intent?.action) {
+            ACTION_START_SERVICE -> {
+                Log.d("VCT_LOGS onStartCommand: ", startId.toString())
+                startFirebaseService.invoke()
+            }
 
-                        else -> {
-                            //throw IllegalArgumentException("Unknown action")
-                        }
-                    }
-                }
+            else -> {
+                //throw IllegalArgumentException("Unknown action")
             }
         }
 
         return START_STICKY
     }
 
-    private fun startService(user: User) {
+    private val startFirebaseService: () -> Unit = {
+        scope.launch {
+            firebaseAuthService.currentUser.collect { user ->
+                user?.let {
+                    startWebRtcManager(it)
+                }
+            }
+        }
+    }
+
+    private fun startWebRtcManager(user: User) {
         mainRepository.initFirebase(
             userId = user.id,
+            startFirebaseService = startFirebaseService,
             scope = scope
         )
         mainRepository.initWebrtcClient(username = user.id)
@@ -78,7 +89,7 @@ class FirebaseService : Service() {
                             val callData = if (mainRepository.currentCall.value is Call.CallData) {
                                 mainRepository.currentCall.value as Call.CallData
                             } else {
-                                Call.CallData(
+                                val newCallData = Call.CallData(
                                     callerId = call.sender ?: "",
                                     calleeId = call.target,
                                     isIncoming = true,
@@ -87,6 +98,8 @@ class FirebaseService : Service() {
                                     answerData = "",
                                     timestamp = call.timeStamp
                                 )
+                                mainRepository.setNewCallData(newCallData)
+                                newCallData
                             }
                             launchIncomingCall(
                                 callData = callData
@@ -96,9 +109,11 @@ class FirebaseService : Service() {
                         DataModelType.EndCall -> {
                             //initWebrtcClient(user)
                             val callData = if (mainRepository.currentCall.value is Call.CallData) {
-                                mainRepository.currentCall.value as Call.CallData
+                                (mainRepository.currentCall.value as Call.CallData).copy(
+                                    callStatus = CallStatus.CALL_FINISHED
+                                )
                             } else {
-                                Call.CallData(
+                                val newCallData = Call.CallData(
                                     callerId = call.sender ?: "",
                                     calleeId = call.target,
                                     isIncoming = false,
@@ -107,6 +122,8 @@ class FirebaseService : Service() {
                                     answerData = "",
                                     timestamp = call.timeStamp
                                 )
+                                mainRepository.setNewCallData(newCallData)
+                                newCallData
                             }
                             endCall(
                                 callData = callData
@@ -123,6 +140,7 @@ class FirebaseService : Service() {
     }
 
     private fun launchIncomingCall(callData: Call.CallData) {
+        Log.d("VCT_LOGS launchIncomingCall: ", callData.toString())
         if (callData.callStatus == CallStatus.CALLING || callData.callStatus == CallStatus.CALL_IN_PROGRESS) {
             if (callData.isIncoming) {
                 mainRepository.setTarget(callData.callerId)
@@ -136,24 +154,19 @@ class FirebaseService : Service() {
     }
 
     private fun endCall(callData: Call.CallData) {
+        Log.d("VCT_LOGS endCall: ", callData.toString())
         callNotificationManager.updateCallNotification(callData)
         if (callData.isIncoming) {
-            mainRepository.sendEndCall(callData.callerId)
+            mainRepository.endCall(callData.callerId)
         } else {
-            mainRepository.sendEndCall(callData.calleeId)
+            mainRepository.endCall(callData.calleeId)
         }
     }
 
-    private fun isValidMainRepoCallData(): Boolean {
-        return if (mainRepository.currentCall.value is Call.CallData) {
-            getCallData().callStatus != CallStatus.CALL_IN_PROGRESS
-        } else {
-            true
-        }
-    }
-
-    private fun getCallData(): Call.CallData {
-        return mainRepository.currentCall.value as Call.CallData
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("VCT_LOGS onDestroy: ", "scope.cancel()")
+        scope.cancel()
     }
 
     override fun onBind(p0: Intent?): IBinder? = null
