@@ -15,6 +15,7 @@ hiltVersion = "2.51.1"
 kotlin = "1.9.23"
 junit = "4.13.2"
 junitVersion = "1.1.5"
+openAi = "3.7.2"
 navigationCompose = "2.7.7"
 serialization = "1.6.3"
 webRtc = "1.0.32006"
@@ -44,7 +45,10 @@ hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-comp
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-common", version.ref = "navigationCompose"}
+openai-client = { group = "com.aallam.openai", name = "openai-client" }
+openai-client-bom = { group = "com.aallam.openai", name = "openai-client-bom", version.ref = "openAi" }
 #web-rtc = { group = "org.webrtc", name = "google-webrtc", version.ref = "webRtc" }
 
 [plugins]

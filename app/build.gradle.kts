@@ -55,6 +55,7 @@ dependencies {
 
     val composeBom = platform(libs.compose.bom)
     val firebaseBom = platform(libs.firebase.bom)
+    val openAiBom = platform(libs.openai.client.bom)
 
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity)
@@ -77,7 +78,12 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.navigation.compose)
+    implementation(openAiBom)
+    implementation(libs.openai.client)
     //implementation(libs.web.rtc)
+
+    //runtimeOnly(libs.ktor.client)
+    runtimeOnly("io.ktor:ktor-client-okhttp")
 
     kapt(libs.hilt.android.compiler)
 
