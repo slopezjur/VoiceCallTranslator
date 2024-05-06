@@ -3,7 +3,9 @@ package com.sergiolopez.voicecalltranslator.feature.call.audio
 import android.content.Context
 import android.os.Build
 import android.os.Environment
+import android.util.Log
 import com.sergiolopez.voicecalltranslator.feature.call.audio.WavFileBuilder.createWavFileFromByteBufferList
+import com.sergiolopez.voicecalltranslator.feature.call.magiccreator.VctMagicCreator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +20,8 @@ import java.util.Queue
 import javax.inject.Inject
 
 class AudioProcessor @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val vctMagicCreator: VctMagicCreator
 ) : AudioRecordDataCallback {
 
     private lateinit var scope: CoroutineScope
@@ -29,6 +32,10 @@ class AudioProcessor @Inject constructor(
     private val byteBufferList = mutableListOf<ByteBuffer>()
 
     private val delayBuffersCount = 300  // 3 seconds delay with expected 10ms buffer after reading
+
+    fun setScope(scope: CoroutineScope) {
+        this.scope = scope
+    }
 
     override fun onAudioDataRecorded(
         audioFormat: Int,
@@ -78,12 +85,52 @@ class AudioProcessor @Inject constructor(
     private fun createWavFile(byteBufferList: List<ByteBuffer>) {
         val outputFile = createOutputFile()
         scope.launch(Dispatchers.IO) {
-            createWavFileFromByteBufferList(
+            Log.d("VCT_MAGIC", "createWavFile Start")
+            val wavFileCreated = createWavFileFromByteBufferList(
                 byteBufferList = byteBufferList,
                 output = outputFile
             )
+            Log.d("VCT_MAGIC", "createWavFile End: $wavFileCreated")
+            if (wavFileCreated) {
+                //val audioTranscription = "Esto es una prueba de audio, hermano!"
+                //val textTranslation = "This is an audio test, brother!"
+
+                val audioTranscription = getAudioTranscription(
+                    outputFile = outputFile
+                )
+                val translatedText = getTextTranslation(
+                    audioTranscription = audioTranscription
+                )
+            }
         }
     }
+
+    private suspend fun getAudioTranscription(outputFile: File): String {
+        val audioTranscription = vctMagicCreator.speechToText(
+            outputFile = outputFile
+        )
+        Log.d("VCT_MAGIC", "audioTranscription: $audioTranscription")
+
+        return audioTranscription
+    }
+
+    private suspend fun getTextTranslation(audioTranscription: String): String? {
+        val translatedText = vctMagicCreator.translation(
+            textToTranslate = audioTranscription
+        )
+        Log.d("VCT_MAGIC", "translatedText: $translatedText")
+
+        return translatedText
+    }
+
+    /*private suspend fun getAudioSpeech(translatedText: String): ByteArray {
+        val audioRaw = vctMagicCreator.textToSpeech(
+            textToSpeech = translatedText
+        )
+        Log.d("VCT_MAGIC", "textToSpeech: $audioRaw")
+
+        return audioRaw
+    }*/
 
     private fun createOutputFile(): File {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
@@ -103,9 +150,5 @@ class AudioProcessor @Inject constructor(
         }
 
         return output
-    }
-
-    fun setScope(scope: CoroutineScope) {
-        this.scope = scope
     }
 }

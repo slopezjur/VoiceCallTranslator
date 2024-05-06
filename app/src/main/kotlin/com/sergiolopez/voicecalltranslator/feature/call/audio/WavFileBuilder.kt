@@ -18,47 +18,59 @@ object WavFileBuilder {
     suspend fun createWavFileFromByteBufferList(
         byteBufferList: List<ByteBuffer>,
         output: File
-    ) {
-        val totalDataSize =
-            byteBufferList.size * byteBufferList[0].remaining()
+    ): Boolean {
+        var result = false
+        try {
 
-        Log.d("AudioProcessor", "totalDataSize: $totalDataSize")
-        withContext(Dispatchers.IO) {
-            FileOutputStream(output).use { encoded ->
+            val totalDataSize =
+                byteBufferList.size * byteBufferList[0].remaining()
 
-                // WAVE RIFF header
-                writeToOutput(encoded, "RIFF")
-                writeToOutput(encoded, 36 + totalDataSize) // Add total data size to header size
-                writeToOutput(encoded, "WAVE")
+            Log.d("AudioProcessor", "totalDataSize: $totalDataSize")
+            withContext(Dispatchers.IO) {
+                FileOutputStream(output).use { encoded ->
 
-                // SUB CHUNK 1 (FORMAT)
-                writeToOutput(encoded, "fmt ")
-                writeToOutput(encoded, 16)  // Fixed size for PCM header
-                writeToOutput(encoded, 1.toShort())  // Audio format 1 for PCM
-                writeToOutput(encoded, CHANNEL_COUNT.toShort())  // Mono
-                writeToOutput(encoded, SAMPLE_RATE)  // 48000 Hz
-                writeToOutput(
-                    encoded,
-                    SAMPLE_RATE * CHANNEL_COUNT * BITS_PER_SAMPLE / 8
-                )  // Byte rate
-                writeToOutput(
-                    encoded,
-                    (CHANNEL_COUNT * BITS_PER_SAMPLE / 8).toShort()
-                )  // Block align
-                writeToOutput(encoded, BITS_PER_SAMPLE.toShort())  // 16 bits per sample
+                    // WAVE RIFF header
+                    writeToOutput(encoded, "RIFF")
+                    writeToOutput(encoded, 36 + totalDataSize) // Add total data size to header size
+                    writeToOutput(encoded, "WAVE")
 
-                // SUB CHUNK 2 (AUDIO DATA)
-                writeToOutput(encoded, "data")
-                writeToOutput(encoded, totalDataSize)
+                    // SUB CHUNK 1 (FORMAT)
+                    writeToOutput(encoded, "fmt ")
+                    writeToOutput(encoded, 16)  // Fixed size for PCM header
+                    writeToOutput(encoded, 1.toShort())  // Audio format 1 for PCM
+                    writeToOutput(encoded, CHANNEL_COUNT.toShort())  // Mono
+                    writeToOutput(encoded, SAMPLE_RATE)  // 48000 Hz
+                    writeToOutput(
+                        encoded,
+                        SAMPLE_RATE * CHANNEL_COUNT * BITS_PER_SAMPLE / 8
+                    )  // Byte rate
+                    writeToOutput(
+                        encoded,
+                        (CHANNEL_COUNT * BITS_PER_SAMPLE / 8).toShort()
+                    )  // Block align
+                    writeToOutput(encoded, BITS_PER_SAMPLE.toShort())  // 16 bits per sample
 
-                // Write all ByteBuffer data to output
-                byteBufferList.forEach { buffer ->
-                    val data = ByteArray(buffer.remaining())
-                    buffer.get(data)
-                    encoded.write(data)
+                    // SUB CHUNK 2 (AUDIO DATA)
+                    writeToOutput(encoded, "data")
+                    writeToOutput(encoded, totalDataSize)
+
+                    // Write all ByteBuffer data to output
+                    byteBufferList.forEach { buffer ->
+                        val data = ByteArray(buffer.remaining())
+                        buffer.get(data)
+                        encoded.write(data)
+                    }
+
+                    result = true
                 }
             }
+
+        } catch (exception: Exception) {
+            Log.d("VCT_LOGS", "createWavFileFromByteBufferList ${exception.message}")
+            result = false
         }
+
+        return result
     }
 
     private fun writeToOutput(output: OutputStream, data: String) {
