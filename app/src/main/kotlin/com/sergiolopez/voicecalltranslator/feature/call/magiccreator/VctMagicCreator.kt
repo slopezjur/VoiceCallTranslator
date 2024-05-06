@@ -16,6 +16,8 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetSynthe
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import okio.source
 import java.io.File
+import java.util.LinkedList
+import java.util.Queue
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,10 +27,21 @@ class VctMagicCreator @Inject constructor(
     private val firebaseAuthService: FirebaseAuthService,
     private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper
 ) {
-    private var openAI =
-        OpenAI(token = VctApiKeys.OPEN_AI_API_KEY, logging = LoggingConfig(LogLevel.All))
+    private var openAI = OpenAI(
+        token = VctApiKeys.OPEN_AI_API_KEY,
+        logging = LoggingConfig(LogLevel.All)
+    )
 
     private var openAiSyntheticVoice: OpenAiSyntheticVoice? = null
+
+    private val chatMessageHistoryQueue: Queue<ChatMessage> = LinkedList()
+
+    private val defaultChatMessageList = listOf(
+        ChatMessage(
+            role = ChatRole.System,
+            content = "You are a really helpful assistant translator and you have to translate text between different languages taking into account also the context of the current conversation which you can check by looking at the content of “HISTORY_TRANSLATION_KEY” for every message."
+        )
+    )
 
     suspend fun initializeVctMagicCreator() {
         firebaseAuthService.currentUser.collect { user ->
@@ -66,23 +79,30 @@ class VctMagicCreator @Inject constructor(
         val destinationLanguage = "English"
         //
 
+        val chatMessageForHistory = ChatMessage(
+            role = ChatRole.User,
+            content = "HISTORY_TRANSLATION_KEY='$textToTranslate'"
+        )
+
+        chatMessageHistoryQueue.add(chatMessageForHistory)
+
+        val currentChatMessage = ChatMessage(
+            role = ChatRole.User,
+            content = "Translate '$textToTranslate' from $originLanguage to $destinationLanguage. Answer only with the translation."
+        )
+
         val chatCompletionRequest = ChatCompletionRequest(
             model = ModelId(OpenAiParams.TRANSLATION_GPT_3_5_TURBO),
-            messages = listOf(
-                ChatMessage(
-                    role = ChatRole.System,
-                    content = "You are a helpful assistant translator!"
-                ),
-                ChatMessage(
-                    role = ChatRole.User,
-                    content = "Translate '$textToTranslate' from $originLanguage to $destinationLanguage. Answer only with the translation."
-                )
-            )
+            messages = defaultChatMessageList + chatMessageHistoryQueue + listOf(currentChatMessage)
         )
 
         val translation = openAI.chatCompletion(
             request = chatCompletionRequest
         )
+
+        if (chatMessageHistoryQueue.size >= CHAT_MESSAGE_HISTORY_LIMIT) {
+            chatMessageHistoryQueue.poll()
+        }
 
         return translation.choices.firstOrNull()?.message?.content
     }
@@ -100,5 +120,9 @@ class VctMagicCreator @Inject constructor(
         val rawAudio = openAI.speech(speechRequest)
 
         return rawAudio
+    }
+
+    companion object {
+        private const val CHAT_MESSAGE_HISTORY_LIMIT = 20
     }
 }
