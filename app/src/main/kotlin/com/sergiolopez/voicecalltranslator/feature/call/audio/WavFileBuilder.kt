@@ -10,15 +10,18 @@ import java.nio.ByteBuffer
 
 object WavFileBuilder {
 
+    // WebRTC params configuration for PCM audio
+    private const val CHANNEL_COUNT = 1
+    private const val SAMPLE_RATE = 48000
+    private const val BITS_PER_SAMPLE = 16
+
     suspend fun createWavFileFromByteBufferList(
-        buffers: List<ByteBuffer>,
-        channelCount: Int = 1,
-        sampleRate: Int = 48000,
-        bitsPerSample: Int = 16,
+        byteBufferList: List<ByteBuffer>,
         output: File
     ) {
         val totalDataSize =
-            buffers.size * buffers[0].remaining()  // Assuming all buffers are of equal size and fully filled
+            byteBufferList.size * byteBufferList[0].remaining()
+
         Log.d("AudioProcessor", "totalDataSize: $totalDataSize")
         withContext(Dispatchers.IO) {
             FileOutputStream(output).use { encoded ->
@@ -32,24 +35,29 @@ object WavFileBuilder {
                 writeToOutput(encoded, "fmt ")
                 writeToOutput(encoded, 16)  // Fixed size for PCM header
                 writeToOutput(encoded, 1.toShort())  // Audio format 1 for PCM
-                writeToOutput(encoded, channelCount.toShort())  // Mono
-                writeToOutput(encoded, sampleRate)  // 48000 Hz
-                writeToOutput(encoded, sampleRate * channelCount * bitsPerSample / 8)  // Byte rate
-                writeToOutput(encoded, (channelCount * bitsPerSample / 8).toShort())  // Block align
-                writeToOutput(encoded, bitsPerSample.toShort())  // 16 bits per sample
+                writeToOutput(encoded, CHANNEL_COUNT.toShort())  // Mono
+                writeToOutput(encoded, SAMPLE_RATE)  // 48000 Hz
+                writeToOutput(
+                    encoded,
+                    SAMPLE_RATE * CHANNEL_COUNT * BITS_PER_SAMPLE / 8
+                )  // Byte rate
+                writeToOutput(
+                    encoded,
+                    (CHANNEL_COUNT * BITS_PER_SAMPLE / 8).toShort()
+                )  // Block align
+                writeToOutput(encoded, BITS_PER_SAMPLE.toShort())  // 16 bits per sample
 
                 // SUB CHUNK 2 (AUDIO DATA)
                 writeToOutput(encoded, "data")
                 writeToOutput(encoded, totalDataSize)
 
                 // Write all ByteBuffer data to output
-                buffers.forEach { buffer ->
+                byteBufferList.forEach { buffer ->
                     val data = ByteArray(buffer.remaining())
                     buffer.get(data)
                     encoded.write(data)
                 }
             }
-            Log.d("AudioProcessor", "buffers: ${buffers.size}")
         }
     }
 

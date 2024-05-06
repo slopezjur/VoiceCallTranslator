@@ -3,7 +3,6 @@ package com.sergiolopez.voicecalltranslator.feature.call.audio
 import android.content.Context
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import com.sergiolopez.voicecalltranslator.feature.call.audio.WavFileBuilder.createWavFileFromByteBufferList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,9 +12,9 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.LinkedList
 import java.util.Locale
 import java.util.Queue
-import java.util.concurrent.ConcurrentLinkedQueue
 import javax.inject.Inject
 
 class AudioProcessor @Inject constructor(
@@ -24,11 +23,12 @@ class AudioProcessor @Inject constructor(
 
     private lateinit var scope: CoroutineScope
 
-    //private val bufferMiddleQueue: Queue<ByteBuffer> = LinkedList()
-    private val bufferMiddleQueue: Queue<ByteBuffer> = ConcurrentLinkedQueue()
+    private val bufferMiddleQueue: Queue<ByteBuffer> = LinkedList()
+    //private val bufferMiddleQueue: Queue<ByteBuffer> = ConcurrentLinkedQueue()
+
+    private val byteBufferList = mutableListOf<ByteBuffer>()
 
     private val delayBuffersCount = 300  // 3 seconds delay with expected 10ms buffer after reading
-    private var count = 1
 
     override fun onAudioDataRecorded(
         audioFormat: Int,
@@ -37,58 +37,51 @@ class AudioProcessor @Inject constructor(
         audioBuffer: ByteBuffer
     ) {
         // Clone buffer
-        val audioBufferCopy = ByteBuffer.allocate(audioBuffer.capacity())
-        audioBufferCopy.put(audioBuffer.array(), audioBuffer.position(), audioBuffer.limit())
+        val length = audioBuffer.limit() - audioBuffer.position()
+
+        val audioBufferCopy = ByteBuffer.allocate(length)
+        audioBufferCopy.put(audioBuffer.array(), audioBuffer.position(), length)
         audioBufferCopy.flip()  // Prepare next reading
+
+        val audioBufferCopyAux = ByteBuffer.allocate(length)
+        audioBufferCopyAux.put(audioBufferCopy.array(), audioBufferCopy.position(), length)
+        audioBufferCopyAux.flip()  // Prepare next reading
 
         // Add cloned buffer to the queue
         bufferMiddleQueue.add(audioBufferCopy)
+        byteBufferList.add(audioBufferCopyAux)
 
         // Clean remote buffer to create latency
         audioBuffer.clear()
 
-        if (bufferMiddleQueue.size == delayBuffersCount) {
-            //Log.d("AudioProcessor", "bufferQueue.size: ${bufferMiddleQueue.size}")
-            /*if (count == delayBuffersCount) {
-                Log.d("AudioProcessor", "createOutputFile")
-                val outputFile = createOutputFile()
+        if (bufferMiddleQueue.size >= delayBuffersCount) {
+            if (byteBufferList.size >= delayBuffersCount - 1) {
                 createWavFile(
-                    outputFile = outputFile,
-                    byteBufferList = bufferMiddleQueue.toList()
+                    byteBufferList = byteBufferList.toList()
                 )
-                count = 0
-            }*/
-            // If queue is ready
-            val delayedBuffer = bufferMiddleQueue.poll()  // Get oldest buffer
-            delayedBuffer?.let { audioBuffer.put(it) }
+                byteBufferList.clear()
+            }
 
-            //Log.d("AudioProcessor", "delayedBuffer?.let { audioBuffer.put(it) }")
+            val delayedAudioBuffer = bufferMiddleQueue.poll()  // Get oldest buffer
+            delayedAudioBuffer?.let {
+                audioBuffer.put(it)
+            }
         } else {
-            // Send empty sound if reading is being faster
-            val silence = ByteArray(audioBuffer.capacity())
-            audioBuffer.put(silence)
-
-            //Log.d("AudioProcessor", "audioBuffer.put(silence)")
+            if (audioBufferCopy.remaining() >= audioBuffer.remaining()) {
+                val silence = ByteArray(audioBuffer.capacity())
+                audioBuffer.put(silence)
+            }
         }
         audioBuffer.flip()  // Prepare next round
-
-        count++
     }
 
-    private fun createWavFile(outputFile: File, byteBufferList: List<ByteBuffer>) {
+    private fun createWavFile(byteBufferList: List<ByteBuffer>) {
+        val outputFile = createOutputFile()
         scope.launch(Dispatchers.IO) {
-            try {
-                createWavFileFromByteBufferList(
-                    buffers = byteBufferList,
-                    output = outputFile
-                )
-                Log.d(
-                    "AudioProcessor",
-                    "createWavFileFromByteBufferList: ${bufferMiddleQueue.size}"
-                )
-            } catch (e: Exception) {
-                Log.e("AudioProcessor", "Error creating WAV file", e)
-            }
+            createWavFileFromByteBufferList(
+                byteBufferList = byteBufferList,
+                output = outputFile
+            )
         }
     }
 

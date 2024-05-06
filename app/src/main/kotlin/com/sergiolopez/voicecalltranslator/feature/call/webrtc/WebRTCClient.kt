@@ -63,6 +63,7 @@ class WebRTCClient @Inject constructor(
     }
 
     private fun createPeerConnectionFactory(): PeerConnectionFactory {
+        // TODO : Use WebRTC improvements for audio quality?
         val adm = JavaAudioDeviceModule.builder(context)
             .setAudioRecordDataCallback(audioProcessor)
             .createAudioDeviceModule()

@@ -93,8 +93,14 @@ class MainRepository @Inject constructor(
                                     event.data.toString()
                                 )
                             )
-                            updateCallStatus(CallStatus.ANSWERING)
-                            webRTCClient.answer(target)
+                            try {
+                                webRTCClient.answer(target)
+                                updateCallStatus(CallStatus.ANSWERING)
+                            } catch (exception: Exception) {
+                                event.sender?.let {
+                                    sendEndCall(it)
+                                }
+                            }
                         }
 
                         DataModelType.Answer -> {
