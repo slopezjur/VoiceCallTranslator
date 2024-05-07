@@ -12,22 +12,28 @@ import java.util.Locale
 
 object AudioFileManager {
 
-    fun createOutputFile(
-        context: Context
-    ): File {
+    fun buildNameFile(fileIdentifier: Int): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
         val date = dateFormat.format(Date())
+
+        return "recording_${fileIdentifier}_$date.wav"
+    }
+
+    fun createOutputFile(
+        context: Context,
+        nameFile: String
+    ): File {
         val output = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val path = context.getExternalFilesDir(Environment.DIRECTORY_RECORDINGS)
             File(
                 path,
-                "recording_$date.wav"
+                nameFile
             )
         } else {
             val path = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
             File(
                 path,
-                "recording_$date.wav"
+                nameFile
             )
         }
 

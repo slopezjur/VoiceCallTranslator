@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.Queue
@@ -43,7 +42,7 @@ object AudioProcessorBuilder {
                     writeToOutput(encoded, 16)  // Fixed size for PCM header
                     writeToOutput(encoded, 1.toShort())  // Audio format 1 for PCM
                     writeToOutput(encoded, CHANNEL_COUNT.toShort())  // Mono
-                    writeToOutput(encoded, OPEN_AI_SAMPLE_RATE)  // 48000 Hz
+                    writeToOutput(encoded, OPEN_AI_SAMPLE_RATE) // OPEN_AI_SAMPLE_RATE // 24000 Hz
                     writeToOutput(
                         encoded,
                         OPEN_AI_SAMPLE_RATE * CHANNEL_COUNT * BITS_PER_SAMPLE / 8
@@ -76,6 +75,31 @@ object AudioProcessorBuilder {
         return result
     }
 
+    private fun writeToOutput(encoded: FileOutputStream, value: String) {
+        encoded.write(value.toByteArray())
+    }
+
+    private fun writeToOutput(encoded: FileOutputStream, value: Int) {
+        encoded.write(
+            byteArrayOf(
+                (value and 0xFF).toByte(),
+                (value shr 8 and 0xFF).toByte(),
+                (value shr 16 and 0xFF).toByte(),
+                (value shr 24 and 0xFF).toByte()
+            )
+        )
+    }
+
+    private fun writeToOutput(encoded: FileOutputStream, value: Short) {
+        encoded.write(
+            byteArrayOf(
+                (value.toInt() and 0xFF).toByte(),
+                (value.toInt() shr 8 and 0xFF).toByte()
+            )
+        )
+    }
+
+    // Use this method to save the ByteArray Wav response from OpenAI speech
     suspend fun createWavFileFromByteArray(
         byteArray: ByteArray,
         output: File
@@ -98,7 +122,7 @@ object AudioProcessorBuilder {
                     writeToOutput(encoded, 16)  // Fixed size for PCM header
                     writeToOutput(encoded, 1.toShort())  // Audio format 1 for PCM
                     writeToOutput(encoded, CHANNEL_COUNT.toShort())  // Mono
-                    writeToOutput(encoded, OPEN_AI_SAMPLE_RATE)  // OPEN_AI_SAMPLE_RATE // 24000 Hz
+                    writeToOutput(encoded, OPEN_AI_SAMPLE_RATE) // OPEN_AI_SAMPLE_RATE // 24000 Hz
                     writeToOutput(
                         encoded,
                         OPEN_AI_SAMPLE_RATE * CHANNEL_COUNT * BITS_PER_SAMPLE / 8
@@ -127,7 +151,7 @@ object AudioProcessorBuilder {
         return result
     }
 
-    fun fillBufferFromWavByteArray(
+    fun fillBufferQueueFromWavByteArray(
         rawAudioBytes: ByteArray,
         bufferMiddleQueue: Queue<ByteBuffer>
     ) {
@@ -146,44 +170,7 @@ object AudioProcessorBuilder {
         }
     }
 
-    /*private fun writeToOutput(encoded: FileOutputStream, value: String) {
-        encoded.write(value.toByteArray())
-    }
-
-    private fun writeToOutput(encoded: FileOutputStream, value: Int) {
-        encoded.write(byteArrayOf(
-            (value and 0xFF).toByte(),
-            (value shr 8 and 0xFF).toByte(),
-            (value shr 16 and 0xFF).toByte(),
-            (value shr 24 and 0xFF).toByte()
-        ))
-    }
-
-    private fun writeToOutput(encoded: FileOutputStream, value: Short) {
-        encoded.write(byteArrayOf(
-            (value.toInt() and 0xFF).toByte(),
-            (value.toInt() shr 8 and 0xFF).toByte()
-        ))
-    }*/
-
-    private fun writeToOutput(output: OutputStream, data: String) {
-        for (element in data) {
-            output.write(element.code)
-        }
-    }
-
-    private fun writeToOutput(output: OutputStream, data: Int) {
-        output.write(data shr 0)
-        output.write(data shr 8)
-        output.write(data shr 16)
-        output.write(data shr 24)
-    }
-
-    private fun writeToOutput(output: OutputStream, data: Short) {
-        output.write(data.toInt() shr 0)
-        output.write(data.toInt() shr 8)
-    }
-
+    // Extract Wav structure from ByteArray
     fun getWavFileStructure(
         byteArray: ByteArray
     ) {

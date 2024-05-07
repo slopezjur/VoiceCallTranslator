@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.magiccreator
+package com.sergiolopez.voicecalltranslator.feature.call.domain.model
 
 import com.aallam.openai.api.audio.Voice
 

@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.magiccreator
+package com.sergiolopez.voicecalltranslator.feature.call.data.repository
 
 import com.aallam.openai.api.audio.SpeechRequest
 import com.aallam.openai.api.audio.SpeechResponseFormat
@@ -13,9 +13,11 @@ import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
 import com.sergiolopez.voicecalltranslator.VctApiKeys
 import com.sergiolopez.voicecalltranslator.feature.call.data.mapper.OpenAiSyntheticVoiceMapper
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.OpenAiSyntheticVoice
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetRawAudioByteArrayUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetSyntheticVoiceOptionUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SaveRawAudioByteArrayUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.magiccreator.OpenAiParams
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import okio.source
 import java.io.File
@@ -25,7 +27,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class VctMagicCreator @Inject constructor(
+class VctMagicRepository @Inject constructor(
     private val getSyntheticVoiceOptionUseCase: GetSyntheticVoiceOptionUseCase,
     private val firebaseAuthService: FirebaseAuthService,
     private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper,
@@ -128,11 +130,9 @@ class VctMagicCreator @Inject constructor(
             )
         )
 
-        val rawAudio = openAI.speech(speechRequest)
-
         //saveRawAudioByteArrayUseCase.invoke(rawAudio)
 
-        return rawAudio //getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
+        return openAI.speech(speechRequest) //getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
     }
 
     companion object {
@@ -140,6 +140,5 @@ class VctMagicCreator @Inject constructor(
         private const val MAX_ANSWERS_PER_REQUEST = 1
         private const val MAX_TOKENS_PER_REQUEST = 30
         private const val WAV_SPEECH_RESPONSE_FORMAT = "wav"
-        private const val PCM_SPEECH_RESPONSE_FORMAT = "pcm"
     }
 }
