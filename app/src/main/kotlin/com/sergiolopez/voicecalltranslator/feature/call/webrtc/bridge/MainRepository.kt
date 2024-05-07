@@ -9,6 +9,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConne
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.IceCandidateSerializer
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.MyPeerObserver
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,12 +48,12 @@ class MainRepository @Inject constructor(
 
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
-                Log.d("VCT_LOGS onAddStream", p0.toString())
+                Log.d("$VCT_LOGS onAddStream", p0.toString())
             }
 
             override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
-                Log.d("VCT_LOGS onIceCandidate", p0.toString())
+                Log.d("$VCT_LOGS onIceCandidate", p0.toString())
                 p0?.let {
                     webRTCClient.sendIceCandidate(target, it)
                 }
@@ -60,7 +61,7 @@ class MainRepository @Inject constructor(
 
             override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
                 super.onConnectionChange(newState)
-                Log.d("VCT_LOGS onConnectionChange", newState.toString())
+                Log.d("$VCT_LOGS onConnectionChange", newState.toString())
                 if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
                     // 1. change my status to in call
                     //changeMyStatus(UserStatus.IN_CALL)
@@ -69,14 +70,14 @@ class MainRepository @Inject constructor(
                     updateCallStatus(
                         callStatus = CallStatus.CALL_IN_PROGRESS
                     )
-                    Log.d("VCT_LOGS LET'S GOO!", "LET'S GOO!")
+                    Log.d("$VCT_LOGS LET'S GOO!", "LET'S GOO!")
                 }
             }
         })
     }
 
     fun initFirebase(userId: String, scope: CoroutineScope, startFirebaseService: () -> Unit) {
-        Log.d("VCT_LOGS initFirebase: ", userId)
+        Log.d("$VCT_LOGS initFirebase: ", userId)
         this.userId = userId
         this.startFirebaseService = startFirebaseService
         this.scope = scope

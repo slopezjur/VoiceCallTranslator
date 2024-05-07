@@ -3,6 +3,7 @@ package com.sergiolopez.voicecalltranslator
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -18,6 +19,6 @@ open class VoiceCallTranslatorViewModel : ViewModel() {
         )
 
     companion object {
-        const val ERROR_TAG = "VCT_LOGS EXPLOSION!"
+        const val ERROR_TAG = "$VCT_LOGS EXPLOSION!"
     }
 }

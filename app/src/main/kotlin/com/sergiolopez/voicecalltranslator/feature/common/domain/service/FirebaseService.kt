@@ -10,6 +10,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnec
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +40,7 @@ class FirebaseService : Service() {
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 
     override fun onCreate() {
-        Log.d("VCT_LOGS FirebaseService: ", "onCreate")
+        Log.d("$VCT_LOGS FirebaseService: ", "onCreate")
         super.onCreate()
         callNotificationManager = CallNotificationManager(applicationContext)
     }
@@ -47,7 +48,7 @@ class FirebaseService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START_SERVICE -> {
-                Log.d("VCT_LOGS onStartCommand: ", startId.toString())
+                Log.d("$VCT_LOGS onStartCommand: ", startId.toString())
                 startFirebaseService.invoke()
             }
 
@@ -140,7 +141,7 @@ class FirebaseService : Service() {
     }
 
     private fun launchIncomingCall(callData: Call.CallData) {
-        Log.d("VCT_LOGS launchIncomingCall: ", callData.toString())
+        Log.d("$VCT_LOGS launchIncomingCall: ", callData.toString())
         if (callData.callStatus == CallStatus.CALLING || callData.callStatus == CallStatus.CALL_IN_PROGRESS) {
             if (callData.isIncoming) {
                 mainRepository.setTarget(callData.callerId)
@@ -154,7 +155,7 @@ class FirebaseService : Service() {
     }
 
     private fun endCall(callData: Call.CallData) {
-        Log.d("VCT_LOGS endCall: ", callData.toString())
+        Log.d("$VCT_LOGS endCall: ", callData.toString())
         callNotificationManager.updateCallNotification(callData)
         if (callData.isIncoming) {
             mainRepository.endCall(callData.callerId)
@@ -165,7 +166,7 @@ class FirebaseService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("VCT_LOGS onDestroy: ", "scope.cancel()")
+        Log.d("$VCT_LOGS onDestroy: ", "scope.cancel()")
         scope.cancel()
     }
 

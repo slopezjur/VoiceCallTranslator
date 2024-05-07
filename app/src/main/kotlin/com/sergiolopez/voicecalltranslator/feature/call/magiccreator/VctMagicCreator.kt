@@ -44,7 +44,7 @@ class VctMagicCreator @Inject constructor(
     private val defaultChatMessageList = listOf(
         ChatMessage(
             role = ChatRole.System,
-            content = "You are a really helpful assistant translator and you have to translate text between different languages taking into account also the context of the current conversation which you can check by looking at the content of “HISTORY_TRANSLATION_KEY” for every message."
+            content = "You are a really helpful translator and you have to translate text between different languages taking into account also the context of the current conversation which you can check by looking at the content of “HISTORY_TRANSLATION_KEY” for every message."
         )
     )
 
@@ -93,7 +93,7 @@ class VctMagicCreator @Inject constructor(
 
         val currentChatMessage = ChatMessage(
             role = ChatRole.User,
-            content = "Translate '$textToTranslate' from $originLanguage to $destinationLanguage. Answer only with the translation."
+            content = "Translate '$textToTranslate' from $originLanguage to $destinationLanguage. Answer only with the translation without adding anything else."
         )
 
         val chatCompletionRequest = ChatCompletionRequest(
@@ -128,11 +128,11 @@ class VctMagicCreator @Inject constructor(
             )
         )
 
-        //val rawAudio = openAI.speech(speechRequest)
+        val rawAudio = openAI.speech(speechRequest)
 
         //saveRawAudioByteArrayUseCase.invoke(rawAudio)
 
-        return getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
+        return rawAudio //getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
     }
 
     companion object {

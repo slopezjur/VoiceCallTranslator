@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 
 @Composable
 internal fun TelecomCallScreen(
@@ -68,7 +69,7 @@ internal fun TelecomCallScreen(
     } else {
         // IF we are here...
         //onCallStatus.invoke(CallViewModel.CallUiState.ERROR)
-        Log.d("VCT_LOGS: TelecomCallScreen", "$callStatus $call")
+        Log.d("$VCT_LOGS: TelecomCallScreen", "$callStatus $call")
     }
 }
 

@@ -6,6 +6,8 @@ import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioProcessor
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.OPEN_AI_SAMPLE_RATE
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -17,6 +19,7 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.RtpSender
 import org.webrtc.SessionDescription
 import org.webrtc.audio.JavaAudioDeviceModule
+import org.webrtc.voiceengine.WebRtcAudioUtils
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +34,9 @@ class WebRTCClient @Inject constructor(
     private lateinit var username: String
 
     //webrtc variables
-    private val peerConnectionFactory by lazy { createPeerConnectionFactory() }
+    private val peerConnectionFactory by lazy {
+        createPeerConnectionFactory()
+    }
     private var peerConnection: PeerConnection? = null
     private val iceServer = listOf(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
@@ -42,6 +47,8 @@ class WebRTCClient @Inject constructor(
     private val localAudioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints()) }
     private val mediaConstraint = MediaConstraints().apply {
         mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+
+        WebRtcAudioUtils.useWebRtcBasedAcousticEchoCanceler()
     }
 
     //call variables
@@ -66,6 +73,9 @@ class WebRTCClient @Inject constructor(
         // TODO : Use WebRTC improvements for audio quality?
         val adm = JavaAudioDeviceModule.builder(context)
             .setAudioRecordDataCallback(audioProcessor)
+            .setSampleRate(OPEN_AI_SAMPLE_RATE)
+            .setUseHardwareNoiseSuppressor(true)
+            .setUseHardwareAcousticEchoCanceler(true)
             .createAudioDeviceModule()
         return PeerConnectionFactory.builder().apply {
             setAudioDeviceModule(adm)
@@ -87,14 +97,14 @@ class WebRTCClient @Inject constructor(
     fun initializeWebrtcClient(
         username: String, observer: PeerConnection.Observer
     ) {
-        Log.d("VCT_LOGS initializeWebrtcClient: ", "initializeWebrtcClient $username")
+        Log.d("$VCT_LOGS initializeWebrtcClient: ", "initializeWebrtcClient $username")
         this.username = username
         localTrackId = "${username}_track"
         peerConnection = createPeerConnection(observer)
     }
 
     private fun createPeerConnection(observer: PeerConnection.Observer): PeerConnection? {
-        Log.d("VCT_LOGS createPeerConnection", iceServer.toString())
+        Log.d("$VCT_LOGS createPeerConnection", iceServer.toString())
         return peerConnectionFactory.createPeerConnection(iceServer, observer)
     }
 
@@ -115,7 +125,7 @@ class WebRTCClient @Inject constructor(
                         onTransferEventToSocket(
                             dataModel
                         )
-                        Log.d("VCT_LOGS call", dataModel.toString())
+                        Log.d("$VCT_LOGS call", dataModel.toString())
 
                         /*onRemoteSessionReceived(
                             SessionDescription(
@@ -153,22 +163,22 @@ class WebRTCClient @Inject constructor(
                             onTransferEventToSocket(
                                 dataModel
                             )
-                            Log.d("VCT_LOGS answer", dataModel.toString())
+                            Log.d("$VCT_LOGS answer", dataModel.toString())
                         }
                     }, desc)
                 }
 
                 override fun onCreateFailure(p0: String?) {
-                    Log.d("VCT_LOGS onCreateFailure: ", p0.toString())
+                    Log.d("$VCT_LOGS onCreateFailure: ", p0.toString())
                 }
 
                 override fun onSetFailure(p0: String?) {
-                    Log.d("VCT_LOGS onSetFailure: ", p0.toString())
+                    Log.d("$VCT_LOGS onSetFailure: ", p0.toString())
                 }
             }, mediaConstraint)
 
         } catch (e: Exception) {
-            Log.d("VCT_LOGS createAnswer: ", e.toString())
+            Log.d("$VCT_LOGS createAnswer: ", e.toString())
         }
     }
 
@@ -197,7 +207,7 @@ class WebRTCClient @Inject constructor(
         onTransferEventToSocket(
             dataModel
         )
-        Log.d("VCT_LOGS sendIceCandidate", dataModel.toString())
+        Log.d("$VCT_LOGS sendIceCandidate", dataModel.toString())
     }
 
     fun closeConnection() {

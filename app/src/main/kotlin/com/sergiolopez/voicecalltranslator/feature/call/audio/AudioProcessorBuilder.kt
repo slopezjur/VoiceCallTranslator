@@ -1,6 +1,8 @@
 package com.sergiolopez.voicecalltranslator.feature.call.audio
 
 import android.util.Log
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.OPEN_AI_SAMPLE_RATE
+import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -15,7 +17,6 @@ object AudioProcessorBuilder {
     // WebRTC params configuration for PCM audio
     private const val CHANNEL_COUNT = 1
     private const val SAMPLE_RATE = 48000
-    private const val OPEN_AI_SAMPLE_RATE = 24000
     private const val BITS_PER_SAMPLE = 16
 
     suspend fun createWavFileFromByteBufferList(
@@ -42,10 +43,10 @@ object AudioProcessorBuilder {
                     writeToOutput(encoded, 16)  // Fixed size for PCM header
                     writeToOutput(encoded, 1.toShort())  // Audio format 1 for PCM
                     writeToOutput(encoded, CHANNEL_COUNT.toShort())  // Mono
-                    writeToOutput(encoded, SAMPLE_RATE)  // 48000 Hz
+                    writeToOutput(encoded, OPEN_AI_SAMPLE_RATE)  // 48000 Hz
                     writeToOutput(
                         encoded,
-                        SAMPLE_RATE * CHANNEL_COUNT * BITS_PER_SAMPLE / 8
+                        OPEN_AI_SAMPLE_RATE * CHANNEL_COUNT * BITS_PER_SAMPLE / 8
                     )  // Byte rate
                     writeToOutput(
                         encoded,
@@ -69,7 +70,7 @@ object AudioProcessorBuilder {
             }
 
         } catch (exception: Exception) {
-            Log.d("VCT_LOGS", "createWavFileFromByteBufferList ${exception.message}")
+            Log.d(VCT_LOGS, "createWavFileFromByteBufferList ${exception.message}")
         }
 
         return result
@@ -120,38 +121,18 @@ object AudioProcessorBuilder {
             }
 
         } catch (exception: Exception) {
-            Log.d("VCT_LOGS", "createWavFileFromByteArray ${exception.message}")
+            Log.d(VCT_LOGS, "createWavFileFromByteArray ${exception.message}")
         }
 
         return result
-    }
-
-    fun fillBufferFromPcmByteArray(
-        rawAudioBytes: ByteArray,
-        bufferMiddleQueue: Queue<ByteBuffer>
-    ) {
-        val sampleSizeBytes = 2  // 16 bits per sample
-        val samplesPer10ms = 240  // Como calculamos arriba
-        val bytesPer10ms = samplesPer10ms * sampleSizeBytes
-
-        var startIndex = 0
-
-        while (startIndex < rawAudioBytes.size) {
-            val endIndex = startIndex + bytesPer10ms
-            if (endIndex <= rawAudioBytes.size) {
-                // Asegurar que no se exceda el tamaño del array
-                bufferMiddleQueue.add(ByteBuffer.wrap(rawAudioBytes, startIndex, bytesPer10ms))
-            }
-            startIndex += bytesPer10ms
-        }
     }
 
     fun fillBufferFromWavByteArray(
         rawAudioBytes: ByteArray,
         bufferMiddleQueue: Queue<ByteBuffer>
     ) {
-        val sampleSizeBytes = 2  // 16 bits per sample
-        val samplesPer10ms = 240  // Como calculamos arriba
+        val sampleSizeBytes = 2
+        val samplesPer10ms = 240
         val bytesPer10ms = samplesPer10ms * sampleSizeBytes
 
         var startIndex = 0
@@ -159,7 +140,6 @@ object AudioProcessorBuilder {
         while (startIndex < rawAudioBytes.size) {
             val endIndex = startIndex + bytesPer10ms
             if (endIndex <= rawAudioBytes.size) {
-                // Asegurar que no se exceda el tamaño del array
                 bufferMiddleQueue.add(ByteBuffer.wrap(rawAudioBytes, startIndex, bytesPer10ms))
             }
             startIndex += bytesPer10ms
@@ -202,27 +182,6 @@ object AudioProcessorBuilder {
     private fun writeToOutput(output: OutputStream, data: Short) {
         output.write(data.toInt() shr 0)
         output.write(data.toInt() shr 8)
-    }
-
-    fun getPcmFileStructure(
-        byteArray: ByteArray
-    ) {
-        val buffer = ByteBuffer.wrap(byteArray).order(ByteOrder.LITTLE_ENDIAN)
-        buffer.position(20) // Jump first RIFF header 20 bytes
-
-        val audioFormat = buffer.short
-        val numChannels = buffer.short
-        val sampleRate = buffer.int
-        val byteRate = buffer.int
-        val blockAlign = buffer.short
-        val bitsPerSample = buffer.short
-
-        Log.d("AudioProcessor", "Audio Format: $audioFormat")
-        Log.d("AudioProcessor", "Channels: $numChannels")
-        Log.d("AudioProcessor", "Sample Rate: $sampleRate")
-        Log.d("AudioProcessor", "Byte Rate: $byteRate")
-        Log.d("AudioProcessor", "Block Align: $blockAlign")
-        Log.d("AudioProcessor", "Bits Per Sample: $bitsPerSample")
     }
 
     fun getWavFileStructure(
