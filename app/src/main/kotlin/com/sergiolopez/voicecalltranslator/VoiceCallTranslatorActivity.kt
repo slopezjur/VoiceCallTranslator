@@ -18,6 +18,7 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.json.Json
 import java.io.File
 
 @AndroidEntryPoint
@@ -31,10 +32,10 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
         var navigationCallExtra = initNavigationCallExtra()
 
         intent.extras?.let {
-            val result = intent.getParcelableExtra<Call.CallData>(CALL_DATA_FROM_NOTIFICATION)
+            val result = intent.getStringExtra(CALL_DATA_FROM_NOTIFICATION)
             if (result != null) {
                 navigationCallExtra = NavigationCallExtra(
-                    call = result,
+                    call = Json.decodeFromString(Call.CallData.serializer(), result),
                     hasCallData = true,
                 )
             }
@@ -64,6 +65,11 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
         }
 
         // TODO : Testing, auto clean recordings folder
+        cleanAudioRecords()
+    }
+
+    // TODO : Testing, auto clean recordings folder
+    private fun cleanAudioRecords() {
         deleteDirectoryContents(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 this.getExternalFilesDir(Environment.DIRECTORY_RECORDINGS)
@@ -109,6 +115,7 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
+
         return permissions
     }
 

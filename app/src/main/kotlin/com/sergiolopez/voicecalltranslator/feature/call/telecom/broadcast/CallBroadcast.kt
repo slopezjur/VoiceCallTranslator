@@ -5,11 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
-import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
+import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationAction
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -20,7 +21,7 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val callData = intent.getCallData()
-        val action = intent.getCallAction()
+        val action = intent.getNotificationCallAction()
 
         when {
             callData == null || action == null -> {
@@ -36,13 +37,13 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
 
             else -> {
                 when (action) {
-                    CallAction.Answer -> {
+                    CallNotificationAction.Answer -> {
                         mainRepository.setTarget(target = callData.callerId)
                         mainRepository.startCall(callData = callData)
                         CallNotificationManager(context).updateCallNotification(callData)
                     }
 
-                    CallAction.Disconnect -> {
+                    CallNotificationAction.Disconnect -> {
                         mainRepository.setTarget(target = callData.callerId)
                         mainRepository.sendEndCall(target = callData.callerId)
                         CallNotificationManager(context).updateCallNotification(callData)
@@ -57,21 +58,24 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
         }
     }
 
-    private fun Intent.getCallData() =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getParcelableExtra(
-                CallNotificationManager.CALL_DATA_ACTION,
-                Call.CallData::class.java,
+    private fun Intent.getCallData(): Call.CallData? {
+        val callData = getStringExtra(
+            CallNotificationManager.CALL_DATA_ACTION
+        )
+        return callData?.let {
+            Json.decodeFromString(
+                Call.CallData.serializer(),
+                callData
             )
-        } else {
-            getParcelableExtra(CallNotificationManager.CALL_NOTIFICATION_ACTION)
         }
+    }
 
-    private fun Intent.getCallAction() =
+    private fun Intent.getNotificationCallAction() =
+        // TODO : Simple data, remove Parcelable?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             getParcelableExtra(
                 CallNotificationManager.CALL_NOTIFICATION_ACTION,
-                CallAction::class.java,
+                CallNotificationAction::class.java,
             )
         } else {
             getParcelableExtra(CallNotificationManager.CALL_NOTIFICATION_ACTION)

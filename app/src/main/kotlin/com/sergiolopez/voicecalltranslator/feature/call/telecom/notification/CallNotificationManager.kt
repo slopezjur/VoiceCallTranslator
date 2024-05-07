@@ -34,9 +34,9 @@ import androidx.core.content.PermissionChecker
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorActivity
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
-import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.broadcast.CallBroadcast
+import kotlinx.serialization.json.Json
 
 class CallNotificationManager(private val context: Context) {
 
@@ -94,7 +94,10 @@ class CallNotificationManager(private val context: Context) {
             /* requestCode = */ 0,
             /* intent = */
             Intent(context, VoiceCallTranslatorActivity::class.java).apply {
-                putExtra(VoiceCallTranslatorActivity.CALL_DATA_FROM_NOTIFICATION, callData)
+                putExtra(
+                    VoiceCallTranslatorActivity.CALL_DATA_FROM_NOTIFICATION,
+                    Json.encodeToString(Call.CallData.serializer(), callData)
+                )
             },
             /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
@@ -107,13 +110,13 @@ class CallNotificationManager(private val context: Context) {
                     callData = callData.copy(
                         callStatus = CallStatus.CALL_FINISHED
                     ),
-                    callAction = CallAction.Disconnect
+                    callNotificationAction = CallNotificationAction.Disconnect
                 ),
                 getPendingIntent(
                     callData = callData.copy(
                         callStatus = CallStatus.CALL_IN_PROGRESS
                     ),
-                    callAction = CallAction.Answer
+                    callNotificationAction = CallNotificationAction.Answer
                 ),
             )
         } else {
@@ -123,7 +126,7 @@ class CallNotificationManager(private val context: Context) {
                     callData = callData.copy(
                         callStatus = CallStatus.CALL_FINISHED
                     ),
-                    callAction = CallAction.Disconnect
+                    callNotificationAction = CallNotificationAction.Disconnect
                 ),
             )
         }
@@ -152,15 +155,18 @@ class CallNotificationManager(private val context: Context) {
         return builder.build()
     }
 
-    private fun getPendingIntent(callData: Call.CallData, callAction: CallAction): PendingIntent {
+    private fun getPendingIntent(
+        callData: Call.CallData,
+        callNotificationAction: CallNotificationAction
+    ): PendingIntent {
         val callIntent = Intent(context, CallBroadcast::class.java).apply {
             putExtra(
                 CALL_DATA_ACTION,
-                callData,
+                Json.encodeToString(Call.CallData.serializer(), callData)
             )
             putExtra(
                 CALL_NOTIFICATION_ACTION,
-                callAction,
+                callNotificationAction,
             )
         }
 
