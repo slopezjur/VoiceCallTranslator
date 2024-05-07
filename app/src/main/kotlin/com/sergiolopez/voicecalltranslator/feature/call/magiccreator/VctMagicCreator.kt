@@ -1,6 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.magiccreator
 
 import com.aallam.openai.api.audio.SpeechRequest
+import com.aallam.openai.api.audio.SpeechResponseFormat
 import com.aallam.openai.api.audio.TranscriptionRequest
 import com.aallam.openai.api.chat.ChatCompletionRequest
 import com.aallam.openai.api.chat.ChatMessage
@@ -12,7 +13,9 @@ import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
 import com.sergiolopez.voicecalltranslator.VctApiKeys
 import com.sergiolopez.voicecalltranslator.feature.call.data.mapper.OpenAiSyntheticVoiceMapper
+import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetRawAudioByteArrayUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetSyntheticVoiceOptionUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SaveRawAudioByteArrayUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import okio.source
 import java.io.File
@@ -25,7 +28,9 @@ import javax.inject.Singleton
 class VctMagicCreator @Inject constructor(
     private val getSyntheticVoiceOptionUseCase: GetSyntheticVoiceOptionUseCase,
     private val firebaseAuthService: FirebaseAuthService,
-    private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper
+    private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper,
+    private val saveRawAudioByteArrayUseCase: SaveRawAudioByteArrayUseCase,
+    private val getRawAudioByteArrayUseCase: GetRawAudioByteArrayUseCase
 ) {
     private var openAI = OpenAI(
         token = VctApiKeys.OPEN_AI_API_KEY,
@@ -93,7 +98,10 @@ class VctMagicCreator @Inject constructor(
 
         val chatCompletionRequest = ChatCompletionRequest(
             model = ModelId(OpenAiParams.TRANSLATION_GPT_3_5_TURBO),
-            messages = defaultChatMessageList + chatMessageHistoryQueue + listOf(currentChatMessage)
+            messages = defaultChatMessageList + chatMessageHistoryQueue + listOf(currentChatMessage),
+            n = MAX_ANSWERS_PER_REQUEST,
+            maxTokens = MAX_TOKENS_PER_REQUEST,
+            //toolChoice = ToolChoice.None,
         )
 
         val translation = openAI.chatCompletion(
@@ -114,15 +122,24 @@ class VctMagicCreator @Inject constructor(
             input = textToSpeech,
             voice = OpenAiSyntheticVoice.getOpenAiVoice(
                 openAiSyntheticVoice = openAiSyntheticVoice
+            ),
+            responseFormat = SpeechResponseFormat(
+                value = WAV_SPEECH_RESPONSE_FORMAT
             )
         )
 
-        val rawAudio = openAI.speech(speechRequest)
+        //val rawAudio = openAI.speech(speechRequest)
 
-        return rawAudio
+        //saveRawAudioByteArrayUseCase.invoke(rawAudio)
+
+        return getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
     }
 
     companion object {
         private const val CHAT_MESSAGE_HISTORY_LIMIT = 20
+        private const val MAX_ANSWERS_PER_REQUEST = 1
+        private const val MAX_TOKENS_PER_REQUEST = 30
+        private const val WAV_SPEECH_RESPONSE_FORMAT = "wav"
+        private const val PCM_SPEECH_RESPONSE_FORMAT = "pcm"
     }
 }

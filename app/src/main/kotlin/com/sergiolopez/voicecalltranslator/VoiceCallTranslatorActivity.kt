@@ -5,7 +5,6 @@ import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -59,13 +58,13 @@ class VoiceCallTranslatorActivity : ComponentActivity() {
             startFirebaseService.invoke()
         }
 
-        deleteDirectoryContents(
+        /*deleteDirectoryContents(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 this.getExternalFilesDir(Environment.DIRECTORY_RECORDINGS)
             } else {
                 this.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
             }
-        )
+        )*/
     }
 
     // TODO : Testing, auto clean recordings folder

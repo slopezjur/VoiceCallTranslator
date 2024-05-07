@@ -85,7 +85,7 @@ class WebRtcAudioManager {
     }
 
     private static int getSampleRateForApiLevel(AudioManager audioManager) {
-        String sampleRateString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+        String sampleRateString = "24000"; //audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
         return (sampleRateString == null) ? DEFAULT_SAMPLE_RATE_HZ : Integer.parseInt(sampleRateString);
     }
 

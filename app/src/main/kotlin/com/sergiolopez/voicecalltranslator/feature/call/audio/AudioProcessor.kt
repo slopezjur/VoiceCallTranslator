@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.util.Log
-import com.sergiolopez.voicecalltranslator.feature.call.audio.WavFileBuilder.createWavFileFromByteBufferList
+import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioProcessorBuilder.createWavFileFromByteArray
 import com.sergiolopez.voicecalltranslator.feature.call.magiccreator.VctMagicCreator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -86,7 +86,7 @@ class AudioProcessor @Inject constructor(
         val outputFile = createOutputFile()
         scope.launch(Dispatchers.IO) {
             Log.d("VCT_MAGIC", "createWavFile Start")
-            val wavFileCreated = createWavFileFromByteBufferList(
+            /*val wavFileCreated = createWavFileFromByteBufferList(
                 byteBufferList = byteBufferList,
                 output = outputFile
             )
@@ -95,13 +95,19 @@ class AudioProcessor @Inject constructor(
                 //val audioTranscription = "Esto es una prueba de audio, hermano!"
                 //val textTranslation = "This is an audio test, brother!"
 
-                val audioTranscription = getAudioTranscription(
+                /*val audioTranscription = getAudioTranscription(
                     outputFile = outputFile
                 )
                 val translatedText = getTextTranslation(
                     audioTranscription = audioTranscription
-                )
-            }
+                )*/
+            }*/
+            val result =
+                vctMagicCreator.textToSpeech("Esta es una oveja negra que pastaba por el campo junto a sus amigos los lobos. Cuando llegaba la noche se iban a dormir.")
+            AudioProcessorBuilder.fillBufferFromPcmByteArray(result, bufferMiddleQueue)
+            Log.d("VCT_MAGIC", "createWavFileFromByteArray Start")
+            val wavFileCreated = createWavFileFromByteArray(result, outputFile)
+            Log.d("VCT_MAGIC", "createWavFileFromByteArray End")
         }
     }
 

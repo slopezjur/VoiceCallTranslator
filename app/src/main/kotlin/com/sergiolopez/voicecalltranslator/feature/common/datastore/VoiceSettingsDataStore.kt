@@ -16,6 +16,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.json.Json
+import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -51,7 +52,21 @@ class VoiceSettingsDataStore @Inject constructor(
         preferencesScope.cancel()
     }
 
+    suspend fun saveByteArray(byteArray: ByteArray) {
+        context.dataStore.edit { pref ->
+            pref[stringPreferencesKey(WAV_FILE_TTS)] = Base64.getEncoder().encodeToString(byteArray)
+        }
+    }
+
+    suspend fun getByteArray(): ByteArray? {
+        return context.dataStore.data.mapNotNull { prefs ->
+            Base64.getDecoder().decode(prefs[stringPreferencesKey(WAV_FILE_TTS)])
+        }.firstOrNull()
+    }
+
     companion object {
         private const val PREFS_VOICE_SETTINGS = "prefs_voice_settings"
+        private const val WAV_FILE_TTS = "openAi"
+        private const val PCM_FILE_TTS = "openAi-PCM"
     }
 }
