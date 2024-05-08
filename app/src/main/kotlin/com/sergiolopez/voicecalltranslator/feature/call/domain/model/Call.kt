@@ -1,13 +1,17 @@
 package com.sergiolopez.voicecalltranslator.feature.call.domain.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class Call {
+sealed class Call : Parcelable {
 
-    data object CallNoData : Call()
+    @Parcelize
+    data object CallNoData : Call(), Parcelable
 
     @Serializable
+    @Parcelize
     data class CallData(
         val callerId: String,
         val calleeId: String,
@@ -16,5 +20,5 @@ sealed class Call {
         val isIncoming: Boolean,
         val callStatus: CallStatus,
         val timestamp: Long
-    ) : Call()
+    ) : Call(), Parcelable
 }

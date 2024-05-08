@@ -2,7 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.call.webrtc
 
 import android.content.Context
 import android.util.Log
-import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioProcessor
+import com.sergiolopez.voicecalltranslator.feature.call.audio.MagicAudioProcessor
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
@@ -23,12 +23,11 @@ import org.webrtc.voiceengine.WebRtcAudioUtils
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Singleton
 class WebRTCClient @Inject constructor(
     private val context: Context,
     private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
-    private val audioProcessor: AudioProcessor
+    private val magicAudioProcessor: MagicAudioProcessor
 ) {
     //class variables
     private lateinit var username: String
@@ -72,7 +71,7 @@ class WebRTCClient @Inject constructor(
     private fun createPeerConnectionFactory(): PeerConnectionFactory {
         // TODO : Use WebRTC improvements for audio quality?
         val adm = JavaAudioDeviceModule.builder(context)
-            .setAudioRecordDataCallback(audioProcessor)
+            .setAudioRecordDataCallback(magicAudioProcessor)
             .setSampleRate(OPEN_AI_SAMPLE_RATE)
             .setUseHardwareNoiseSuppressor(true)
             .setUseHardwareAcousticEchoCanceler(true)
@@ -126,13 +125,6 @@ class WebRTCClient @Inject constructor(
                             dataModel
                         )
                         Log.d("$VCT_LOGS call", dataModel.toString())
-
-                        /*onRemoteSessionReceived(
-                            SessionDescription(
-                                SessionDescription.Type.OFFER,
-                                dataModel.data.toString()
-                            )
-                        )*/
                     }
                 }, desc)
             }
@@ -153,12 +145,6 @@ class WebRTCClient @Inject constructor(
                                 target = target,
                                 data = desc?.description
                             )
-                            /*onRemoteSessionReceived(
-                                SessionDescription(
-                                    SessionDescription.Type.ANSWER,
-                                    dataModel.data.toString()
-                                )
-                            )*/
                             // TODO : Update Firebase with the Answer
                             onTransferEventToSocket(
                                 dataModel
@@ -246,7 +232,7 @@ class WebRTCClient @Inject constructor(
 
     fun setScope(scope: CoroutineScope) {
         this.scope = scope
-        audioProcessor.setScope(
+        magicAudioProcessor.setScope(
             scope = scope
         )
     }
