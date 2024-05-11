@@ -7,7 +7,7 @@ class LoginUseCase @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository
 ) {
 
-    suspend operator fun invoke(email: String, password: String) {
+    suspend operator fun invoke(email: String, password: String): Boolean {
         return firebaseAuthRepository.login(
             email = email,
             password = password

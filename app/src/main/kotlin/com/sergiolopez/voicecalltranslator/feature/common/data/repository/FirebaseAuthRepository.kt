@@ -3,6 +3,7 @@ package com.sergiolopez.voicecalltranslator.feature.common.data.repository
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.ResultOperation.performSimpleApiOperation
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.UserStatus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,11 +41,17 @@ class FirebaseAuthRepository @Inject constructor() {
         return Firebase.auth.currentUser != null
     }
 
-    suspend fun login(email: String, password: String) {
-        Firebase.auth.signInWithEmailAndPassword(email, password).await()
+    suspend fun login(email: String, password: String): Boolean {
+        return performSimpleApiOperation {
+            Firebase.auth.signInWithEmailAndPassword(email, password).await()
+        }
     }
 
-    suspend fun signUp(email: String, password: String) {
-        Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+    suspend fun signUp(email: String, password: String): Boolean {
+        return performSimpleApiOperation {
+            Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+        }
     }
 }
+
+

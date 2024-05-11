@@ -20,6 +20,9 @@ class SignUpViewModel @Inject constructor(
     private val saveUserUseCase: SaveUserUseCase
 ) : VoiceCallTranslatorViewModel() {
 
+    private val _signUpUiState = MutableStateFlow(SignUpUiState.CONTINUE)
+    val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState
+
     private val _emailState = MutableStateFlow("")
     val emailState: StateFlow<String> = _emailState.asStateFlow()
 
@@ -32,8 +35,9 @@ class SignUpViewModel @Inject constructor(
     private val _isPasswordError = MutableStateFlow(false)
     val isPasswordDifferent: StateFlow<Boolean> = _isPasswordError
 
-    private val _signUpUiState = MutableStateFlow(SignUpUiState.CONTINUE)
-    val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState
+    fun resetUiState() {
+        _signUpUiState.value = SignUpUiState.CONTINUE
+    }
 
     fun updateEmail(newEmail: String) {
         _emailState.value = newEmail
@@ -41,42 +45,50 @@ class SignUpViewModel @Inject constructor(
 
     fun updatePassword(newPassword: String) {
         _passwordState.value = newPassword
-        resetPasswordDifferent()
     }
 
     fun updateConfirmPassword(newConfirmPassword: String) {
         _confirmPasswordState.value = newConfirmPassword
-        resetPasswordDifferent()
     }
 
-    private fun resetPasswordDifferent() {
+    fun resetPasswordDifferent() {
         _isPasswordError.value = false
     }
 
     fun onSignUpClick(openAndPopUp: (NavigationParams) -> Unit) {
         if (_passwordState.value != _confirmPasswordState.value) {
             _isPasswordError.value = true
-            _signUpUiState.value = SignUpUiState.ERROR
         } else {
             _signUpUiState.value = SignUpUiState.LOADING
             launchCatching {
                 firebaseAuthRepository.currentUser.collect { user ->
                     if (user is User) {
-                        // TODO: What happen if this sync fails with the Database?
-                        saveUserUseCase.invoke(user)
-                        openAndPopUp.invoke(
-                            NavigationParams(
-                                NavigationRoute.CONTACT_LIST.navigationName,
-                                NavigationRoute.LOGIN.navigationName
-                            )
-                        )
+                        val signUpResult = saveUserUseCase.invoke(user)
+                        if (!signUpResult) {
+                            _signUpUiState.value = SignUpUiState.ERROR
+                            // TODO : Remove Firebase user if error for the User replica
+                        } else {
+                            navigateToNextScreen(openAndPopUp)
+                        }
                     }
                 }
             }
             launchCatching {
-                signUpUseCase.invoke(_emailState.value, _passwordState.value)
+                val signUpResult = signUpUseCase.invoke(_emailState.value, _passwordState.value)
+                if (!signUpResult) {
+                    _signUpUiState.value = SignUpUiState.ERROR
+                }
             }
         }
+    }
+
+    private fun navigateToNextScreen(openAndPopUp: (NavigationParams) -> Unit) {
+        openAndPopUp.invoke(
+            NavigationParams(
+                NavigationRoute.CONTACT_LIST.navigationName,
+                NavigationRoute.LOGIN.navigationName
+            )
+        )
     }
 
     enum class SignUpUiState {

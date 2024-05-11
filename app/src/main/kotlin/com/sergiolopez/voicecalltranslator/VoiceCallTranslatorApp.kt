@@ -48,6 +48,8 @@ fun VoiceCallTranslatorApp(
                 navigationCallExtra = navigationCallExtra
             )
         }
+        // Note : Snackbar flow has been implemented in a different Scaffold per Screen to directly
+        // attach the Snackbar visibility to every ViewModel without any extra configuration
     }
 }
 

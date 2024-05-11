@@ -7,6 +7,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.data.CallDatabase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.FirebaseRepositoryMapper
+import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.ResultOperation.performSimpleApiOperation
 import com.sergiolopez.voicecalltranslator.feature.common.data.model.UserDatabase
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import kotlinx.coroutines.flow.Flow
@@ -37,9 +38,9 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
-    suspend fun saveUser(user: User) {
-        runCatching {
-            val userData = firebaseRepositoryMapper.mapUserDataToUserDatabase(user)
+    suspend fun saveUser(user: User): Boolean {
+        val userData = firebaseRepositoryMapper.mapUserDataToUserDatabase(user)
+        return performSimpleApiOperation {
             vtcDatabase.child(USERS_TABLE_NAME).child(user.id).setValue(userData).await()
         }
     }

@@ -20,14 +20,18 @@ class LoginViewModel @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository
 ) : VoiceCallTranslatorViewModel() {
 
+    private val _loginUiState = MutableStateFlow(LoginUiState.CONTINUE)
+    val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
+
     private val _emailState = MutableStateFlow("")
     val emailState: StateFlow<String> = _emailState.asStateFlow()
 
     private val _passwordState = MutableStateFlow("")
-    val passwordState: StateFlow<String> = _passwordState
+    val passwordState: StateFlow<String> = _passwordState.asStateFlow()
 
-    private val _loginUiState = MutableStateFlow(LoginUiState.LOADING)
-    val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
+    fun resetUiState() {
+        _loginUiState.value = LoginUiState.CONTINUE
+    }
 
     fun updateEmail(newEmail: String) {
         _emailState.value = newEmail
@@ -38,21 +42,24 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
+        _loginUiState.value = LoginUiState.LOADING
         launchCatching {
             firebaseAuthRepository.currentUser.collect { user ->
                 if (user is User) {
                     saveUserUseCase.invoke(user)
-                    setLoggedAnNavigate(openAndPopUp)
+                    navigateToNextScreen(openAndPopUp)
                 }
             }
         }
         launchCatching {
-            loginUseCase.invoke(_emailState.value, _passwordState.value)
+            val loginResult = loginUseCase.invoke(_emailState.value, _passwordState.value)
+            if (!loginResult) {
+                _loginUiState.value = LoginUiState.ERROR
+            }
         }
     }
 
-    private fun setLoggedAnNavigate(openAndPopUp: (NavigationParams) -> Unit) {
-        _loginUiState.value = LoginUiState.LOGGED
+    private fun navigateToNextScreen(openAndPopUp: (NavigationParams) -> Unit) {
         openAndPopUp(
             NavigationParams(
                 NavigationRoute.CONTACT_LIST.navigationName,
@@ -72,7 +79,6 @@ class LoginViewModel @Inject constructor(
 
     enum class LoginUiState {
         LOADING,
-        LOGGED,
         CONTINUE,
         ERROR
     }
