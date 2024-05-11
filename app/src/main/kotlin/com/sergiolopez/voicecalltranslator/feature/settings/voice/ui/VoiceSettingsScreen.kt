@@ -17,14 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sergiolopez.voicecalltranslator.R
+import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VtcTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.VoiceSettingsViewModel
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.VoiceSettingsData
-import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun VoiceSettingsScreen(
-    openAndPopUp: (NavigationParams) -> Unit,
+    openAndPopUp: () -> Unit,
     voiceSettingsViewModel: VoiceSettingsViewModel = hiltViewModel()
 ) {
     val voiceSettingsData = voiceSettingsViewModel.voiceSettingsDataState.collectAsState().value
@@ -41,6 +42,7 @@ fun VoiceSettingsScreen(
     }
 
     VoiceSettingsScreenContent(
+        openAndPopUp = openAndPopUp,
         dropDownExpanded = false,
         voiceSettingsData = voiceSettingsData,
         setSyntheticVoice = setSyntheticVoice,
@@ -52,6 +54,7 @@ fun VoiceSettingsScreen(
 @Composable
 private fun VoiceSettingsScreenContent(
     modifier: Modifier = Modifier,
+    openAndPopUp: () -> Unit,
     dropDownExpanded: Boolean,
     voiceSettingsData: VoiceSettingsData,
     setSyntheticVoice: (SyntheticVoiceOption) -> Unit,
@@ -62,24 +65,38 @@ private fun VoiceSettingsScreenContent(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(color = MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SyntheticVoiceView(
-            dropDownExpanded = dropDownExpanded,
-            syntheticVoiceOption = voiceSettingsData.syntheticVoiceOption,
-            setSyntheticVoice = setSyntheticVoice,
-            useTrainedVoice = voiceSettingsData.useTrainedVoice
+        VtcTopAppBar(
+            modifier = modifier,
+            titleName = R.string.voice_settings,
+            hasNavigation = true,
+            hasAction = false,
+            openAndPopUp = openAndPopUp,
+            content = {}
         )
-        Spacer(modifier = modifier.size(16.dp))
-        VoiceTrainingView(
-            setVoiceTrainingCompleted = setVoiceTrainingCompleted,
-            voiceTrainingCompleted = voiceSettingsData.voiceTrainingCompleted,
-            setUseTrainedVoice = setUseTrainedVoice,
-            useTrainedVoice = voiceSettingsData.useTrainedVoice
-        )
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(color = MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SyntheticVoiceView(
+                dropDownExpanded = dropDownExpanded,
+                syntheticVoiceOption = voiceSettingsData.syntheticVoiceOption,
+                setSyntheticVoice = setSyntheticVoice,
+                useTrainedVoice = voiceSettingsData.useTrainedVoice
+            )
+            Spacer(modifier = modifier.size(16.dp))
+            VoiceTrainingView(
+                setVoiceTrainingCompleted = setVoiceTrainingCompleted,
+                voiceTrainingCompleted = voiceSettingsData.voiceTrainingCompleted,
+                setUseTrainedVoice = setUseTrainedVoice,
+                useTrainedVoice = voiceSettingsData.useTrainedVoice
+            )
+        }
     }
 }
 
@@ -89,6 +106,7 @@ fun VoiceSettingsScreenContentPreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
+            openAndPopUp = {},
             dropDownExpanded = false,
             voiceSettingsData = VoiceSettingsData(),
             setSyntheticVoice = {},
@@ -104,6 +122,7 @@ fun VoiceSettingsScreenContentDropDownExpandedPreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
+            openAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(),
             setSyntheticVoice = {},
@@ -119,6 +138,7 @@ fun VoiceSettingsScreenContentSyntheticVoiceMalePreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
+            openAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(
                 syntheticVoiceOption = SyntheticVoiceOption.MALE
@@ -136,6 +156,7 @@ fun VoiceSettingsScreenContentVoiceTrainingCompletedMalePreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
+            openAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(
                 voiceTrainingCompleted = true
@@ -153,6 +174,7 @@ fun VoiceSettingsScreenContentUseTrainedVoicePreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
+            openAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(
                 voiceTrainingCompleted = true,

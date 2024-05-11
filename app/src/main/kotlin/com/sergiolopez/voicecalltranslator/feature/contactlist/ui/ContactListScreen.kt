@@ -2,21 +2,17 @@ package com.sergiolopez.voicecalltranslator.feature.contactlist.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,9 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sergiolopez.voicecalltranslator.R
+import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VtcTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
@@ -42,10 +38,8 @@ fun ContactListScreen(
     openAndPopUp: (NavigationParams) -> Unit,
     contactListViewModel: ContactListViewModel = hiltViewModel()
 ) {
-    val contactList = contactListViewModel.userList.collectAsState().value
-
     ContactListContent(
-        contactList = contactList,
+        contactList = contactListViewModel.userList.collectAsState().value,
         onContactUserCall = {
             openAndPopUp.invoke(
                 NavigationParams(
@@ -87,44 +81,36 @@ fun ContactListContent(
         showCallDialogRemember = true
     }
 
-    //var settingsDropDownMenuRemember by remember { mutableStateOf(showSettingsDropDownMenu) }
-
-    Scaffold(
-        floatingActionButton = {
-            Box(modifier = Modifier.padding(16.dp)) {
-                //SettingsDropDownMenu(settingsDropDownMenuRemember)
-                FloatingActionButton(
-                    onClick = {
-                        onVoiceSettings.invoke()
-                        //settingsDropDownMenuRemember = !settingsDropDownMenuRemember
-                    },
-                    modifier = modifier.padding(16.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(Icons.Filled.Settings, "Settings")
-                }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        VtcTopAppBar(
+            modifier = modifier,
+            titleName = R.string.contact_list,
+            hasNavigation = false,
+            hasAction = true,
+            openAndPopUp = {},
+            content = {
+                SettingsDropDownMenu(
+                    showSettingsDropDownMenu = showSettingsDropDownMenu,
+                    onVoiceSettings = onVoiceSettings,
+                    onAccountSettings = onAccountSettings
+                )
             }
-        }
-    ) { paddingValues ->
+        )
         Column(
             modifier = modifier
-                .padding(paddingValues)
                 .fillMaxWidth()
                 .fillMaxHeight()
         ) {
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-                LazyColumn {
-                    items(contactList, key = { it.email }) { contactItem ->
-                        Spacer(modifier = modifier.size(8.dp))
-                        ContactItem(
-                            user = contactItem,
-                            onContactUserClick = { onContactUserClick.invoke(it) }
-                        )
-                    }
+            LazyColumn {
+                items(contactList, key = { it.email }) { contactItem ->
+                    ContactItem(
+                        user = contactItem,
+                        onContactUserClick = { onContactUserClick.invoke(it) }
+                    )
                 }
             }
         }
@@ -141,24 +127,51 @@ fun ContactListContent(
 }
 
 @Composable
-private fun SettingsDropDownMenu(expanded: Boolean) {
-    var expandedDropDown by remember { mutableStateOf(expanded) }
-    DropdownMenu(
-        expanded = expandedDropDown,
-        onDismissRequest = { expandedDropDown = false }
-    ) {
-        DropdownMenuItem(
-            text = { stringResource(id = R.string.voice_settings) },
+private fun SettingsDropDownMenu(
+    showSettingsDropDownMenu: Boolean,
+    onVoiceSettings: () -> Unit,
+    onAccountSettings: () -> Unit
+) {
+    var settingsDropDownMenuRemember by remember { mutableStateOf(showSettingsDropDownMenu) }
+
+    Box {
+        IconButton(
             onClick = {
-                expandedDropDown = false
+                settingsDropDownMenuRemember = !settingsDropDownMenuRemember
             }
-        )
-        DropdownMenuItem(
-            text = { stringResource(id = R.string.account_settings) },
-            onClick = {
-                expandedDropDown = false
+        ) {
+            Icon(Icons.Filled.MoreVert, "Show settings Menu")
+        }
+
+        DropdownMenu(
+            expanded = settingsDropDownMenuRemember,
+            onDismissRequest = {
+                settingsDropDownMenuRemember = false
             }
-        )
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.voice_settings)
+                    )
+                },
+                onClick = {
+                    settingsDropDownMenuRemember = false
+                    onVoiceSettings.invoke()
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.account_settings)
+                    )
+                },
+                onClick = {
+                    settingsDropDownMenuRemember = false
+                    onAccountSettings.invoke()
+                }
+            )
+        }
     }
 }
 

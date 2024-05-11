@@ -122,10 +122,8 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.VoiceSettingsNavigation.route) {
         VoiceSettingsScreen(
-            openAndPopUp = { navigationParams ->
-                navigationState.navigate(
-                    route = navigationParams.route
-                )
+            openAndPopUp = {
+                navigationState.popBackStack()
             }
         )
     }

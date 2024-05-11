@@ -17,10 +17,12 @@ class ContactListViewModel @Inject constructor(
 ) : VoiceCallTranslatorViewModel() {
 
     private val _contactListUiState = MutableStateFlow(ContactListUiState.CONTINUE)
-    val contactListUiState: StateFlow<ContactListUiState> = _contactListUiState.asStateFlow()
+    val contactListUiState: StateFlow<ContactListUiState>
+        get() = _contactListUiState.asStateFlow()
 
     private val _userList = MutableStateFlow(emptyList<User>())
-    val userList: StateFlow<List<User>> = _userList.asStateFlow()
+    val userList: StateFlow<List<User>>
+        get() = _userList.asStateFlow()
 
     init {
         _contactListUiState.value = ContactListUiState.LOADING

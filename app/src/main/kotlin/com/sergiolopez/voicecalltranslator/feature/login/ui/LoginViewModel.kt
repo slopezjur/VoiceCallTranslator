@@ -21,13 +21,16 @@ class LoginViewModel @Inject constructor(
 ) : VoiceCallTranslatorViewModel() {
 
     private val _loginUiState = MutableStateFlow(LoginUiState.CONTINUE)
-    val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
+    val loginUiState: StateFlow<LoginUiState>
+        get() = _loginUiState.asStateFlow()
 
     private val _emailState = MutableStateFlow("")
-    val emailState: StateFlow<String> = _emailState.asStateFlow()
+    val emailState: StateFlow<String>
+        get() = _emailState.asStateFlow()
 
     private val _passwordState = MutableStateFlow("")
-    val passwordState: StateFlow<String> = _passwordState.asStateFlow()
+    val passwordState: StateFlow<String>
+        get() = _passwordState.asStateFlow()
 
     fun resetUiState() {
         _loginUiState.value = LoginUiState.CONTINUE

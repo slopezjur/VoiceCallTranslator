@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
+import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -49,7 +49,7 @@ fun showSnackbar(
 @PreviewLightDark
 @Composable
 private fun SnackbarWithScaffoldPreview() {
-    VoiceCallTranslatorTheme {
+    VoiceCallTranslatorPreview {
         SimpleSnackbarScaffold(
             content = { _, _ -> }
         )
@@ -59,7 +59,7 @@ private fun SnackbarWithScaffoldPreview() {
 @PreviewLightDark
 @Composable
 private fun SnackbarWithScaffoldShowPreview() {
-    VoiceCallTranslatorTheme {
+    VoiceCallTranslatorPreview {
         SimpleSnackbarScaffold(
             content = { _, showSnakbar ->
                 showSnakbar.invoke("Text")
