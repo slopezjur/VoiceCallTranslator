@@ -82,8 +82,7 @@ dependencies {
     implementation(libs.openai.client)
     //implementation(libs.web.rtc)
 
-    //runtimeOnly(libs.ktor.client)
-    runtimeOnly("io.ktor:ktor-client-okhttp")
+    runtimeOnly(libs.ktor.client.okhttp)
 
     kapt(libs.hilt.android.compiler)
 
