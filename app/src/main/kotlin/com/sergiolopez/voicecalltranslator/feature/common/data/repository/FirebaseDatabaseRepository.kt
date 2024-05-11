@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.common.data
+package com.sergiolopez.voicecalltranslator.feature.common.data.repository
 
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue

@@ -10,6 +10,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnec
 import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,7 +27,7 @@ class FirebaseService : Service() {
     lateinit var getConnectionUpdateUseCase: GetConnectionUpdateUseCase
 
     @Inject
-    lateinit var firebaseAuthService: FirebaseAuthService
+    lateinit var firebaseAuthRepository: FirebaseAuthRepository
 
     @Inject
     lateinit var mainRepository: MainRepository
@@ -62,7 +63,7 @@ class FirebaseService : Service() {
 
     private val startFirebaseService: () -> Unit = {
         scope.launch {
-            firebaseAuthService.currentUser.collect { user ->
+            firebaseAuthRepository.currentUser.collect { user ->
                 user?.let {
                     startWebRtcManager(it)
                 }

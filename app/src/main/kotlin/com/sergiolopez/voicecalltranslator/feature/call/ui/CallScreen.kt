@@ -127,15 +127,6 @@ fun CallScreenContent(
                     }
                 }
             )
-
-            /*Column(
-                Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                CircularProgressIndicator()
-            }*/
         }
     }
 }

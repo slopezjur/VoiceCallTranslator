@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.domain.usecase
 
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
-import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseDatabaseRepository
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseDatabaseRepository
 import javax.inject.Inject
 
 class SendConnectionUpdateUseCase @Inject constructor(

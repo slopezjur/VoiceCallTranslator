@@ -20,8 +20,8 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetRawAud
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetSyntheticVoiceOptionUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SaveRawAudioByteArrayUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.magiccreator.OpenAiParams
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import okio.source
 import java.io.File
 import java.util.LinkedList
@@ -32,7 +32,7 @@ import javax.inject.Singleton
 @Singleton
 class MagicAudioRepository @Inject constructor(
     private val getSyntheticVoiceOptionUseCase: GetSyntheticVoiceOptionUseCase,
-    private val firebaseAuthService: FirebaseAuthService,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
     private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper,
     private val saveRawAudioByteArrayUseCase: SaveRawAudioByteArrayUseCase,
     private val getRawAudioByteArrayUseCase: GetRawAudioByteArrayUseCase
@@ -54,7 +54,7 @@ class MagicAudioRepository @Inject constructor(
     )
 
     suspend fun initializeVctMagicCreator() {
-        firebaseAuthService.currentUser.collect { user ->
+        firebaseAuthRepository.currentUser.collect { user ->
             user?.id?.let { userId ->
                 openAiSyntheticVoice = openAiSyntheticVoiceMapper.mapUserDatabaseToUserData(
                     getSyntheticVoiceOptionUseCase.invoke(

@@ -1,8 +1,8 @@
 package com.sergiolopez.voicecalltranslator.feature.login.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.login.domain.usecase.LoginUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val saveUserUseCase: SaveUserUseCase,
-    private val firebaseAuthService: FirebaseAuthService
+    private val firebaseAuthRepository: FirebaseAuthRepository
 ) : VoiceCallTranslatorViewModel() {
 
     private val _emailState = MutableStateFlow("")
@@ -39,7 +39,7 @@ class LoginViewModel @Inject constructor(
 
     fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
         launchCatching {
-            firebaseAuthService.currentUser.collect { user ->
+            firebaseAuthRepository.currentUser.collect { user ->
                 if (user is User) {
                     saveUserUseCase.invoke(user)
                     setLoggedAnNavigate(openAndPopUp)

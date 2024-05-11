@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.contactlist.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.usecase.GetUserListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ContactListViewModel @Inject constructor(
     private val getUserListUseCase: GetUserListUseCase,
-    private val firebaseAuthService: FirebaseAuthService
+    private val firebaseAuthRepository: FirebaseAuthRepository
 ) : VoiceCallTranslatorViewModel() {
 
     private val _contactListUiState = MutableStateFlow(ContactListUiState.CONTINUE)
@@ -25,7 +25,7 @@ class ContactListViewModel @Inject constructor(
     init {
         _contactListUiState.value = ContactListUiState.LOADING
         launchCatching {
-            firebaseAuthService.currentUser.collect { user ->
+            firebaseAuthRepository.currentUser.collect { user ->
                 if (user is User) {
                     launchCatching {
                         val result =

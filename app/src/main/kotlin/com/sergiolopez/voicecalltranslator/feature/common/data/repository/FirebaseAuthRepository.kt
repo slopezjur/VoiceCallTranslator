@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.common.domain.service
+package com.sergiolopez.voicecalltranslator.feature.common.data.repository
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -13,7 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirebaseAuthService @Inject constructor() {
+class FirebaseAuthRepository @Inject constructor() {
 
     private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
     val currentUser: StateFlow<User?>

@@ -1,14 +1,14 @@
 package com.sergiolopez.voicecalltranslator.feature.login.domain.usecase
 
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(
-    private val firebaseAuthService: FirebaseAuthService
+    private val firebaseAuthRepository: FirebaseAuthRepository
 ) {
 
     suspend operator fun invoke(email: String, password: String) {
-        return firebaseAuthService.login(
+        return firebaseAuthRepository.login(
             email = email,
             password = password
         )

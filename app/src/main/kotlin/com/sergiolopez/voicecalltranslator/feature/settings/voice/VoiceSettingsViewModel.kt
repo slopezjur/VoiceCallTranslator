@@ -1,8 +1,8 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.voice
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.datastore.VoiceSettingsDataStore
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.VoiceSettingsData
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.SyntheticVoiceOption
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VoiceSettingsViewModel @Inject constructor(
-    private val firebaseAuthService: FirebaseAuthService,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
     private val voiceSettingsDataStore: VoiceSettingsDataStore
 ) : VoiceCallTranslatorViewModel() {
 
@@ -21,7 +21,7 @@ class VoiceSettingsViewModel @Inject constructor(
     val voiceSettingsDataState: StateFlow<VoiceSettingsData>
         get() = _voiceSettingsDataStateState.asStateFlow()
 
-    private val user = firebaseAuthService.currentUser.value
+    private val user = firebaseAuthRepository.currentUser.value
 
     init {
         loadVoiceSettings()

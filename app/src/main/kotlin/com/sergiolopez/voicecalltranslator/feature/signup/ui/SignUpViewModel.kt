@@ -1,8 +1,8 @@
 package com.sergiolopez.voicecalltranslator.feature.signup.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
-import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseAuthService
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SignUpUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
-    private val firebaseAuthService: FirebaseAuthService,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
     private val saveUserUseCase: SaveUserUseCase
 ) : VoiceCallTranslatorViewModel() {
 
@@ -32,7 +32,7 @@ class SignUpViewModel @Inject constructor(
     private val _isPasswordError = MutableStateFlow(false)
     val isPasswordDifferent: StateFlow<Boolean> = _isPasswordError
 
-    private val _signUpUiState = MutableStateFlow(SignUpUiState.LOADING)
+    private val _signUpUiState = MutableStateFlow(SignUpUiState.CONTINUE)
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState
 
     fun updateEmail(newEmail: String) {
@@ -56,13 +56,14 @@ class SignUpViewModel @Inject constructor(
     fun onSignUpClick(openAndPopUp: (NavigationParams) -> Unit) {
         if (_passwordState.value != _confirmPasswordState.value) {
             _isPasswordError.value = true
+            _signUpUiState.value = SignUpUiState.ERROR
         } else {
+            _signUpUiState.value = SignUpUiState.LOADING
             launchCatching {
-                firebaseAuthService.currentUser.collect { user ->
+                firebaseAuthRepository.currentUser.collect { user ->
                     if (user is User) {
                         // TODO: What happen if this sync fails with the Database?
                         saveUserUseCase.invoke(user)
-                        _signUpUiState.value = SignUpUiState.LOGGED
                         openAndPopUp.invoke(
                             NavigationParams(
                                 NavigationRoute.CONTACT_LIST.navigationName,
@@ -80,7 +81,6 @@ class SignUpViewModel @Inject constructor(
 
     enum class SignUpUiState {
         LOADING,
-        LOGGED,
         CONTINUE,
         ERROR
     }

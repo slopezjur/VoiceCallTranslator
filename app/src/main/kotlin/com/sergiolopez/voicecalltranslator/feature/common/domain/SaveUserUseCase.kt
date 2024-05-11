@@ -1,6 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.common.domain
 
-import com.sergiolopez.voicecalltranslator.feature.common.data.FirebaseDatabaseRepository
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseDatabaseRepository
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import javax.inject.Inject
 
