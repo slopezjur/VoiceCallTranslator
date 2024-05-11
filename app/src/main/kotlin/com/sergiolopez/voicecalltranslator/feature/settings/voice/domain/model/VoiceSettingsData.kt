@@ -1,6 +1,5 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model
 
-import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.SyntheticVoiceOption
 import kotlinx.serialization.Serializable
 
 @Serializable

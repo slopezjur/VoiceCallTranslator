@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.domain.usecase
 
-import com.sergiolopez.voicecalltranslator.feature.common.datastore.VoiceSettingsDataStore
-import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.SyntheticVoiceOption
+import com.sergiolopez.voicecalltranslator.feature.settings.voice.data.datastore.VoiceSettingsDataStore
+import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
 import javax.inject.Inject
 
 class GetSyntheticVoiceOptionUseCase @Inject constructor(

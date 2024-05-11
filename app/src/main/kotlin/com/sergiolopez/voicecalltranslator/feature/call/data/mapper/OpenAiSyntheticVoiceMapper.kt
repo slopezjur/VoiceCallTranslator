@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.data.mapper
 
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.OpenAiSyntheticVoice
-import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.SyntheticVoiceOption
+import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
 import javax.inject.Inject
 
 class OpenAiSyntheticVoiceMapper @Inject constructor() {

@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.settings.voice.ui
+package com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model
 
 import com.sergiolopez.voicecalltranslator.R
 

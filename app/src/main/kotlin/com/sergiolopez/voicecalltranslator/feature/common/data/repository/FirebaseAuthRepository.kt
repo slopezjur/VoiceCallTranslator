@@ -37,8 +37,22 @@ class FirebaseAuthRepository @Inject constructor() {
         Firebase.auth.addAuthStateListener(listener)
     }
 
+    // TODO : Add use cases layer to access the repository
+
     fun isUserLogged(): Boolean {
         return Firebase.auth.currentUser != null
+    }
+
+    suspend fun signUp(email: String, password: String): Boolean {
+        return performSimpleApiOperation {
+            Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+        }
+    }
+
+    suspend fun deleteAccount(): Boolean {
+        return performSimpleApiOperation {
+            Firebase.auth.currentUser?.delete()?.await()
+        }
     }
 
     suspend fun login(email: String, password: String): Boolean {
@@ -47,9 +61,9 @@ class FirebaseAuthRepository @Inject constructor() {
         }
     }
 
-    suspend fun signUp(email: String, password: String): Boolean {
+    suspend fun logout(): Boolean {
         return performSimpleApiOperation {
-            Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+            Firebase.auth.signOut()
         }
     }
 }

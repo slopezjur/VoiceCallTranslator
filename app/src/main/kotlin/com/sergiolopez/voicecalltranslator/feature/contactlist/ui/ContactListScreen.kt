@@ -58,7 +58,14 @@ fun ContactListScreen(
                 )
             )
         },
-        onAccountSettings = {}
+        onAccountSettings = {
+            openAndPopUp.invoke(
+                NavigationParams(
+                    route = NavigationRoute.ACCOUNT_SETTINGS.navigationName,
+                    popUp = NavigationRoute.CONTACT_LIST.navigationName
+                )
+            )
+        }
     )
 }
 

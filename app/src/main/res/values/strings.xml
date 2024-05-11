@@ -20,4 +20,10 @@
     <string name="start">Start</string>
     <string name="restart">Restart</string>
     <string name="use_trained_voice">Use trained voice</string>
+    <string name="language">Language</string>
+    <string name="system">System</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
+    <string name="logout">Logout</string>
+    <string name="delete_account">Delete account</string>
 </resources>

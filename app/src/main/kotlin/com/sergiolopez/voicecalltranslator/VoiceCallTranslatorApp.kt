@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.sergiolopez.voicecalltranslator.feature.call.ui.CallScreen
 import com.sergiolopez.voicecalltranslator.feature.contactlist.ui.ContactListScreen
 import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
+import com.sergiolopez.voicecalltranslator.feature.settings.account.ui.AccountSettingsScreen
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.VoiceSettingsScreen
 import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
 import com.sergiolopez.voicecalltranslator.feature.splash.ui.SplashScreen
@@ -122,6 +123,14 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.VoiceSettingsNavigation.route) {
         VoiceSettingsScreen(
+            openAndPopUp = {
+                navigationState.popBackStack()
+            }
+        )
+    }
+
+    composable(NavigationAction.AccountSettingsNavigation.route) {
+        AccountSettingsScreen(
             openAndPopUp = {
                 navigationState.popBackStack()
             }

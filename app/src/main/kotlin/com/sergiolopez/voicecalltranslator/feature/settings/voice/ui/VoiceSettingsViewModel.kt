@@ -1,10 +1,10 @@
-package com.sergiolopez.voicecalltranslator.feature.settings.voice
+package com.sergiolopez.voicecalltranslator.feature.settings.voice.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
-import com.sergiolopez.voicecalltranslator.feature.common.datastore.VoiceSettingsDataStore
+import com.sergiolopez.voicecalltranslator.feature.settings.voice.data.datastore.VoiceSettingsDataStore
+import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.VoiceSettingsData
-import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.SyntheticVoiceOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
