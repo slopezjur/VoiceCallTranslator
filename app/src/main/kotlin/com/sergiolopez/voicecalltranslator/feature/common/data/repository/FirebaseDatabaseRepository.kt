@@ -22,11 +22,11 @@ class FirebaseDatabaseRepository @Inject constructor(
 ) {
 
     private val database = FirebaseDatabase.getInstance()
-    private val vtcDatabase = database.getReference(DATABASE_NAME)
+    private val vctDatabase = database.getReference(DATABASE_NAME)
 
     fun getUserList(userId: String): Result<Flow<List<User>>> {
         return runCatching {
-            vtcDatabase.child(USERS_TABLE_NAME).snapshots.map { dataSnapshot ->
+            vctDatabase.child(USERS_TABLE_NAME).snapshots.map { dataSnapshot ->
                 dataSnapshot.children.mapNotNull {
                     it.getValue<UserDatabase>()?.let { user ->
                         firebaseRepositoryMapper.mapUserDatabaseToUserData(user)
@@ -41,13 +41,13 @@ class FirebaseDatabaseRepository @Inject constructor(
     suspend fun saveUser(user: User): Boolean {
         val userData = firebaseRepositoryMapper.mapUserDataToUserDatabase(user)
         return performSimpleApiOperation {
-            vtcDatabase.child(USERS_TABLE_NAME).child(user.id).setValue(userData).await()
+            vctDatabase.child(USERS_TABLE_NAME).child(user.id).setValue(userData).await()
         }
     }
 
     fun getIncomingCalls(calleeId: String): Result<Flow<List<Call.CallData>>> {
         return runCatching {
-            vtcDatabase.child(CALLS_TABLE_NAME).orderByChild(FIELD_CALLEE_ID).equalTo(calleeId)
+            vctDatabase.child(CALLS_TABLE_NAME).orderByChild(FIELD_CALLEE_ID).equalTo(calleeId)
                 .snapshots.mapNotNull { dataSnapshot ->
                     dataSnapshot.children.mapNotNull {
                         it.getValue<CallDatabase>()?.let { call ->
@@ -63,7 +63,7 @@ class FirebaseDatabaseRepository @Inject constructor(
     suspend fun sendConnectionUpdate(call: DataModel) {
         runCatching {
             //al callData = firebaseRepositoryMapper.mapCallToCallDatabase(call)
-            vtcDatabase.child(CALLS_TABLE_NAME).child(call.target).child(LATEST_EVENT).setValue(
+            vctDatabase.child(CALLS_TABLE_NAME).child(call.target).child(LATEST_EVENT).setValue(
                 Json.encodeToString(DataModel.serializer(), call)
             ).await()
         }
@@ -71,14 +71,14 @@ class FirebaseDatabaseRepository @Inject constructor(
 
     fun getConnectionUpdate(userId: String): Result<Flow<DataModel>> {
         return runCatching {
-            vtcDatabase.child(CALLS_TABLE_NAME).child(userId).child(LATEST_EVENT)
+            vctDatabase.child(CALLS_TABLE_NAME).child(userId).child(LATEST_EVENT)
                 .snapshots.mapNotNull { dataSnapshot ->
                     dataSnapshot.getValue<String>()?.let { jsonString ->
                         Json.decodeFromString(DataModel.serializer(), jsonString)
                     }
                 }
 
-            /*vtcDatabase.child(CALLS_TABLE_NAME).child(userId).child(LATEST_EVENT)
+            /*vctDatabase.child(CALLS_TABLE_NAME).child(userId).child(LATEST_EVENT)
                 .snapshots.mapNotNull { dataSnapshot ->
                     dataSnapshot.children.firstNotNullOf {
                         it.getValue<String>()?.let { value ->
@@ -92,13 +92,13 @@ class FirebaseDatabaseRepository @Inject constructor(
     suspend fun answerCall(call: Call.CallData) {
         runCatching {
             val callData = firebaseRepositoryMapper.mapCallToCallDatabase(call)
-            vtcDatabase.child(CALLS_TABLE_NAME).child(call.calleeId).setValue(callData).await()
+            vctDatabase.child(CALLS_TABLE_NAME).child(call.calleeId).setValue(callData).await()
         }
     }
 
     suspend fun clearCall(target: String) {
         runCatching {
-            vtcDatabase.child(CALLS_TABLE_NAME).child(target).removeValue().await()
+            vctDatabase.child(CALLS_TABLE_NAME).child(target).removeValue().await()
         }
     }
 

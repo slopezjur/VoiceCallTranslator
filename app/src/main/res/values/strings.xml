@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">VCT</string>
+    <string name="permissions_title">VCT requires permission/s:</string>
+    <string name="grant_permissions">Grant permissions</string>
+    <string name="permissions_title_dialog">Permissions required by VCT</string>
+    <string name="permissions_required_list">VCT requires the following permissions to work:\n %1$s</string>
+    <string name="continue_action">Continue</string>
+    <string name="dismiss">Dismiss</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>
     <string name="contact_list">Contact List</string>

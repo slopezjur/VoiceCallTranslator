@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
-import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VtcTopAppBar
+import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
@@ -93,7 +93,7 @@ fun ContactListContent(
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        VtcTopAppBar(
+        VctTopAppBar(
             modifier = modifier,
             titleName = R.string.contact_list,
             hasNavigation = false,

@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
-import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VtcTopAppBar
+import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsActions
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
@@ -54,7 +54,7 @@ private fun AccountSettingsScreenContent(
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        VtcTopAppBar(
+        VctTopAppBar(
             modifier = modifier,
             titleName = R.string.account_settings,
             hasNavigation = true,

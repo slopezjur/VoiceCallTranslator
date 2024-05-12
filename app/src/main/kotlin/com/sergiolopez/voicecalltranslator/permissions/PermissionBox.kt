@@ -44,18 +44,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.sergiolopez.voicecalltranslator.R
 
 /**
  * The PermissionBox uses a [Box] to show a simple permission request UI when the provided [permission]
  * is revoked or the provided [onGranted] content if the permission is granted.
  *
- * This composable follows the permission request flow but for a complete example check the samples
- * under privacy/permissions
+ * This class has been SPECIFICALLY updated to support Voice CAll Translator characteristics.
  */
 @Composable
 fun PermissionBox(
@@ -100,7 +101,7 @@ fun PermissionBox(
         errorText = if (rejectedPermissions.none { it in requiredPermissions }) {
             ""
         } else {
-            "${rejectedPermissions.joinToString()} required for the sample"
+            "${rejectedPermissions.joinToString()}"
         }
     }
     val allRequiredPermissionsGranted =
@@ -171,7 +172,7 @@ private fun PermissionScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Sample requires permission/s:",
+            text = stringResource(id = R.string.permissions_title),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(16.dp),
         )
@@ -196,7 +197,9 @@ private fun PermissionScreen(
                 }
             },
         ) {
-            Text(text = "Grant permissions")
+            Text(
+                text = stringResource(id = R.string.grant_permissions)
+            )
         }
         if (errorText.isNotBlank()) {
             Text(
@@ -212,10 +215,10 @@ private fun PermissionScreen(
                 showRationale = false
             },
             title = {
-                Text(text = "Permissions required by the sample")
+                Text(text = stringResource(id = R.string.permissions_title_dialog))
             },
             text = {
-                Text(text = "The sample requires the following permissions to work:\n $permissions")
+                Text(text = stringResource(id = R.string.permissions_required_list, permissions))
             },
             confirmButton = {
                 TextButton(
@@ -224,7 +227,7 @@ private fun PermissionScreen(
                         state.launchMultiplePermissionRequest()
                     },
                 ) {
-                    Text("Continue")
+                    Text(text = stringResource(id = R.string.continue_action))
                 }
             },
             dismissButton = {
@@ -233,7 +236,7 @@ private fun PermissionScreen(
                         showRationale = false
                     },
                 ) {
-                    Text("Dismiss")
+                    Text(text = stringResource(id = R.string.dismiss))
                 }
             },
         )

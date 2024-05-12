@@ -19,7 +19,7 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-internal fun VtcTopAppBar(
+internal fun VctTopAppBar(
     modifier: Modifier,
     titleName: Int,
     hasNavigation: Boolean,
@@ -69,9 +69,9 @@ private fun SetEmptyIconButton() {
 
 @PreviewLightDark
 @Composable
-private fun VtcTopAppBarPreview() {
+private fun VctTopAppBarPreview() {
     VoiceCallTranslatorPreview {
-        VtcTopAppBar(
+        VctTopAppBar(
             modifier = Modifier,
             titleName = R.string.app_name,
             hasNavigation = false,
@@ -84,9 +84,9 @@ private fun VtcTopAppBarPreview() {
 
 @PreviewLightDark
 @Composable
-private fun VtcTopAppBarHasNavigationPreview() {
+private fun VctTopAppBarHasNavigationPreview() {
     VoiceCallTranslatorPreview {
-        VtcTopAppBar(
+        VctTopAppBar(
             modifier = Modifier,
             titleName = R.string.app_name,
             hasNavigation = true,
@@ -99,9 +99,9 @@ private fun VtcTopAppBarHasNavigationPreview() {
 
 @PreviewLightDark
 @Composable
-private fun VtcTopAppBarHasActionPreview() {
+private fun VctTopAppBarHasActionPreview() {
     VoiceCallTranslatorPreview {
-        VtcTopAppBar(
+        VctTopAppBar(
             modifier = Modifier,
             titleName = R.string.app_name,
             hasNavigation = false,
@@ -120,9 +120,9 @@ private fun VtcTopAppBarHasActionPreview() {
 
 @PreviewLightDark
 @Composable
-private fun VtcTopAppBarHasNavigationAndActionPreview() {
+private fun VctTopAppBarHasNavigationAndActionPreview() {
     VoiceCallTranslatorPreview {
-        VtcTopAppBar(
+        VctTopAppBar(
             modifier = Modifier,
             titleName = R.string.app_name,
             hasNavigation = true,

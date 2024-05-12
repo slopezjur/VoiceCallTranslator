@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
-import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VtcTopAppBar
+import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.VoiceSettingsActions
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.VoiceSettingsData
@@ -54,7 +54,7 @@ private fun VoiceSettingsScreenContent(
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        VtcTopAppBar(
+        VctTopAppBar(
             modifier = modifier,
             titleName = R.string.voice_settings,
             hasNavigation = true,
