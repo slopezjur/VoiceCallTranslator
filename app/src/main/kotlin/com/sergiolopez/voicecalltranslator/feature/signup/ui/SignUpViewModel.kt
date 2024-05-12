@@ -3,7 +3,6 @@ package com.sergiolopez.voicecalltranslator.feature.signup.ui
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
-import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SignUpUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
@@ -70,13 +69,14 @@ class SignUpViewModel @Inject constructor(
                 val signUpResult = signUpUseCase.invoke(_emailState.value, _passwordState.value)
                 if (signUpResult) {
                     firebaseAuthRepository.currentUser.collect { user ->
-                        if (user is User) {
+                        if (user != null) {
                             // Register User on Firebase Database
                             val userSaved = saveUserUseCase.invoke(user)
                             if (!userSaved) {
                                 _signUpUiState.emit(SignUpUiState.ERROR)
                                 // TODO : Remove Firebase user if error for the User replica
                             } else {
+                                _signUpUiState.emit(SignUpUiState.CONTINUE)
                                 navigateToNextScreen(openAndPopUp)
                             }
                         }
