@@ -11,12 +11,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VtcTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
@@ -32,7 +32,7 @@ fun VoiceSettingsScreen(
     VoiceSettingsScreenContent(
         openAndPopUp = openAndPopUp,
         dropDownExpanded = false,
-        voiceSettingsData = voiceSettingsViewModel.voiceSettingsDataState.collectAsState().value,
+        voiceSettingsData = voiceSettingsViewModel.voiceSettingsDataState.collectAsStateWithLifecycle().value,
         voiceSettingsActions = VoiceSettingsActions(
             setSyntheticVoice = { voiceSettingsViewModel.setSyntheticVoice(it) },
             setVoiceTrainingCompleted = { voiceSettingsViewModel.setVoiceTrainingCompleted(it) },

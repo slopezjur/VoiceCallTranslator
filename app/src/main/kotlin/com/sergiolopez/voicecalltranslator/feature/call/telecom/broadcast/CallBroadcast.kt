@@ -48,11 +48,6 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
                         mainRepository.sendEndCall(target = callData.callerId)
                         CallNotificationManager(context).updateCallNotification(callData)
                     }
-
-                    else -> {
-                        // Nothing to do here
-                        Unit
-                    }
                 }
             }
         }

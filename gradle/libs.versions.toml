@@ -1,6 +1,11 @@
 [versions]
-accompanist = "0.32.0"
+accompanist = "0.34.0"
 activity = "1.9.0"
+androidxLifecycle = "2.7.0"
+androidxTestCore = "1.5.0"
+androidxTestExt = "1.1.5"
+androidxTestRules = "1.5.0"
+androidxTestRunner = "1.5.2"
 agp = "8.3.2"
 appcompat = "1.6.1"
 composeBom = "2024.05.00"
@@ -13,8 +18,10 @@ googleServices = "4.4.1"
 hiltNavigation = "1.2.0"
 hiltVersion = "2.51.1"
 kotlin = "1.9.23"
+kotlinxCoroutines = "1.8.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
+mockk = "1.13.10"
 navigationCompose = "2.7.7"
 openAi = "3.7.2"
 serialization = "1.6.3"
@@ -26,6 +33,10 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTestCore" }
+androidx-test-ext = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidxTestRules" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 compose-material-iconsext = { module = "androidx.compose.material:material-icons-extended" }
@@ -43,9 +54,13 @@ firebase-database-ktx = { group = "com.google.firebase", name = "firebase-databa
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion"}
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp" }
+lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-common", version.ref = "navigationCompose"}
 openai-client = { group = "com.aallam.openai", name = "openai-client" }
 openai-client-bom = { group = "com.aallam.openai", name = "openai-client-bom", version.ref = "openAi" }

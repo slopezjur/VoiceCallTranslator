@@ -37,7 +37,7 @@ class SignUpViewModel @Inject constructor(
         get() = _confirmPasswordState.asStateFlow()
 
     private val _isPasswordError = MutableStateFlow(false)
-    val isPasswordDifferent: StateFlow<Boolean>
+    val isPasswordError: StateFlow<Boolean>
         get() = _isPasswordError.asStateFlow()
 
     fun resetUiState() {
@@ -66,22 +66,23 @@ class SignUpViewModel @Inject constructor(
         } else {
             _signUpUiState.value = SignUpUiState.LOADING
             launchCatching {
-                firebaseAuthRepository.currentUser.collect { user ->
-                    if (user is User) {
-                        val signUpResult = saveUserUseCase.invoke(user)
-                        if (!signUpResult) {
-                            _signUpUiState.value = SignUpUiState.ERROR
-                            // TODO : Remove Firebase user if error for the User replica
-                        } else {
-                            navigateToNextScreen(openAndPopUp)
+                // Register account on Firebase Auth
+                val signUpResult = signUpUseCase.invoke(_emailState.value, _passwordState.value)
+                if (signUpResult) {
+                    firebaseAuthRepository.currentUser.collect { user ->
+                        if (user is User) {
+                            // Register User on Firebase Database
+                            val userSaved = saveUserUseCase.invoke(user)
+                            if (!userSaved) {
+                                _signUpUiState.emit(SignUpUiState.ERROR)
+                                // TODO : Remove Firebase user if error for the User replica
+                            } else {
+                                navigateToNextScreen(openAndPopUp)
+                            }
                         }
                     }
-                }
-            }
-            launchCatching {
-                val signUpResult = signUpUseCase.invoke(_emailState.value, _passwordState.value)
-                if (!signUpResult) {
-                    _signUpUiState.value = SignUpUiState.ERROR
+                } else {
+                    _signUpUiState.emit(SignUpUiState.ERROR)
                 }
             }
         }

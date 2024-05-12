@@ -9,12 +9,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
@@ -33,9 +33,9 @@ fun CallScreen(
     restartFirebaseService: () -> Unit,
     callViewModel: CallViewModel = hiltViewModel()
 ) {
-    val call = callViewModel.callState.collectAsState().value
+    val call = callViewModel.callState.collectAsStateWithLifecycle().value
 
-    val callUiState = callViewModel.callStatusState.collectAsState().value
+    val callUiState = callViewModel.callStatusState.collectAsStateWithLifecycle().value
 
     val sendConnectionRequest: (String) -> Unit = {
         callViewModel.sendConnectionRequest(it)

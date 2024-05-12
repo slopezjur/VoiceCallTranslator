@@ -1,10 +1,10 @@
 package com.sergiolopez.voicecalltranslator.feature.login.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.LoadingView
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.SimpleSnackbarScaffold
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -17,10 +17,10 @@ fun LoginScreen(
 ) {
     LoginScreenContent(
         openAndPopUp = openAndPopUp,
-        loginUiState = loginViewModel.loginUiState.collectAsState().value,
+        loginUiState = loginViewModel.loginUiState.collectAsStateWithLifecycle().value,
         resetUiState = { loginViewModel.resetUiState() },
-        email = loginViewModel.emailState.collectAsState().value,
-        password = loginViewModel.passwordState.collectAsState().value,
+        email = loginViewModel.emailState.collectAsStateWithLifecycle().value,
+        password = loginViewModel.passwordState.collectAsStateWithLifecycle().value,
         updateEmail = { loginViewModel.updateEmail(it) },
         updatePassword = { loginViewModel.updatePassword(it) },
         onLoginClick = { loginViewModel.onLoginClick(it) },

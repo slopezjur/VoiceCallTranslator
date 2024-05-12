@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.lifecycle.runtime.compose)
     implementation(libs.navigation.compose)
     implementation(openAiBom)
     implementation(libs.openai.client)
@@ -87,7 +88,12 @@ dependencies {
     kapt(libs.hilt.android.compiler)
 
     // Tests
-    testImplementation(libs.junit)
+    //testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.rules)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.mockk.android)
 
     // Instrumentation
     androidTestImplementation(composeBom)

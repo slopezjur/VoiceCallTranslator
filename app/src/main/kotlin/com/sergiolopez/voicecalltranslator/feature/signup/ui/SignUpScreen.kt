@@ -1,10 +1,10 @@
 package com.sergiolopez.voicecalltranslator.feature.signup.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.LoadingView
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.SimpleSnackbarScaffold
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -17,15 +17,15 @@ fun SignUpScreen(
 ) {
     SignUpScreenContent(
         openAndPopUp = openAndPopUp,
-        signUpUiState = signUpViewModel.signUpUiState.collectAsState().value,
+        signUpUiState = signUpViewModel.signUpUiState.collectAsStateWithLifecycle().value,
         resetUiState = { signUpViewModel.resetUiState() },
-        email = signUpViewModel.emailState.collectAsState().value,
+        email = signUpViewModel.emailState.collectAsStateWithLifecycle().value,
         updateEmail = { signUpViewModel.updateEmail(it) },
-        password = signUpViewModel.passwordState.collectAsState().value,
+        password = signUpViewModel.passwordState.collectAsStateWithLifecycle().value,
         updatePassword = { signUpViewModel.updatePassword(it) },
-        confirmPassword = signUpViewModel.confirmPasswordState.collectAsState().value,
+        confirmPassword = signUpViewModel.confirmPasswordState.collectAsStateWithLifecycle().value,
         updateConfirmPassword = { signUpViewModel.updateConfirmPassword(it) },
-        isPasswordError = signUpViewModel.isPasswordDifferent.collectAsState().value,
+        isPasswordError = signUpViewModel.isPasswordError.collectAsStateWithLifecycle().value,
         resetPasswordDifferent = { signUpViewModel.resetPasswordDifferent() },
         onSignUpClick = { signUpViewModel.onSignUpClick(it) }
     )
