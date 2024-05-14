@@ -9,12 +9,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
@@ -49,6 +57,8 @@ private fun AccountSettingsScreenContent(
     accountSettingsData: AccountSettingsData,
     accountSettingsAction: AccountSettingsActions
 ) {
+    var showDeleteAccountDialogRemember by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -71,11 +81,46 @@ private fun AccountSettingsScreenContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = modifier.size(16.dp))
-            LogoutView(
+            /*LanguageView(
                 modifier = modifier,
                 logout = accountSettingsAction.logout
-            )
+            )*/
+            Spacer(modifier = modifier.size(24.dp))
+            Button(
+                onClick = {
+                    accountSettingsAction.logout.invoke()
+                },
+                modifier = modifier
+            ) {
+                Text(
+                    text =
+                    stringResource(R.string.logout),
+                    fontSize = 16.sp
+                )
+            }
+            Spacer(modifier = modifier.size(24.dp))
+            Button(
+                onClick = {
+                    showDeleteAccountDialogRemember = true
+                },
+                modifier = modifier
+            ) {
+                Text(
+                    text =
+                    stringResource(R.string.delete_account),
+                    fontSize = 16.sp
+                )
+            }
+
+            if (showDeleteAccountDialogRemember) {
+                DeleteAccountDialog(
+                    modifier = modifier,
+                    onDeleteAccount = accountSettingsAction.deleteAccount,
+                    onDismissDialog = {
+                        showDeleteAccountDialogRemember = false
+                    }
+                )
+            }
         }
     }
 }

@@ -13,16 +13,6 @@ android {
     namespace = "com.sergiolopez.voicecalltranslator"
     compileSdk = 34
 
-    defaultConfig {
-        applicationId = "com.sergiolopez.voicecalltranslator"
-        minSdk = 28
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
     buildFeatures {
         compose = true
     }
@@ -37,13 +27,24 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.13"
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+    defaultConfig {
+        applicationId = "com.sergiolopez.voicecalltranslator"
+        minSdk = 28
+        resourceConfigurations += listOf("en", "es") // All supported languages in your app
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     kotlinOptions {

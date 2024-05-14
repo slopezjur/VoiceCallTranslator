@@ -83,11 +83,6 @@ fun ContactListContent(
 
     var showCallDialogRemember by remember { mutableStateOf(showCallDialog) }
 
-    val onContactUserClick: (String) -> Unit = {
-        contactToCall = it
-        showCallDialogRemember = true
-    }
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -116,7 +111,10 @@ fun ContactListContent(
                 items(contactList, key = { it.email }) { contactItem ->
                     ContactItem(
                         user = contactItem,
-                        onContactUserClick = { onContactUserClick.invoke(it) }
+                        onContactUserClick = {
+                            contactToCall = it
+                            showCallDialogRemember = true
+                        }
                     )
                 }
             }

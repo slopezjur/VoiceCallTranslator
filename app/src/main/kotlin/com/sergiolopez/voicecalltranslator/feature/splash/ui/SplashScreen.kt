@@ -33,7 +33,7 @@ fun SplashScreen(
 
     LaunchedEffect(true) {
         delay(SPLASH_TIMEOUT)
-        viewModel.onAppStart(openAndPopUp)
+        viewModel.onAppStart(openAndPopUp = openAndPopUp)
     }
 }
 

@@ -7,8 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Surface
 import androidx.core.content.getSystemService
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
@@ -21,8 +21,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
 import java.io.File
 
+
 @AndroidEntryPoint
-class VoiceCallTranslatorActivity : ComponentActivity() {
+class VoiceCallTranslatorActivity : AppCompatActivity() {
+    // Note : For now we have to use AppCompatActivity instead of ComponentActivity to update the Locale
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -77,7 +77,7 @@ private fun VoiceSettingsScreenContent(
                 setSyntheticVoice = voiceSettingsActions.setSyntheticVoice,
                 useTrainedVoice = voiceSettingsData.useTrainedVoice
             )
-            Spacer(modifier = modifier.size(16.dp))
+            Spacer(modifier = modifier.size(24.dp))
             VoiceTrainingView(
                 setVoiceTrainingCompleted = voiceSettingsActions.setVoiceTrainingCompleted,
                 voiceTrainingCompleted = voiceSettingsData.voiceTrainingCompleted,

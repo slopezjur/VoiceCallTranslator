@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VCT</string>
+    <string name="permissions_title">VCT requiere permiso/s:</string>
+    <string name="grant_permissions">Conceder permisos</string>
+    <string name="permissions_title_dialog">Permisos requeridos por VCT</string>
+    <string name="permissions_required_list">VCT requiere los siguientes permisos para funcionar:\n %1$s</string>
+    <string name="continue_action">Continuar</string>
+    <string name="dismiss">Descartar</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="sign_up">Registrarse</string>
+    <string name="contact_list">Lista de contactos</string>
+    <string name="voice_settings">Configuración de voz</string>
+    <string name="account_settings">Configuración de cuenta</string>
+    <string name="voice_training">Entrenamiento de voz</string>
+    <string name="call">Llamar</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="call_dialog_title">¿Llamar a %1$s?</string>
+    <string name="call_dialog_subtitle">La llamada comenzará inmediatamente.</string>
+    <string name="synthetic_voice">Voz sintética</string>
+    <string name="none">Ninguno</string>
+    <string name="male">Masculino</string>
+    <string name="female">Femenino</string>
+    <string name="use_synthetic_voice">Usar voz sintética</string>
+    <string name="start">Iniciar</string>
+    <string name="restart">Reiniciar</string>
+    <string name="use_trained_voice">Usar voz entrenada</string>
+    <string name="language">Idioma</string>
+    <string name="system">Sistema</string>
+    <string name="dark">Oscuro</string>
+    <string name="light">Claro</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="delete_account">Eliminar cuenta</string>
+    <string name="delete_account_description">La cuenta se eliminará inmediatamente.</string>
+</resources>
