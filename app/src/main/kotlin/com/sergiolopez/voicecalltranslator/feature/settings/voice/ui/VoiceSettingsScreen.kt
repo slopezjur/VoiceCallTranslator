@@ -2,11 +2,9 @@ package com.sergiolopez.voicecalltranslator.feature.settings.voice.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -63,8 +61,6 @@ private fun VoiceSettingsScreenContent(
             content = {}
         )
 
-        Spacer(modifier = Modifier.size(16.dp))
-
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,8 +74,6 @@ private fun VoiceSettingsScreenContent(
                 useTrainedVoice = voiceSettingsData.useTrainedVoice
             )
         }
-
-        Spacer(modifier = Modifier.size(16.dp))
 
         Card(
             modifier = Modifier

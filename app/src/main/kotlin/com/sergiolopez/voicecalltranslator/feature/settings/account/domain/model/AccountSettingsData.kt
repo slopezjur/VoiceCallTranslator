@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AccountSettingsData(
-    val language: String = "en",
-    val theme: ThemeOption = ThemeOption.DARK
+    val languageOption: LanguageOption = LanguageOption.ENGLISH,
+    val themeOption: ThemeOption = ThemeOption.SYSTEM
 )

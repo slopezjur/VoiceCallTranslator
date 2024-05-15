@@ -27,6 +27,9 @@
     <string name="restart">Restart</string>
     <string name="use_trained_voice">Use trained voice</string>
     <string name="language">Language</string>
+    <string name="english">English</string>
+    <string name="spanish">Spanish</string>
+    <string name="theme">Theme</string>
     <string name="system">System</string>
     <string name="dark">Dark</string>
     <string name="light">Light</string>

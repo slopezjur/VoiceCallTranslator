@@ -1,7 +1,5 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.account.ui
 
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -17,28 +15,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.R
-import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.LanguageOption
+import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 
 @Composable
-internal fun LanguageView(
+internal fun ThemeView(
     modifier: Modifier,
     dropDownExpanded: Boolean,
-    languageOption: LanguageOption,
-    setLanguage: (LanguageOption) -> Unit
+    themeOption: ThemeOption,
+    setTheme: (ThemeOption) -> Unit
 ) {
     Text(
-        text = stringResource(id = R.string.language),
+        text = stringResource(id = R.string.theme),
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.primary
     )
-    Spacer(modifier = Modifier.size(8.dp))
     DropDownMenuView(
         modifier = modifier,
         dropDownExpanded = dropDownExpanded,
-        languageOption = languageOption,
-        setLanguage = setLanguage
+        themeOption = themeOption,
+        setTheme = setTheme,
     )
 }
 
@@ -47,12 +43,12 @@ internal fun LanguageView(
 private fun DropDownMenuView(
     modifier: Modifier,
     dropDownExpanded: Boolean,
-    languageOption: LanguageOption,
-    setLanguage: (LanguageOption) -> Unit
+    themeOption: ThemeOption,
+    setTheme: (ThemeOption) -> Unit
 ) {
     // TODO : Create generic DropDown for Voice, Theme and Language
     var expanded by remember { mutableStateOf(dropDownExpanded) }
-    val defaultDropDownMenu = stringResource(id = languageOption.nameValue)
+    val defaultDropDownMenu = stringResource(id = themeOption.nameValue)
     var selectedOptionText by remember { mutableStateOf(defaultDropDownMenu) }
     val context = LocalContext.current
 
@@ -71,15 +67,15 @@ private fun DropDownMenuView(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            LanguageOption.entries.forEach { selectionOption ->
+            ThemeOption.entries.forEach { selectionOption ->
                 val text = stringResource(id = selectionOption.nameValue)
                 DropdownMenuItem(
                     text = { Text(text) },
                     onClick = {
                         selectedOptionText = text
                         expanded = false
-                        setLanguage.invoke(
-                            LanguageOption.getLanguageEnum(
+                        setTheme.invoke(
+                            ThemeOption.getThemeEnum(
                                 context = context,
                                 text = text
                             )

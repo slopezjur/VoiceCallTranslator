@@ -1,5 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model
 
+import android.content.Context
 import com.sergiolopez.voicecalltranslator.R
 
 enum class ThemeOption(val nameValue: Int) {
@@ -8,17 +9,17 @@ enum class ThemeOption(val nameValue: Int) {
     LIGHT(R.string.light);
 
     companion object {
-        fun getThemeEnum(text: String): ThemeOption {
+        fun getThemeEnum(context: Context, text: String): ThemeOption {
             return when (text.lowercase()) {
-                SYSTEM.name.lowercase() -> {
+                context.getString(SYSTEM.nameValue).lowercase() -> {
                     SYSTEM
                 }
 
-                DARK.name.lowercase() -> {
+                context.getString(DARK.nameValue).lowercase() -> {
                     DARK
                 }
 
-                LIGHT.name.lowercase() -> {
+                context.getString(LIGHT.nameValue).lowercase() -> {
                     LIGHT
                 }
 

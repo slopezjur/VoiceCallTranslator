@@ -4,6 +4,7 @@ import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.settings.account.data.datastore.AccountSettingsDataStore
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
+import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.LanguageOption
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,16 +40,16 @@ class AccountSettingsViewModel @Inject constructor(
         }
     }
 
-    fun setLanguage(language: String) {
+    fun setLanguage(languageOption: LanguageOption) {
         _accountSettingsDataStateState.value = _accountSettingsDataStateState.value.copy(
-            language = language
+            languageOption = languageOption
         )
         setAccountSettings()
     }
 
     fun setTheme(theme: ThemeOption) {
         _accountSettingsDataStateState.value = _accountSettingsDataStateState.value.copy(
-            theme = theme
+            themeOption = theme
         )
         setAccountSettings()
     }
@@ -64,7 +65,10 @@ class AccountSettingsViewModel @Inject constructor(
 
     fun deleteAccount() {
         launchCatching {
-            firebaseAuthRepository.deleteAccount()
+            val result = firebaseAuthRepository.deleteAccount()
+            if (result) {
+                // Remove data store and go to login
+            }
         }
     }
 

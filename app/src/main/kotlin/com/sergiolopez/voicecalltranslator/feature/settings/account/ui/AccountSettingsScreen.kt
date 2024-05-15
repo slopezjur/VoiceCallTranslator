@@ -3,13 +3,12 @@ package com.sergiolopez.voicecalltranslator.feature.settings.account.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAppBar
+import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsActions
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
@@ -38,7 +38,8 @@ fun AccountSettingsScreen(
 ) {
     AccountSettingsScreenContent(
         openAndPopUp = openAndPopUp,
-        dropDownExpanded = false,
+        languageDropDownExpanded = false,
+        themeDropDownExpanded = false,
         accountSettingsData = accountSettingsViewModel.accountSettingsDataState.collectAsStateWithLifecycle().value,
         accountSettingsAction = AccountSettingsActions(
             setLanguage = { accountSettingsViewModel.setLanguage(it) },
@@ -53,7 +54,8 @@ fun AccountSettingsScreen(
 private fun AccountSettingsScreenContent(
     modifier: Modifier = Modifier,
     openAndPopUp: () -> Unit,
-    dropDownExpanded: Boolean,
+    languageDropDownExpanded: Boolean,
+    themeDropDownExpanded: Boolean,
     accountSettingsData: AccountSettingsData,
     accountSettingsAction: AccountSettingsActions
 ) {
@@ -63,6 +65,7 @@ private fun AccountSettingsScreenContent(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         VctTopAppBar(
             modifier = modifier,
@@ -72,42 +75,78 @@ private fun AccountSettingsScreenContent(
             openAndPopUp = openAndPopUp,
             content = {}
         )
+
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
-                .background(color = MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
+                .weight(1f),
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            /*LanguageView(
-                modifier = modifier,
-                logout = accountSettingsAction.logout
-            )*/
-            Spacer(modifier = modifier.size(24.dp))
+            Card(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Column(
+                    modifier = modifier.padding(16.dp)
+                ) {
+                    LanguageView(
+                        modifier = modifier,
+                        dropDownExpanded = languageDropDownExpanded,
+                        languageOption = accountSettingsData.languageOption,
+                        setLanguage = accountSettingsAction.setLanguage
+                    )
+                }
+            }
+
+            Card(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Column(
+                    modifier = modifier.padding(16.dp)
+                ) {
+                    ThemeView(
+                        modifier = modifier,
+                        dropDownExpanded = themeDropDownExpanded,
+                        themeOption = accountSettingsData.themeOption,
+                        setTheme = accountSettingsAction.setTheme
+                    )
+                }
+            }
+        }
+
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Button(
                 onClick = {
                     accountSettingsAction.logout.invoke()
                 },
-                modifier = modifier
+                modifier = modifier.fillMaxWidth()
             ) {
                 Text(
-                    text =
-                    stringResource(R.string.logout),
+                    text = stringResource(R.string.logout),
                     fontSize = 16.sp
                 )
             }
-            Spacer(modifier = modifier.size(24.dp))
+
             Button(
                 onClick = {
                     showDeleteAccountDialogRemember = true
                 },
-                modifier = modifier
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text =
-                    stringResource(R.string.delete_account),
+                    text = stringResource(R.string.delete_account),
                     fontSize = 16.sp
                 )
             }
@@ -132,14 +171,55 @@ fun VoiceSettingsScreenContentPreview() {
         AccountSettingsScreenContent(
             modifier = Modifier,
             openAndPopUp = {},
-            dropDownExpanded = false,
+            languageDropDownExpanded = false,
             accountSettingsData = AccountSettingsData(),
             accountSettingsAction = AccountSettingsActions(
                 setLanguage = {},
                 setTheme = {},
                 logout = {},
                 deleteAccount = {}
-            )
+            ),
+            themeDropDownExpanded = false
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun VoiceSettingsScreenContentDarkPreview() {
+    VoiceCallTranslatorPreview {
+        AccountSettingsScreenContent(
+            modifier = Modifier,
+            openAndPopUp = {},
+            languageDropDownExpanded = false,
+            accountSettingsData = Dummy.accountSettingsDataDark,
+            accountSettingsAction = AccountSettingsActions(
+                setLanguage = {},
+                setTheme = {},
+                logout = {},
+                deleteAccount = {}
+            ),
+            themeDropDownExpanded = false
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun VoiceSettingsScreenContentLightPreview() {
+    VoiceCallTranslatorPreview {
+        AccountSettingsScreenContent(
+            modifier = Modifier,
+            openAndPopUp = {},
+            languageDropDownExpanded = false,
+            accountSettingsData = Dummy.accountSettingsDataLight,
+            accountSettingsAction = AccountSettingsActions(
+                setLanguage = {},
+                setTheme = {},
+                logout = {},
+                deleteAccount = {}
+            ),
+            themeDropDownExpanded = false
         )
     }
 }
@@ -151,14 +231,15 @@ fun VoiceSettingsScreenContentDropDownExpandedPreview() {
         AccountSettingsScreenContent(
             modifier = Modifier,
             openAndPopUp = {},
-            dropDownExpanded = true,
+            languageDropDownExpanded = true,
             accountSettingsData = AccountSettingsData(),
             accountSettingsAction = AccountSettingsActions(
                 setLanguage = {},
                 setTheme = {},
                 logout = {},
                 deleteAccount = {}
-            )
+            ),
+            themeDropDownExpanded = false
         )
     }
 }
