@@ -1,7 +1,10 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.voice.ui
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -23,43 +26,56 @@ internal fun VoiceTrainingView(
     setUseTrainedVoice: (Boolean) -> Unit,
     useTrainedVoice: Boolean
 ) {
-    Text(
-        text = stringResource(id = R.string.voice_training),
-        color = MaterialTheme.colorScheme.primary
-    )
-    Button(
-        onClick = {
-            // TODO : start voice training flow
-            setVoiceTrainingCompleted.invoke(!voiceTrainingCompleted)
-        },
+    Column(
         modifier = modifier
+            .padding(16.dp)
     ) {
         Text(
-            text = if (voiceTrainingCompleted) {
-                stringResource(R.string.restart)
-            } else {
-                stringResource(R.string.start)
-            },
-            fontSize = 16.sp
+            text = stringResource(id = R.string.voice_training),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
         )
-    }
-    if (voiceTrainingCompleted) {
-        Spacer(modifier = modifier.size(24.dp))
-        Row(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically
+
+        Spacer(modifier = modifier.size(8.dp))
+
+        Button(
+            onClick = {
+                // TODO : start voice training flow
+                setVoiceTrainingCompleted.invoke(!voiceTrainingCompleted)
+            },
+            modifier = modifier.fillMaxWidth()
         ) {
             Text(
-                text = stringResource(id = R.string.use_trained_voice),
-                color = MaterialTheme.colorScheme.primary
+                text = if (voiceTrainingCompleted) {
+                    stringResource(R.string.restart)
+                } else {
+                    stringResource(R.string.start)
+                },
+                fontSize = 16.sp
             )
-            Spacer(modifier = modifier.size(16.dp))
-            Switch(
-                checked = useTrainedVoice,
-                onCheckedChange = {
-                    setUseTrainedVoice.invoke(it)
-                }
-            )
+        }
+
+        if (voiceTrainingCompleted) {
+            Spacer(modifier = Modifier.size(24.dp))
+
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.use_trained_voice),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = modifier.weight(1f))
+
+                Switch(
+                    checked = useTrainedVoice,
+                    onCheckedChange = {
+                        setUseTrainedVoice.invoke(it)
+                    }
+                )
+            }
         }
     }
 }

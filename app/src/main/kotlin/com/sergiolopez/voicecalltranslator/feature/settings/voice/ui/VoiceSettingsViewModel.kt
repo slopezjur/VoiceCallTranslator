@@ -50,6 +50,11 @@ class VoiceSettingsViewModel @Inject constructor(
         _voiceSettingsDataStateState.value = _voiceSettingsDataStateState.value.copy(
             voiceTrainingCompleted = voiceTrainingCompleted
         )
+
+        if (!voiceTrainingCompleted) {
+            setUseTrainedVoice(false)
+        }
+
         setVoiceSettings()
     }
 

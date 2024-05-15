@@ -1,5 +1,9 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.voice.ui
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -13,7 +17,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
 
@@ -24,16 +30,24 @@ internal fun SyntheticVoiceView(
     setSyntheticVoice: (SyntheticVoiceOption) -> Unit,
     useTrainedVoice: Boolean
 ) {
-    Text(
-        text = stringResource(id = R.string.synthetic_voice),
-        color = MaterialTheme.colorScheme.primary
-    )
-    DropDownMenuView(
-        dropDownExpanded = dropDownExpanded,
-        syntheticVoiceOption = syntheticVoiceOption,
-        setUseSyntheticVoice = setSyntheticVoice,
-        useTrainedVoice = useTrainedVoice
-    )
+    Column(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.synthetic_voice),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.size(8.dp))
+
+        DropDownMenuView(
+            dropDownExpanded = dropDownExpanded,
+            syntheticVoiceOption = syntheticVoiceOption,
+            setUseSyntheticVoice = setSyntheticVoice,
+            useTrainedVoice = useTrainedVoice
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +61,7 @@ private fun DropDownMenuView(
     var expanded by remember { mutableStateOf(dropDownExpanded) }
     val defaultDropDownMenu = stringResource(id = syntheticVoiceOption.nameValue)
     var selectedOptionText by remember { mutableStateOf(defaultDropDownMenu) }
+    val context = LocalContext.current
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -73,6 +88,7 @@ private fun DropDownMenuView(
                         expanded = false
                         setUseSyntheticVoice.invoke(
                             SyntheticVoiceOption.getSyntheticVoiceEnum(
+                                context = context,
                                 text = text
                             )
                         )

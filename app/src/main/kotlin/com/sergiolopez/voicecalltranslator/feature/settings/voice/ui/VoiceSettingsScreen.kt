@@ -1,17 +1,16 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.voice.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -53,6 +52,7 @@ private fun VoiceSettingsScreenContent(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         VctTopAppBar(
             modifier = modifier,
@@ -62,14 +62,14 @@ private fun VoiceSettingsScreenContent(
             openAndPopUp = openAndPopUp,
             content = {}
         )
-        Column(
-            modifier = modifier
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Card(
+            modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
-                .background(color = MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             SyntheticVoiceView(
                 dropDownExpanded = dropDownExpanded,
@@ -77,7 +77,16 @@ private fun VoiceSettingsScreenContent(
                 setSyntheticVoice = voiceSettingsActions.setSyntheticVoice,
                 useTrainedVoice = voiceSettingsData.useTrainedVoice
             )
-            Spacer(modifier = modifier.size(24.dp))
+        }
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
             VoiceTrainingView(
                 setVoiceTrainingCompleted = voiceSettingsActions.setVoiceTrainingCompleted,
                 voiceTrainingCompleted = voiceSettingsData.voiceTrainingCompleted,

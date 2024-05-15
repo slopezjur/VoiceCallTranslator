@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
@@ -48,6 +49,7 @@ private fun DropDownMenuView(
     var expanded by remember { mutableStateOf(dropDownExpanded) }
     val defaultDropDownMenu = stringResource(id = syntheticVoiceOption.nameValue)
     var selectedOptionText by remember { mutableStateOf(defaultDropDownMenu) }
+    val context = LocalContext.current
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -74,6 +76,7 @@ private fun DropDownMenuView(
                         expanded = false
                         setUseSyntheticVoice.invoke(
                             SyntheticVoiceOption.getSyntheticVoiceEnum(
+                                context = context,
                                 text = text
                             )
                         )

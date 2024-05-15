@@ -1,5 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model
 
+import android.content.Context
 import com.sergiolopez.voicecalltranslator.R
 
 enum class SyntheticVoiceOption(val nameValue: Int) {
@@ -8,13 +9,13 @@ enum class SyntheticVoiceOption(val nameValue: Int) {
     FEMALE(R.string.female);
 
     companion object {
-        fun getSyntheticVoiceEnum(text: String): SyntheticVoiceOption {
+        fun getSyntheticVoiceEnum(context: Context, text: String): SyntheticVoiceOption {
             return when (text.lowercase()) {
-                MALE.name.lowercase() -> {
+                context.getString(MALE.nameValue).lowercase() -> {
                     MALE
                 }
 
-                FEMALE.name.lowercase() -> {
+                context.getString(FEMALE.nameValue).lowercase() -> {
                     FEMALE
                 }
 
