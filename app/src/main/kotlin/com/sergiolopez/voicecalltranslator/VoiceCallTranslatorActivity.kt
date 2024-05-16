@@ -9,11 +9,18 @@ import android.os.Environment
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.content.getSystemService
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseService
+import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
@@ -44,7 +51,17 @@ class VoiceCallTranslatorActivity : AppCompatActivity() {
         }
 
         setContent {
-            VoiceCallTranslatorTheme {
+            // TODO : To update the device Theme will overwrite User configuration...
+            var themeOption by remember { mutableStateOf(ThemeOption.SYSTEM) }
+            val themeConfiguration: (ThemeOption) -> Unit = {
+                themeOption = it
+            }
+
+            VoiceCallTranslatorTheme(
+                darkTheme = shouldUseDarkTheme(
+                    themeOption = themeOption
+                )
+            ) {
                 Surface {
                     PermissionBox(permissions = setUpPermissions()) {
                         VoiceCallTranslatorApp(
@@ -55,7 +72,8 @@ class VoiceCallTranslatorActivity : AppCompatActivity() {
                                     "restartFirebaseService"
                                 )
                                 startFirebaseService.invoke()
-                            }
+                            },
+                            themeConfiguration = themeConfiguration
                         )
                     }
                 }
@@ -133,4 +151,13 @@ class VoiceCallTranslatorActivity : AppCompatActivity() {
         const val CALL_DATA_FROM_NOTIFICATION = "call_data_from_notification"
         const val APP_ALREADY_RUNNING = "APP_ALREADY_RUNNING"
     }
+}
+
+@Composable
+private fun shouldUseDarkTheme(
+    themeOption: ThemeOption,
+): Boolean = when (themeOption) {
+    ThemeOption.SYSTEM -> isSystemInDarkTheme()
+    ThemeOption.LIGHT -> false
+    ThemeOption.DARK -> true
 }

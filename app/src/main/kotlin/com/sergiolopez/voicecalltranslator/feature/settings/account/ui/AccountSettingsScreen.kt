@@ -29,12 +29,14 @@ import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAp
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsActions
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
+import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun AccountSettingsScreen(
     openAndPopUp: () -> Unit,
-    accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel()
+    accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel(),
+    themeConfiguration: (ThemeOption) -> Unit
 ) {
     AccountSettingsScreenContent(
         openAndPopUp = openAndPopUp,
@@ -43,7 +45,10 @@ fun AccountSettingsScreen(
         accountSettingsData = accountSettingsViewModel.accountSettingsDataState.collectAsStateWithLifecycle().value,
         accountSettingsAction = AccountSettingsActions(
             setLanguage = { accountSettingsViewModel.setLanguage(it) },
-            setTheme = { accountSettingsViewModel.setTheme(it) },
+            setTheme = {
+                accountSettingsViewModel.setTheme(it)
+                themeConfiguration.invoke(it)
+            },
             logout = { accountSettingsViewModel.logout() },
             deleteAccount = { accountSettingsViewModel.deleteAccount() }
         )

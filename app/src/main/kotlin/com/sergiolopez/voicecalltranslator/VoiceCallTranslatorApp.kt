@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.sergiolopez.voicecalltranslator.feature.call.ui.CallScreen
 import com.sergiolopez.voicecalltranslator.feature.contactlist.ui.ContactListScreen
 import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
+import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 import com.sergiolopez.voicecalltranslator.feature.settings.account.ui.AccountSettingsScreen
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.VoiceSettingsScreen
 import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
@@ -29,7 +30,8 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationState
 @Composable
 fun VoiceCallTranslatorApp(
     restartFirebaseService: () -> Unit,
-    navigationCallExtra: NavigationCallExtra
+    navigationCallExtra: NavigationCallExtra,
+    themeConfiguration: (ThemeOption) -> Unit
 ) {
     val navigationState = rememberNavigationState()
 
@@ -46,7 +48,8 @@ fun VoiceCallTranslatorApp(
             notesGraph(
                 navigationState = navigationState,
                 restartFirebaseService = restartFirebaseService,
-                navigationCallExtra = navigationCallExtra
+                navigationCallExtra = navigationCallExtra,
+                themeConfiguration = themeConfiguration
             )
         }
         // Note : Snackbar flow has been implemented in a different Scaffold per Screen to directly
@@ -63,7 +66,8 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
 fun NavGraphBuilder.notesGraph(
     navigationState: NavigationState,
     restartFirebaseService: () -> Unit,
-    navigationCallExtra: NavigationCallExtra
+    navigationCallExtra: NavigationCallExtra,
+    themeConfiguration: (ThemeOption) -> Unit
 ) {
     composable(NavigationAction.SplashNavigation.route) {
         SplashScreen(
@@ -71,7 +75,8 @@ fun NavGraphBuilder.notesGraph(
                 navigationState.navigateAndPopUp(
                     navigationParams = navigationParams
                 )
-            }
+            },
+            themeConfiguration = themeConfiguration
         )
     }
 
@@ -133,7 +138,8 @@ fun NavGraphBuilder.notesGraph(
         AccountSettingsScreen(
             openAndPopUp = {
                 navigationState.popBackStack()
-            }
+            },
+            themeConfiguration = themeConfiguration
         )
     }
 }

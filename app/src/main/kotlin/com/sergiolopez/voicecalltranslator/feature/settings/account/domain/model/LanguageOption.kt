@@ -7,6 +7,13 @@ enum class LanguageOption(val nameValue: Int) {
     ENGLISH(R.string.english),
     SPANISH(R.string.spanish);
 
+    fun getLocalValue(): String {
+        return when (this) {
+            ENGLISH -> LOCALE_EN
+            SPANISH -> LOCALE_ES
+        }
+    }
+
     companion object {
         fun getLanguageEnum(context: Context, text: String): LanguageOption {
             return when (text.lowercase()) {
@@ -23,5 +30,8 @@ enum class LanguageOption(val nameValue: Int) {
                 }
             }
         }
+
+        private const val LOCALE_ES = "es"
+        private const val LOCALE_EN = "en"
     }
 }

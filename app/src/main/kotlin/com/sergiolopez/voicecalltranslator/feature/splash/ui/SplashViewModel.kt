@@ -4,7 +4,10 @@ import android.content.Context
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.utils.LocaleProvider
-import com.sergiolopez.voicecalltranslator.feature.settings.account.data.datastore.AccountSettingsDataStore
+import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.LanguageOption
+import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
+import com.sergiolopez.voicecalltranslator.feature.splash.domain.usecase.GetLanguageOptionUseCase
+import com.sergiolopez.voicecalltranslator.feature.splash.domain.usecase.GetThemeOptionUseCase
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,20 +18,26 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val firebaseAuthRepository: FirebaseAuthRepository,
-    private val accountSettingsDataStore: AccountSettingsDataStore
+    private val getThemeOptionUseCase: GetThemeOptionUseCase,
+    private val getLanguageOptionUseCase: GetLanguageOptionUseCase
 ) : VoiceCallTranslatorViewModel() {
 
     fun onAppStart(
-        openAndPopUp: (NavigationParams) -> Unit
+        openAndPopUp: (NavigationParams) -> Unit,
+        themeConfiguration: (ThemeOption) -> Unit
     ) {
         if (firebaseAuthRepository.isUserLogged()) {
             launchCatching {
-                /*val accountSettings = accountSettingsDataStore.getAccountSettings(
-                    userId = firebaseAuthRepository.currentUser.value?.id ?: ""
-                )*/
-                if (context.resources.configuration.locales[0].language != "es") {
-                    //setLocaleAndRestart.invoke(context, "es")//accountSettings?.language ?: "en")
-                    LocaleProvider.updateLanguage(context, "es")
+                val userId = firebaseAuthRepository.currentUser.value?.id
+
+                userId?.let {
+                    setUpLanguage(
+                        userId = it
+                    )
+                    setUpTheme(
+                        userId = it,
+                        themeConfiguration = themeConfiguration
+                    )
                 }
 
                 openAndPopUp(
@@ -46,5 +55,24 @@ class SplashViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    private suspend fun setUpLanguage(userId: String) {
+        val languageOption = getLanguageOptionUseCase.invoke(
+            userId = userId
+        )?.getLocalValue()
+
+        languageOption?.let {
+            LocaleProvider.updateLanguage(context, it)
+        } ?: LocaleProvider.updateLanguage(context, LanguageOption.ENGLISH.getLocalValue())
+    }
+
+    private suspend fun setUpTheme(userId: String, themeConfiguration: (ThemeOption) -> Unit) {
+        // TODO : Who should manage the default values?
+        val themeOption = getThemeOptionUseCase.invoke(
+            userId = userId
+        ) ?: ThemeOption.SYSTEM
+
+        themeConfiguration.invoke(themeOption)
     }
 }
