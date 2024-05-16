@@ -35,13 +35,13 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun ContactListScreen(
-    openAndPopUp: (NavigationParams) -> Unit,
+    navigateAndPopUp: (NavigationParams) -> Unit,
     contactListViewModel: ContactListViewModel = hiltViewModel()
 ) {
     ContactListContent(
         contactList = contactListViewModel.userList.collectAsStateWithLifecycle().value,
         onContactUserCall = {
-            openAndPopUp.invoke(
+            navigateAndPopUp.invoke(
                 NavigationParams(
                     route = "${NavigationRoute.CALL.navigationName}?$CALLEE_ID=${it}",
                     popUp = NavigationRoute.CONTACT_LIST.navigationName
@@ -51,7 +51,7 @@ fun ContactListScreen(
         showCallDialog = false,
         showSettingsDropDownMenu = false,
         onVoiceSettings = {
-            openAndPopUp.invoke(
+            navigateAndPopUp.invoke(
                 NavigationParams(
                     route = NavigationRoute.VOICE_SETTINGS.navigationName,
                     popUp = NavigationRoute.CONTACT_LIST.navigationName
@@ -59,7 +59,7 @@ fun ContactListScreen(
             )
         },
         onAccountSettings = {
-            openAndPopUp.invoke(
+            navigateAndPopUp.invoke(
                 NavigationParams(
                     route = NavigationRoute.ACCOUNT_SETTINGS.navigationName,
                     popUp = NavigationRoute.CONTACT_LIST.navigationName
@@ -93,7 +93,7 @@ fun ContactListContent(
             titleName = R.string.contact_list,
             hasNavigation = false,
             hasAction = true,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             content = {
                 SettingsDropDownMenu(
                     showSettingsDropDownMenu = showSettingsDropDownMenu,

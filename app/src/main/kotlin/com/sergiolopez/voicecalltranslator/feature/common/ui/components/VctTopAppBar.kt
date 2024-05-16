@@ -24,7 +24,7 @@ internal fun VctTopAppBar(
     titleName: Int,
     hasNavigation: Boolean,
     hasAction: Boolean,
-    openAndPopUp: () -> Unit,
+    navigatePopBackStack: () -> Unit,
     content: @Composable () -> Unit
 ) {
     TopAppBar(
@@ -39,7 +39,7 @@ internal fun VctTopAppBar(
             if (hasNavigation) {
                 IconButton(
                     onClick = {
-                        openAndPopUp.invoke()
+                        navigatePopBackStack.invoke()
                     },
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back Action")
@@ -76,7 +76,7 @@ private fun VctTopAppBarPreview() {
             titleName = R.string.app_name,
             hasNavigation = false,
             hasAction = false,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             content = {}
         )
     }
@@ -91,7 +91,7 @@ private fun VctTopAppBarHasNavigationPreview() {
             titleName = R.string.app_name,
             hasNavigation = true,
             hasAction = false,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             content = {}
         )
     }
@@ -106,7 +106,7 @@ private fun VctTopAppBarHasActionPreview() {
             titleName = R.string.app_name,
             hasNavigation = false,
             hasAction = true,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             content = {
                 IconButton(
                     onClick = {},
@@ -127,7 +127,7 @@ private fun VctTopAppBarHasNavigationAndActionPreview() {
             titleName = R.string.app_name,
             hasNavigation = true,
             hasAction = true,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             content = {
                 IconButton(
                     onClick = {},

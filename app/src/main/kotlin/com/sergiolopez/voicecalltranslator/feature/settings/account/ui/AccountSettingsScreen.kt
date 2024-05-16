@@ -34,12 +34,12 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun AccountSettingsScreen(
-    openAndPopUp: () -> Unit,
+    navigatePopBackStack: () -> Unit,
     accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel(),
     themeConfiguration: (ThemeOption) -> Unit
 ) {
     AccountSettingsScreenContent(
-        openAndPopUp = openAndPopUp,
+        navigatePopBackStack = navigatePopBackStack,
         languageDropDownExpanded = false,
         themeDropDownExpanded = false,
         accountSettingsData = accountSettingsViewModel.accountSettingsDataState.collectAsStateWithLifecycle().value,
@@ -49,7 +49,10 @@ fun AccountSettingsScreen(
                 accountSettingsViewModel.setTheme(it)
                 themeConfiguration.invoke(it)
             },
-            logout = { accountSettingsViewModel.logout() },
+            logout = {
+                accountSettingsViewModel.logout()
+                navigatePopBackStack.invoke()
+            },
             deleteAccount = { accountSettingsViewModel.deleteAccount() }
         )
     )
@@ -58,7 +61,7 @@ fun AccountSettingsScreen(
 @Composable
 private fun AccountSettingsScreenContent(
     modifier: Modifier = Modifier,
-    openAndPopUp: () -> Unit,
+    navigatePopBackStack: () -> Unit,
     languageDropDownExpanded: Boolean,
     themeDropDownExpanded: Boolean,
     accountSettingsData: AccountSettingsData,
@@ -77,7 +80,7 @@ private fun AccountSettingsScreenContent(
             titleName = R.string.account_settings,
             hasNavigation = true,
             hasAction = false,
-            openAndPopUp = openAndPopUp,
+            navigatePopBackStack = navigatePopBackStack,
             content = {}
         )
 
@@ -175,7 +178,7 @@ fun VoiceSettingsScreenContentPreview() {
     VoiceCallTranslatorPreview {
         AccountSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             languageDropDownExpanded = false,
             accountSettingsData = AccountSettingsData(),
             accountSettingsAction = AccountSettingsActions(
@@ -195,7 +198,7 @@ fun VoiceSettingsScreenContentDarkPreview() {
     VoiceCallTranslatorPreview {
         AccountSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             languageDropDownExpanded = false,
             accountSettingsData = Dummy.accountSettingsDataDark,
             accountSettingsAction = AccountSettingsActions(
@@ -215,7 +218,7 @@ fun VoiceSettingsScreenContentLightPreview() {
     VoiceCallTranslatorPreview {
         AccountSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             languageDropDownExpanded = false,
             accountSettingsData = Dummy.accountSettingsDataLight,
             accountSettingsAction = AccountSettingsActions(
@@ -235,7 +238,7 @@ fun VoiceSettingsScreenContentDropDownExpandedPreview() {
     VoiceCallTranslatorPreview {
         AccountSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigatePopBackStack = {},
             languageDropDownExpanded = true,
             accountSettingsData = AccountSettingsData(),
             accountSettingsAction = AccountSettingsActions(

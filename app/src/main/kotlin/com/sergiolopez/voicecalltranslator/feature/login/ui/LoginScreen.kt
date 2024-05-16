@@ -12,11 +12,13 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun LoginScreen(
-    openAndPopUp: (NavigationParams) -> Unit,
+    navigateAndPopUp: (NavigationParams) -> Unit,
+    navigate: (NavigationParams) -> Unit,
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     LoginScreenContent(
-        openAndPopUp = openAndPopUp,
+        navigateAndPopUp = navigateAndPopUp,
+        navigate = navigate,
         loginUiState = loginViewModel.loginUiState.collectAsStateWithLifecycle().value,
         resetUiState = { loginViewModel.resetUiState() },
         email = loginViewModel.emailState.collectAsStateWithLifecycle().value,
@@ -31,7 +33,8 @@ fun LoginScreen(
 @Composable
 fun LoginScreenContent(
     modifier: Modifier = Modifier,
-    openAndPopUp: (NavigationParams) -> Unit,
+    navigateAndPopUp: (NavigationParams) -> Unit,
+    navigate: (NavigationParams) -> Unit,
     loginUiState: LoginViewModel.LoginUiState,
     resetUiState: () -> Unit,
     email: String,
@@ -51,12 +54,13 @@ fun LoginScreenContent(
                 ShowLoginScreenContent(
                     modifier = modifier,
                     paddingValues = paddingValues,
+                    navigateAndPopUp = navigateAndPopUp,
+                    navigate = navigate,
                     email = email,
                     updateEmail = updateEmail,
                     password = password,
                     updatePassword = updatePassword,
                     onLoginClick = onLoginClick,
-                    openAndPopUp = openAndPopUp,
                     onSignUpClick = onSignUpClick
                 )
             }
@@ -75,7 +79,8 @@ fun LoginScreenLoadingPreview() {
     VoiceCallTranslatorPreview {
         LoginScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigateAndPopUp = {},
+            navigate = {},
             loginUiState = LoginViewModel.LoginUiState.LOADING,
             resetUiState = {},
             email = "",
@@ -94,7 +99,8 @@ fun LoginScreenErrorPreview() {
     VoiceCallTranslatorPreview {
         LoginScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigateAndPopUp = {},
+            navigate = {},
             loginUiState = LoginViewModel.LoginUiState.ERROR,
             resetUiState = {},
             email = "slopezjur@uoc.edu",

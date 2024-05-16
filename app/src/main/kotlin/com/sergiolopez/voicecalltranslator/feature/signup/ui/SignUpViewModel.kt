@@ -59,7 +59,7 @@ class SignUpViewModel @Inject constructor(
         _isPasswordError.value = false
     }
 
-    fun onSignUpClick(openAndPopUp: (NavigationParams) -> Unit) {
+    fun onSignUpClick(navigateAndPopUp: (NavigationParams) -> Unit) {
         if (_passwordState.value != _confirmPasswordState.value) {
             _isPasswordError.value = true
         } else {
@@ -77,7 +77,7 @@ class SignUpViewModel @Inject constructor(
                                 // TODO : Remove Firebase user if error for the User replica
                             } else {
                                 _signUpUiState.emit(SignUpUiState.CONTINUE)
-                                navigateToNextScreen(openAndPopUp)
+                                navigateToNextScreen(navigateAndPopUp)
                             }
                         }
                     }
@@ -88,8 +88,8 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private fun navigateToNextScreen(openAndPopUp: (NavigationParams) -> Unit) {
-        openAndPopUp.invoke(
+    private fun navigateToNextScreen(navigateAndPopUp: (NavigationParams) -> Unit) {
+        navigateAndPopUp.invoke(
             NavigationParams(
                 NavigationRoute.CONTACT_LIST.navigationName,
                 NavigationRoute.LOGIN.navigationName

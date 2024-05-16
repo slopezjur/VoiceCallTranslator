@@ -33,7 +33,8 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 internal fun ShowLoginScreenContent(
     modifier: Modifier,
     paddingValues: PaddingValues,
-    openAndPopUp: (NavigationParams) -> Unit,
+    navigateAndPopUp: (NavigationParams) -> Unit,
+    navigate: (NavigationParams) -> Unit,
     email: String,
     updateEmail: (String) -> Unit,
     password: String,
@@ -114,7 +115,7 @@ internal fun ShowLoginScreenContent(
 
         Button(
             onClick = {
-                onLoginClick.invoke(openAndPopUp)
+                onLoginClick.invoke(navigateAndPopUp)
             },
             modifier = modifier
                 .fillMaxWidth()
@@ -135,7 +136,7 @@ internal fun ShowLoginScreenContent(
         )
 
         TextButton(onClick = {
-            onSignUpClick.invoke(openAndPopUp)
+            onSignUpClick.invoke(navigate)
         }) {
             Text(
                 text = stringResource(R.string.sign_up),
@@ -152,10 +153,11 @@ fun ShowLoginScreenContentPreview() {
         ShowLoginScreenContent(
             modifier = Modifier,
             paddingValues = PaddingValues(),
-            openAndPopUp = {},
+            navigateAndPopUp = {},
+            navigate = {},
             email = "",
-            password = "",
             updateEmail = {},
+            password = "",
             updatePassword = {},
             onLoginClick = {},
             onSignUpClick = {}
@@ -170,10 +172,11 @@ fun ShowLoginScreenContentFilledPreview() {
         ShowLoginScreenContent(
             modifier = Modifier,
             paddingValues = PaddingValues(),
-            openAndPopUp = {},
+            navigateAndPopUp = {},
+            navigate = {},
             email = "slopezjur@uoc.edu",
-            password = "SUPERCOMPLEXPASSWORD",
             updateEmail = {},
+            password = "SUPERCOMPLEXPASSWORD",
             updatePassword = {},
             onLoginClick = {},
             onSignUpClick = {}

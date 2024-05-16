@@ -23,11 +23,11 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun VoiceSettingsScreen(
-    openAndPopUp: () -> Unit,
+    navigateAndPopUp: () -> Unit,
     voiceSettingsViewModel: VoiceSettingsViewModel = hiltViewModel()
 ) {
     VoiceSettingsScreenContent(
-        openAndPopUp = openAndPopUp,
+        navigateAndPopUp = navigateAndPopUp,
         dropDownExpanded = false,
         voiceSettingsData = voiceSettingsViewModel.voiceSettingsDataState.collectAsStateWithLifecycle().value,
         voiceSettingsActions = VoiceSettingsActions(
@@ -41,7 +41,7 @@ fun VoiceSettingsScreen(
 @Composable
 private fun VoiceSettingsScreenContent(
     modifier: Modifier = Modifier,
-    openAndPopUp: () -> Unit,
+    navigateAndPopUp: () -> Unit,
     dropDownExpanded: Boolean,
     voiceSettingsData: VoiceSettingsData,
     voiceSettingsActions: VoiceSettingsActions
@@ -57,7 +57,7 @@ private fun VoiceSettingsScreenContent(
             titleName = R.string.voice_settings,
             hasNavigation = true,
             hasAction = false,
-            openAndPopUp = openAndPopUp,
+            navigatePopBackStack = navigateAndPopUp,
             content = {}
         )
 
@@ -97,7 +97,7 @@ fun VoiceSettingsScreenContentPreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigateAndPopUp = {},
             dropDownExpanded = false,
             voiceSettingsData = VoiceSettingsData(),
             voiceSettingsActions = VoiceSettingsActions(
@@ -115,7 +115,7 @@ fun VoiceSettingsScreenContentDropDownExpandedPreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigateAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(),
             voiceSettingsActions = VoiceSettingsActions(
@@ -133,7 +133,7 @@ fun VoiceSettingsScreenContentSyntheticVoiceMalePreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigateAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(
                 syntheticVoiceOption = SyntheticVoiceOption.MALE
@@ -153,7 +153,7 @@ fun VoiceSettingsScreenContentVoiceTrainingCompletedMalePreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigateAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(
                 voiceTrainingCompleted = true
@@ -173,7 +173,7 @@ fun VoiceSettingsScreenContentUseTrainedVoicePreview() {
     VoiceCallTranslatorPreview {
         VoiceSettingsScreenContent(
             modifier = Modifier,
-            openAndPopUp = {},
+            navigateAndPopUp = {},
             dropDownExpanded = true,
             voiceSettingsData = VoiceSettingsData(
                 voiceTrainingCompleted = true,

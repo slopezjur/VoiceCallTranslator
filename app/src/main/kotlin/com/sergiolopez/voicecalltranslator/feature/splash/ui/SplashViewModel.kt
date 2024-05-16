@@ -23,7 +23,7 @@ class SplashViewModel @Inject constructor(
 ) : VoiceCallTranslatorViewModel() {
 
     fun onAppStart(
-        openAndPopUp: (NavigationParams) -> Unit,
+        navigateAndPopUp: (NavigationParams) -> Unit,
         themeConfiguration: (ThemeOption) -> Unit
     ) {
         if (firebaseAuthRepository.isUserLogged()) {
@@ -40,7 +40,7 @@ class SplashViewModel @Inject constructor(
                     )
                 }
 
-                openAndPopUp(
+                navigateAndPopUp(
                     NavigationParams(
                         route = NavigationRoute.CONTACT_LIST.navigationName,
                         popUp = NavigationRoute.SPLASH.navigationName
@@ -48,7 +48,7 @@ class SplashViewModel @Inject constructor(
                 )
             }
         } else {
-            openAndPopUp(
+            navigateAndPopUp(
                 NavigationParams(
                     route = NavigationRoute.LOGIN.navigationName,
                     popUp = NavigationRoute.SPLASH.navigationName

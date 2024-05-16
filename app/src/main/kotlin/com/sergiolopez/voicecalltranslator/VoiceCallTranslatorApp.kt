@@ -71,7 +71,7 @@ fun NavGraphBuilder.notesGraph(
 ) {
     composable(NavigationAction.SplashNavigation.route) {
         SplashScreen(
-            openAndPopUp = { navigationParams ->
+            navigateAndPopUp = { navigationParams ->
                 navigationState.navigateAndPopUp(
                     navigationParams = navigationParams
                 )
@@ -82,7 +82,12 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.LoginNavigation.route) {
         LoginScreen(
-            openAndPopUp = { navigationParams ->
+            navigateAndPopUp = { navigationParams ->
+                navigationState.navigateAndPopUp(
+                    navigationParams = navigationParams
+                )
+            },
+            navigate = { navigationParams ->
                 navigationState.navigate(
                     route = navigationParams.route
                 )
@@ -92,7 +97,7 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.SignUpNavigation.route) {
         SignUpScreen(
-            openAndPopUp = { navigationParams ->
+            navigateAndPopUp = { navigationParams ->
                 navigationState.navigateAndPopUp(
                     navigationParams = navigationParams
                 )
@@ -102,7 +107,7 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.ContactListNavigation.route) {
         ContactListScreen(
-            openAndPopUp = { navigationParams ->
+            navigateAndPopUp = { navigationParams ->
                 navigationState.navigate(
                     route = navigationParams.route
                 )
@@ -115,7 +120,7 @@ fun NavGraphBuilder.notesGraph(
         arguments = listOf(navArgument(CALLEE_ID) { defaultValue = CALLEE_DEFAULT_ID })
     ) {
         CallScreen(
-            openAndPopUp = { navigationParams ->
+            navigateAndPopUp = { navigationParams ->
                 navigationState.navigateAndPopUp(
                     navigationParams = navigationParams
                 )
@@ -128,7 +133,7 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.VoiceSettingsNavigation.route) {
         VoiceSettingsScreen(
-            openAndPopUp = {
+            navigateAndPopUp = {
                 navigationState.popBackStack()
             }
         )
@@ -136,7 +141,7 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.AccountSettingsNavigation.route) {
         AccountSettingsScreen(
-            openAndPopUp = {
+            navigatePopBackStack = {
                 navigationState.popBackStack()
             },
             themeConfiguration = themeConfiguration

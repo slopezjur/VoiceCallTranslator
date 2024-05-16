@@ -27,7 +27,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun CallScreen(
-    openAndPopUp: (NavigationParams) -> Unit,
+    navigateAndPopUp: (NavigationParams) -> Unit,
     calleeId: String,
     navigationCallExtra: NavigationCallExtra,
     restartFirebaseService: () -> Unit,
@@ -56,7 +56,7 @@ fun CallScreen(
     }
 
     CallScreenContent(
-        openAndPopUp = openAndPopUp,
+        navigateAndPopUp = navigateAndPopUp,
         restartFirebaseService = restartFirebaseService,
         callStatus = callUiState,
         calleeId = calleeId,
@@ -70,7 +70,7 @@ fun CallScreen(
 
 @Composable
 fun CallScreenContent(
-    openAndPopUp: (NavigationParams) -> Unit,
+    navigateAndPopUp: (NavigationParams) -> Unit,
     restartFirebaseService: () -> Unit,
     callStatus: CallStatus,
     calleeId: String,
@@ -101,7 +101,7 @@ fun CallScreenContent(
             LaunchedEffect(Unit) {
                 //restartFirebaseService.invoke()
                 delay(1500)
-                navigateToContactList(openAndPopUp)
+                navigateToContactList(navigateAndPopUp)
             }
             // Show call ended when there is no active call
             NoCallScreen()
@@ -131,8 +131,8 @@ fun CallScreenContent(
     }
 }
 
-private fun navigateToContactList(openAndPopUp: (NavigationParams) -> Unit) {
-    openAndPopUp.invoke(
+private fun navigateToContactList(navigateAndPopUp: (NavigationParams) -> Unit) {
+    navigateAndPopUp.invoke(
         NavigationParams(
             NavigationRoute.CONTACT_LIST.navigationName,
             NavigationRoute.CALL.navigationName
@@ -177,7 +177,7 @@ private fun CallDismissedFromReceiver() {
 fun CallScreenPreview() {
     VoiceCallTranslatorPreview {
         CallScreenContent(
-            openAndPopUp = {},
+            navigateAndPopUp = {},
             restartFirebaseService = {},
             callStatus = CallStatus.CALL_IN_PROGRESS,
             calleeId = CALLEE_DEFAULT_ID,

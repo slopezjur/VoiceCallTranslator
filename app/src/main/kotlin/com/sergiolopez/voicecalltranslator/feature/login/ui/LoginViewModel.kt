@@ -44,13 +44,13 @@ class LoginViewModel @Inject constructor(
         _passwordState.value = newPassword
     }
 
-    fun onLoginClick(openAndPopUp: (NavigationParams) -> Unit) {
+    fun onLoginClick(navigateAndPopUp: (NavigationParams) -> Unit) {
         _loginUiState.value = LoginUiState.LOADING
         launchCatching {
             firebaseAuthRepository.currentUser.collect { user ->
                 if (user is User) {
                     saveUserUseCase.invoke(user)
-                    navigateToNextScreen(openAndPopUp)
+                    navigateToNextScreen(navigateAndPopUp)
                 }
             }
         }
@@ -62,8 +62,8 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun navigateToNextScreen(openAndPopUp: (NavigationParams) -> Unit) {
-        openAndPopUp(
+    private fun navigateToNextScreen(navigateAndPopUp: (NavigationParams) -> Unit) {
+        navigateAndPopUp(
             NavigationParams(
                 NavigationRoute.CONTACT_LIST.navigationName,
                 NavigationRoute.LOGIN.navigationName
@@ -71,8 +71,8 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-    fun onSignUpClick(openAndPopUp: (NavigationParams) -> Unit) {
-        openAndPopUp(
+    fun onSignUpClick(navigate: (NavigationParams) -> Unit) {
+        navigate(
             NavigationParams(
                 NavigationRoute.SIGN_UP.navigationName,
                 NavigationRoute.LOGIN.navigationName
