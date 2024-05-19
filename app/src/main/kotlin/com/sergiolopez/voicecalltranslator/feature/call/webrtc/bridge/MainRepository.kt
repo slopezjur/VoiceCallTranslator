@@ -44,7 +44,7 @@ class MainRepository @Inject constructor(
 
     fun initWebrtcClient(username: String) {
         webRTCClient.setScope(scope = scope)
-        webRTCClient.initializeWebrtcClient(username, object : MyPeerObserver() {
+        webRTCClient.initializeWebrtcClient(username, "en", object : MyPeerObserver() {
 
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
@@ -83,9 +83,8 @@ class MainRepository @Inject constructor(
         this.scope = scope
         this.scope.launch {
             val result = getConnectionUpdateUseCase.invoke(userId)
-            if (result.isSuccess) {
-                result.getOrThrow().collect { event ->
-                    //target = event.target
+            result.onSuccess {
+                it.collect { event ->
                     when (event.type) {
                         DataModelType.Offer -> {
                             webRTCClient.onRemoteSessionReceived(
@@ -98,8 +97,8 @@ class MainRepository @Inject constructor(
                                 webRTCClient.answer(target)
                                 updateCallStatus(CallStatus.ANSWERING)
                             } catch (exception: Exception) {
-                                event.sender?.let {
-                                    sendEndCall(it)
+                                event.sender?.let { sender ->
+                                    sendEndCall(sender)
                                 }
                             }
                         }
@@ -115,19 +114,16 @@ class MainRepository @Inject constructor(
 
                         DataModelType.IceCandidates -> {
                             val candidate: IceCandidate? = try {
-                                //gson.fromJson(event.data.toString(),IceCandidate::class.java)
                                 Json.decodeFromString(IceCandidateSerializer, event.data.toString())
                             } catch (e: Exception) {
                                 null
                             }
-                            candidate?.let {
-                                webRTCClient.addIceCandidateToPeer(it)
+                            candidate?.let { iceCandidate ->
+                                webRTCClient.addIceCandidateToPeer(
+                                    iceCandidate = iceCandidate
+                                )
                             }
                         }
-
-                        /*DataModelType.EndCall -> {
-                            endCall(target)
-                        }*/
 
                         else -> Unit
                     }

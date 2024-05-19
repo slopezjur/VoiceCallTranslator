@@ -2,7 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.call.webrtc
 
 import android.content.Context
 import android.util.Log
-import com.sergiolopez.voicecalltranslator.feature.call.audio.MagicAudioProcessor
+import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.MagicAudioProcessor
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
@@ -29,8 +29,8 @@ class WebRTCClient @Inject constructor(
     private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
     private val magicAudioProcessor: MagicAudioProcessor
 ) {
-    //class variables
     private lateinit var username: String
+    private lateinit var language: String
 
     //webrtc variables
     private val peerConnectionFactory by lazy {
@@ -94,10 +94,14 @@ class WebRTCClient @Inject constructor(
     }*/
 
     fun initializeWebrtcClient(
-        username: String, observer: PeerConnection.Observer
+        username: String,
+        language: String,
+        observer: PeerConnection.Observer
     ) {
+        magicAudioProcessor.initialize(language, "")
         Log.d("$VCT_LOGS initializeWebrtcClient: ", "initializeWebrtcClient $username")
         this.username = username
+        this.language = language
         localTrackId = "${username}_track"
         peerConnection = createPeerConnection(observer)
     }
@@ -119,7 +123,8 @@ class WebRTCClient @Inject constructor(
                             type = DataModelType.Offer,
                             sender = username,
                             target = target,
-                            data = desc?.description
+                            data = desc?.description,
+                            language = language
                         )
                         onTransferEventToSocket(
                             dataModel

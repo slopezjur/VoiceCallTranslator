@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.audio
+package com.sergiolopez.voicecalltranslator.feature.call.domain.audio
 
 import android.content.Context
 import android.os.Build

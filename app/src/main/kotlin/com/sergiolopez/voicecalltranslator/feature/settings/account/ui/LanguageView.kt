@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.R
-import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.LanguageOption
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
 
 @Composable
 internal fun LanguageView(

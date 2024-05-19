@@ -16,10 +16,6 @@ data class DataModel(
     val target: String,
     val type: DataModelType,
     val data: String? = null,
+    val language: String? = null,
     val timeStamp: Long = System.currentTimeMillis()
 ) : Parcelable
-
-
-fun DataModel.isValid(): Boolean {
-    return System.currentTimeMillis() - this.timeStamp < 60000
-}

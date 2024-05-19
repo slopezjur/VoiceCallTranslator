@@ -1,7 +1,7 @@
-package com.sergiolopez.voicecalltranslator.feature.splash.domain.usecase
+package com.sergiolopez.voicecalltranslator.feature.common.domain.usecase
 
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
 import com.sergiolopez.voicecalltranslator.feature.settings.account.data.datastore.AccountSettingsDataStore
-import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.LanguageOption
 import javax.inject.Inject
 
 class GetLanguageOptionUseCase @Inject constructor(

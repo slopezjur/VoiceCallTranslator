@@ -1,13 +1,12 @@
-package com.sergiolopez.voicecalltranslator.feature.call.audio
+package com.sergiolopez.voicecalltranslator.feature.call.domain.audio
 
 import android.content.Context
 import android.util.Log
-import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioFileManager.buildNameFile
-import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioFileManager.createOutputFile
-import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioFileManager.deleteFile
-import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioProcessorBuilder.createWavFileFromByteArray
-import com.sergiolopez.voicecalltranslator.feature.call.audio.AudioProcessorBuilder.createWavFileFromByteBufferList
 import com.sergiolopez.voicecalltranslator.feature.call.data.repository.MagicAudioRepository
+import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.AudioFileManager.buildNameFile
+import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.AudioFileManager.createOutputFile
+import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.AudioFileManager.deleteFile
+import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.AudioProcessorBuilder.createWavFileFromByteBufferList
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_MAGIC
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +25,7 @@ class MagicAudioProcessor @Inject constructor(
 ) : AudioRecordDataCallback {
 
     private lateinit var scope: CoroutineScope
+    private var isMagicNeeded: Boolean = false
 
     //private val bufferMiddleQueue: Queue<ByteBuffer> = LinkedList()
     private val bufferMiddleQueue: Queue<ByteBuffer> = ConcurrentLinkedQueue()
@@ -44,52 +44,66 @@ class MagicAudioProcessor @Inject constructor(
         this.scope = scope
     }
 
+    fun initialize(
+        sourceLanguage: String,
+        destinationLanguage: String
+    ) {
+        isMagicNeeded = sourceLanguage != destinationLanguage
+        scope.launch {
+            magicAudioRepository.initializeMagicCreator(
+                destinationLanguage = destinationLanguage
+            )
+        }
+    }
+
     override fun onAudioDataRecorded(
         audioFormat: Int,
         channelCount: Int,
         sampleRate: Int,
         audioBuffer: ByteBuffer
     ) {
-        // Clone buffer
-        val length = audioBuffer.limit() - audioBuffer.position()
+        if (isMagicNeeded) {
+            // Clone buffer
+            val length = audioBuffer.limit() - audioBuffer.position()
 
-        val audioBufferQueue = ByteBuffer.allocate(length)
-        audioBufferQueue.put(audioBuffer.array(), audioBuffer.position(), length)
-        audioBufferQueue.flip()  // Prepare next reading
+            val audioBufferQueue = ByteBuffer.allocate(length)
+            audioBufferQueue.put(audioBuffer.array(), audioBuffer.position(), length)
+            audioBufferQueue.flip()  // Prepare next reading
 
-        if (hasSound(audioBuffer = audioBuffer)) {
-            val audioBufferList = ByteBuffer.allocate(length)
-            audioBufferList.put(audioBufferQueue.array(), audioBufferQueue.position(), length)
-            audioBufferList.flip()  // Prepare next reading
+            if (hasSound(audioBuffer = audioBuffer)) {
+                val audioBufferList = ByteBuffer.allocate(length)
+                audioBufferList.put(audioBufferQueue.array(), audioBufferQueue.position(), length)
+                audioBufferList.flip()  // Prepare next reading
 
-            // Add cloned buffer to the queue
-            //bufferMiddleQueue.add(audioBufferQueue)
-            byteBufferList.add(audioBufferList)
-        } else {
-            if ((counter >= minimumDelayBuffer - 1) && (byteBufferList.size >= oneSecondFromWebRtc)) {
-                Log.d(VCT_MAGIC, "byteBufferList size ${byteBufferList.size}")
-                processByteBufferList(byteBufferList = byteBufferList.toList())
-                Log.d(VCT_MAGIC, "counter $counter")
-                byteBufferList.clear()
-                counter = 0
-                Log.d(VCT_MAGIC, "byteBufferList clear")
+                // Add cloned buffer to the queue
+                //bufferMiddleQueue.add(audioBufferQueue)
+                byteBufferList.add(audioBufferList)
+            } else {
+                if ((counter >= minimumDelayBuffer - 1) && (byteBufferList.size >= oneSecondFromWebRtc)) {
+                    Log.d(VCT_MAGIC, "byteBufferList size ${byteBufferList.size}")
+                    processByteBufferList(byteBufferList = byteBufferList.toList())
+                    Log.d(VCT_MAGIC, "counter $counter")
+                    byteBufferList.clear()
+                    counter = 0
+                    Log.d(VCT_MAGIC, "byteBufferList clear")
+                }
             }
+
+            // Clean remote buffer to create silence
+            audioBuffer.clear()
+
+            val delayedAudioBuffer = bufferMiddleQueue.poll()  // Get oldest audio buffer
+            delayedAudioBuffer?.let {
+                audioBuffer.put(it)
+            } ?: sendSilence(
+                audioBufferQueue = audioBufferQueue,
+                audioBuffer = audioBuffer
+            )
+
+            counter++
+
+            audioBuffer.flip()  // Prepare next round
         }
-
-        // Clean remote buffer to create silence
-        audioBuffer.clear()
-
-        val delayedAudioBuffer = bufferMiddleQueue.poll()  // Get oldest audio buffer
-        delayedAudioBuffer?.let {
-            audioBuffer.put(it)
-        } ?: sendSilence(
-            audioBufferQueue = audioBufferQueue,
-            audioBuffer = audioBuffer
-        )
-
-        counter++
-
-        audioBuffer.flip()  // Prepare next round
     }
 
     private fun hasSound(audioBuffer: ByteBuffer): Boolean {
@@ -167,7 +181,7 @@ class MagicAudioProcessor @Inject constructor(
                         null
                     }
 
-                    val byteArraySpeech = translatedText?.let {
+                    /*val byteArraySpeech = translatedText?.let {
                         if (it.isNotBlank()) {
                             getAudioSpeech(
                                 translatedText = it
@@ -191,7 +205,7 @@ class MagicAudioProcessor @Inject constructor(
                                 )
                             )
                         )
-                    }
+                    }*/
                 }
 
                 fileIdentifier++

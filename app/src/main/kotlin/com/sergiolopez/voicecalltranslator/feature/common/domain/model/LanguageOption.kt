@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model
+package com.sergiolopez.voicecalltranslator.feature.common.domain.model
 
 import android.content.Context
 import com.sergiolopez.voicecalltranslator.R

@@ -22,6 +22,8 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SaveRawAu
 import com.sergiolopez.voicecalltranslator.feature.call.magiccreator.OpenAiParams
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
+import com.sergiolopez.voicecalltranslator.feature.common.domain.usecase.GetLanguageOptionUseCase
 import okio.source
 import java.io.File
 import java.util.LinkedList
@@ -34,6 +36,7 @@ class MagicAudioRepository @Inject constructor(
     private val getSyntheticVoiceOptionUseCase: GetSyntheticVoiceOptionUseCase,
     private val firebaseAuthRepository: FirebaseAuthRepository,
     private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper,
+    private val getLanguageOptionUseCase: GetLanguageOptionUseCase,
     private val saveRawAudioByteArrayUseCase: SaveRawAudioByteArrayUseCase,
     private val getRawAudioByteArrayUseCase: GetRawAudioByteArrayUseCase
 ) {
@@ -43,6 +46,8 @@ class MagicAudioRepository @Inject constructor(
     )
 
     private var openAiSyntheticVoice: OpenAiSyntheticVoice? = null
+    private var languageOption: LanguageOption? = null
+    private lateinit var destinationLanguage: String
 
     private val chatMessageHistoryQueue: Queue<ChatMessage> = LinkedList()
 
@@ -53,13 +58,17 @@ class MagicAudioRepository @Inject constructor(
         )
     )
 
-    suspend fun initializeVctMagicCreator() {
+    suspend fun initializeMagicCreator(destinationLanguage: String) {
+        this.destinationLanguage = destinationLanguage
         firebaseAuthRepository.currentUser.collect { user ->
             user?.id?.let { userId ->
                 openAiSyntheticVoice = openAiSyntheticVoiceMapper.mapUserDatabaseToUserData(
                     getSyntheticVoiceOptionUseCase.invoke(
                         userId = userId
                     )
+                )
+                languageOption = getLanguageOptionUseCase.invoke(
+                    userId = userId
                 )
             }
         }
@@ -92,8 +101,7 @@ class MagicAudioRepository @Inject constructor(
             prompt = chatMessageHistory,
             responseFormat = AudioResponseFormat.Text,
             temperature = WHISPER_TEMPERATURE,
-            // TODO : Get from Global configuration
-            language = OpenAiParams.LANGUAGE_ES
+            language = languageOption?.getLocalValue()
         )
 
         val transcription = openAI.transcription(
@@ -119,14 +127,9 @@ class MagicAudioRepository @Inject constructor(
     }
 
     suspend fun translation(textToTranslate: String): String? {
-        // TODO - Use global configuration
-        val originLanguage = "Spanish"
-        val destinationLanguage = "English"
-        //
-
         val currentChatMessage = ChatMessage(
             role = ChatRole.User,
-            content = "Translate '$textToTranslate' from $originLanguage to $destinationLanguage. Answer only with the final translation without adding anything else."
+            content = "Translate '$textToTranslate' from ${languageOption?.name} to $destinationLanguage. Answer only with the final translation without adding anything else."
         )
 
         val chatCompletionRequest = ChatCompletionRequest(

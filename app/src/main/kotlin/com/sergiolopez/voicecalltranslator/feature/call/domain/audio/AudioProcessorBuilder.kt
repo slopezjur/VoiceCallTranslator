@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.audio
+package com.sergiolopez.voicecalltranslator.feature.call.domain.audio
 
 import android.util.Log
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.OPEN_AI_SAMPLE_RATE
