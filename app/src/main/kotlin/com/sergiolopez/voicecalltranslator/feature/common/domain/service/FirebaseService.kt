@@ -12,6 +12,8 @@ import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelT
 import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
+import com.sergiolopez.voicecalltranslator.feature.common.domain.usecase.GetLanguageOptionUseCase
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +33,9 @@ class FirebaseService : Service() {
 
     @Inject
     lateinit var mainRepository: MainRepository
+
+    @Inject
+    lateinit var getLanguageOptionUseCase: GetLanguageOptionUseCase
 
     private lateinit var callNotificationManager: CallNotificationManager
 
@@ -65,19 +70,27 @@ class FirebaseService : Service() {
         scope.launch {
             firebaseAuthRepository.currentUser.collect { user ->
                 user?.let {
-                    startWebRtcManager(it)
+                    startWebRtcManager(
+                        user = it,
+                        // TODO : Default value responsability?
+                        language = getLanguageOptionUseCase.invoke(it.id)?.name
+                            ?: LanguageOption.ENGLISH.name
+                    )
                 }
             }
         }
     }
 
-    private fun startWebRtcManager(user: User) {
+    private fun startWebRtcManager(user: User, language: String) {
         mainRepository.initFirebase(
             userId = user.id,
             startFirebaseService = startFirebaseService,
             scope = scope
         )
-        mainRepository.initWebrtcClient(username = user.id)
+        mainRepository.initWebrtcClient(
+            username = user.id,
+            language = language
+        )
         manageCall(user)
     }
 

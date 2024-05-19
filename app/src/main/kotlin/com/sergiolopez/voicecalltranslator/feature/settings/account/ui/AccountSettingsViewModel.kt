@@ -67,6 +67,16 @@ class AccountSettingsViewModel @Inject constructor(
         setAccountSettings()
     }
 
+    fun continueAction(navigateAndPopUp: (NavigationParams) -> Unit) {
+        setAccountSettings()
+        navigateAndPopUp(
+            NavigationParams(
+                route = NavigationRoute.CONTACT_LIST.navigationName,
+                popUp = NavigationRoute.ACCOUNT_SETTINGS.navigationName
+            )
+        )
+    }
+
     fun logout(
         navigateAndPopUp: (NavigationParams) -> Unit
     ) {
@@ -95,19 +105,20 @@ class AccountSettingsViewModel @Inject constructor(
 
                 if (result) {
                     // NOTE : Implement only one call to remove User from both sources
-                    firebaseAuthRepository.deleteAccount()
-                    removeAccountSettingsUseCase.invoke(
-                        userId = user.id
+                    if (firebaseAuthRepository.deleteAccount()) {
+                        removeAccountSettingsUseCase.invoke(
+                            userId = user.id
+                        )
+                    }
+
+                    navigateAndPopUp(
+                        NavigationParams(
+                            route = NavigationRoute.LOGIN.navigationName,
+                            popUp = NavigationRoute.ACCOUNT_SETTINGS.navigationName
+                        )
                     )
                 }
             }
-
-            navigateAndPopUp(
-                NavigationParams(
-                    route = NavigationRoute.LOGIN.navigationName,
-                    popUp = NavigationRoute.ACCOUNT_SETTINGS.navigationName
-                )
-            )
         }
     }
 

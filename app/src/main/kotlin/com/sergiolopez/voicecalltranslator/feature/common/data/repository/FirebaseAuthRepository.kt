@@ -51,6 +51,7 @@ class FirebaseAuthRepository @Inject constructor() {
 
     suspend fun deleteAccount(): Boolean {
         return performSimpleApiOperation {
+            _currentUser.value = null
             Firebase.auth.currentUser?.delete()?.await()
         }
     }
@@ -63,6 +64,7 @@ class FirebaseAuthRepository @Inject constructor() {
 
     suspend fun logout(): Boolean {
         return performSimpleApiOperation {
+            _currentUser.value = null
             Firebase.auth.signOut()
         }
     }

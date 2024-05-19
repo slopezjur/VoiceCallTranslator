@@ -32,7 +32,7 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 internal fun ShowSignUpScreenContent(
     modifier: Modifier,
     paddingValues: PaddingValues,
-    navigateAndPopUp: (NavigationParams) -> Unit,
+    clearAndNavigate: (NavigationParams) -> Unit,
     email: String,
     updateEmail: (String) -> Unit,
     password: String,
@@ -136,7 +136,7 @@ internal fun ShowSignUpScreenContent(
 
         Button(
             onClick = {
-                onSignUpClick(navigateAndPopUp)
+                onSignUpClick(clearAndNavigate)
             },
             modifier = modifier
                 .fillMaxWidth()
@@ -159,7 +159,7 @@ fun ShowSignUpScreenContentPreview() {
         ShowSignUpScreenContent(
             modifier = Modifier,
             paddingValues = PaddingValues(),
-            navigateAndPopUp = {},
+            clearAndNavigate = {},
             email = "",
             password = "",
             confirmPassword = "",
@@ -178,7 +178,7 @@ fun ShowSignUpScreenContentFilledPreview() {
         ShowSignUpScreenContent(
             modifier = Modifier,
             paddingValues = PaddingValues(),
-            navigateAndPopUp = {},
+            clearAndNavigate = {},
             email = "slopezjur@uoc.edu",
             password = "SUPERCOMPLEXPASSWORD",
             confirmPassword = "SUPERCOMPLEXPASSWORD",

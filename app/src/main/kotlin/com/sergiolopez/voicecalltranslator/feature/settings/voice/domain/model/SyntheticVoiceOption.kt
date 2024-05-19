@@ -4,7 +4,6 @@ import android.content.Context
 import com.sergiolopez.voicecalltranslator.R
 
 enum class SyntheticVoiceOption(val nameValue: Int) {
-    NONE(R.string.none),
     MALE(R.string.male),
     FEMALE(R.string.female);
 
@@ -20,7 +19,7 @@ enum class SyntheticVoiceOption(val nameValue: Int) {
                 }
 
                 else -> {
-                    NONE
+                    MALE
                 }
             }
         }

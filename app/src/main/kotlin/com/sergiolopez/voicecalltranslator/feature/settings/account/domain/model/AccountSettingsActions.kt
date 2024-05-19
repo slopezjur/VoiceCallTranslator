@@ -5,6 +5,7 @@ import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageO
 data class AccountSettingsActions(
     val setLanguage: (LanguageOption) -> Unit = {},
     val setTheme: (ThemeOption) -> Unit = {},
+    val continueAction: () -> Unit = {},
     val logout: () -> Unit = {},
     val deleteAccount: () -> Unit = {}
 )

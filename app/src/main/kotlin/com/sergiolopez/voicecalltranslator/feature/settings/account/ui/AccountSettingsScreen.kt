@@ -35,6 +35,7 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 @Composable
 fun AccountSettingsScreen(
     navigationAccountSettings: NavigationAccountSettings,
+    firstStartUp: Boolean,
     accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel()
 ) {
     AccountSettingsScreenContent(
@@ -50,17 +51,24 @@ fun AccountSettingsScreen(
                 accountSettingsViewModel.setTheme(it)
                 navigationAccountSettings.setThemeConfiguration.invoke(it)
             },
+            continueAction = {
+                accountSettingsViewModel.continueAction(
+                    navigationAccountSettings.clearAndNavigate
+                )
+            },
             logout = {
                 accountSettingsViewModel.logout(
-                    navigationAccountSettings.navigateAndPopUp
+                    navigationAccountSettings.clearAndNavigate
                 )
             },
             deleteAccount = {
                 accountSettingsViewModel.deleteAccount(
-                    navigationAccountSettings.navigateAndPopUp
+                    navigationAccountSettings.clearAndNavigate
                 )
             }
-        )
+        ),
+        showDeleteAccountDialog = false,
+        firstStartUp = firstStartUp
     )
 }
 
@@ -71,9 +79,10 @@ private fun AccountSettingsScreenContent(
     languageDropDownExpanded: Boolean,
     themeDropDownExpanded: Boolean,
     accountSettingsData: AccountSettingsData,
-    accountSettingsAction: AccountSettingsActions
+    accountSettingsAction: AccountSettingsActions,
+    showDeleteAccountDialog: Boolean,
+    firstStartUp: Boolean
 ) {
-    var showDeleteAccountDialogRemember by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -84,9 +93,12 @@ private fun AccountSettingsScreenContent(
         VctTopAppBar(
             modifier = modifier,
             titleName = R.string.account_settings,
-            hasNavigation = true,
+            hasNavigation = !firstStartUp,
             hasAction = false,
-            navigatePopBackStack = navigatePopBackStack,
+            navigatePopBackStack = setUpNavigatePopBackStack(
+                firstStartUp = firstStartUp,
+                navigatePopBackStack = navigatePopBackStack
+            ),
             content = {}
         )
 
@@ -134,13 +146,44 @@ private fun AccountSettingsScreenContent(
             }
         }
 
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        SetBottomActions(
+            modifier = modifier,
+            firstStartUp = firstStartUp,
+            accountSettingsAction = accountSettingsAction,
+            showDeleteAccountDialog = showDeleteAccountDialog
+        )
+    }
+}
+
+@Composable
+private fun SetBottomActions(
+    modifier: Modifier,
+    firstStartUp: Boolean,
+    accountSettingsAction: AccountSettingsActions,
+    showDeleteAccountDialog: Boolean
+) {
+    var showDeleteAccountDialogRemember by remember { mutableStateOf(showDeleteAccountDialog) }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (firstStartUp) {
+            Button(
+                onClick = {
+                    accountSettingsAction.continueAction.invoke()
+                },
+                modifier = modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.continue_action),
+                    fontSize = 16.sp
+                )
+            }
+        } else {
             Button(
                 onClick = {
                     accountSettingsAction.logout.invoke()
@@ -178,6 +221,16 @@ private fun AccountSettingsScreenContent(
     }
 }
 
+@Composable
+private fun setUpNavigatePopBackStack(
+    firstStartUp: Boolean,
+    navigatePopBackStack: () -> Unit
+) = if (!firstStartUp) {
+    navigatePopBackStack
+} else {
+    {}
+}
+
 @PreviewLightDark
 @Composable
 fun VoiceSettingsScreenContentPreview() {
@@ -186,6 +239,7 @@ fun VoiceSettingsScreenContentPreview() {
             modifier = Modifier,
             navigatePopBackStack = {},
             languageDropDownExpanded = false,
+            themeDropDownExpanded = false,
             accountSettingsData = AccountSettingsData(),
             accountSettingsAction = AccountSettingsActions(
                 setLanguage = {},
@@ -193,7 +247,8 @@ fun VoiceSettingsScreenContentPreview() {
                 logout = {},
                 deleteAccount = {}
             ),
-            themeDropDownExpanded = false
+            showDeleteAccountDialog = false,
+            firstStartUp = true
         )
     }
 }
@@ -206,6 +261,7 @@ fun VoiceSettingsScreenContentDarkPreview() {
             modifier = Modifier,
             navigatePopBackStack = {},
             languageDropDownExpanded = false,
+            themeDropDownExpanded = false,
             accountSettingsData = Dummy.accountSettingsDataDark,
             accountSettingsAction = AccountSettingsActions(
                 setLanguage = {},
@@ -213,7 +269,8 @@ fun VoiceSettingsScreenContentDarkPreview() {
                 logout = {},
                 deleteAccount = {}
             ),
-            themeDropDownExpanded = false
+            showDeleteAccountDialog = false,
+            firstStartUp = false
         )
     }
 }
@@ -226,6 +283,7 @@ fun VoiceSettingsScreenContentLightPreview() {
             modifier = Modifier,
             navigatePopBackStack = {},
             languageDropDownExpanded = false,
+            themeDropDownExpanded = false,
             accountSettingsData = Dummy.accountSettingsDataLight,
             accountSettingsAction = AccountSettingsActions(
                 setLanguage = {},
@@ -233,7 +291,8 @@ fun VoiceSettingsScreenContentLightPreview() {
                 logout = {},
                 deleteAccount = {}
             ),
-            themeDropDownExpanded = false
+            showDeleteAccountDialog = false,
+            firstStartUp = false
         )
     }
 }
@@ -246,6 +305,7 @@ fun VoiceSettingsScreenContentDropDownExpandedPreview() {
             modifier = Modifier,
             navigatePopBackStack = {},
             languageDropDownExpanded = true,
+            themeDropDownExpanded = false,
             accountSettingsData = AccountSettingsData(),
             accountSettingsAction = AccountSettingsActions(
                 setLanguage = {},
@@ -253,7 +313,30 @@ fun VoiceSettingsScreenContentDropDownExpandedPreview() {
                 logout = {},
                 deleteAccount = {}
             ),
-            themeDropDownExpanded = false
+            showDeleteAccountDialog = false,
+            firstStartUp = false
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun VoiceSettingsScreenContentDeleteAccountDialogPreview() {
+    VoiceCallTranslatorPreview {
+        AccountSettingsScreenContent(
+            modifier = Modifier,
+            navigatePopBackStack = {},
+            languageDropDownExpanded = false,
+            themeDropDownExpanded = false,
+            accountSettingsData = AccountSettingsData(),
+            accountSettingsAction = AccountSettingsActions(
+                setLanguage = {},
+                setTheme = {},
+                logout = {},
+                deleteAccount = {}
+            ),
+            showDeleteAccountDialog = true,
+            firstStartUp = false
         )
     }
 }

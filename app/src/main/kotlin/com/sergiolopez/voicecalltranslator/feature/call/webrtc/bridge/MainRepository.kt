@@ -42,38 +42,42 @@ class MainRepository @Inject constructor(
 
     private lateinit var scope: CoroutineScope
 
-    fun initWebrtcClient(username: String) {
+    fun initWebrtcClient(username: String, language: String) {
         webRTCClient.setScope(scope = scope)
-        webRTCClient.initializeWebrtcClient(username, "en", object : MyPeerObserver() {
+        webRTCClient.initializeWebrtcClient(
+            username = username,
+            language = language,
+            observer = object : MyPeerObserver() {
 
-            override fun onAddStream(p0: MediaStream?) {
-                super.onAddStream(p0)
-                Log.d("$VCT_LOGS onAddStream", p0.toString())
-            }
+                override fun onAddStream(p0: MediaStream?) {
+                    super.onAddStream(p0)
+                    Log.d("$VCT_LOGS onAddStream", p0.toString())
+                }
 
-            override fun onIceCandidate(p0: IceCandidate?) {
-                super.onIceCandidate(p0)
-                Log.d("$VCT_LOGS onIceCandidate", p0.toString())
-                p0?.let {
-                    webRTCClient.sendIceCandidate(target, it)
+                override fun onIceCandidate(p0: IceCandidate?) {
+                    super.onIceCandidate(p0)
+                    Log.d("$VCT_LOGS onIceCandidate", p0.toString())
+                    p0?.let {
+                        webRTCClient.sendIceCandidate(target, it)
+                    }
+                }
+
+                override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
+                    super.onConnectionChange(newState)
+                    Log.d("$VCT_LOGS onConnectionChange", newState.toString())
+                    if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
+                        // 1. change my status to in call
+                        //changeMyStatus(UserStatus.IN_CALL)
+                        // 2. clear latest event inside my user section in firebase database
+                        //onTransferEventToSocket()
+                        updateCallStatus(
+                            callStatus = CallStatus.CALL_IN_PROGRESS
+                        )
+                        Log.d("$VCT_LOGS LET'S GOO!", "LET'S GOO!")
+                    }
                 }
             }
-
-            override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
-                super.onConnectionChange(newState)
-                Log.d("$VCT_LOGS onConnectionChange", newState.toString())
-                if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
-                    // 1. change my status to in call
-                    //changeMyStatus(UserStatus.IN_CALL)
-                    // 2. clear latest event inside my user section in firebase database
-                    //onTransferEventToSocket()
-                    updateCallStatus(
-                        callStatus = CallStatus.CALL_IN_PROGRESS
-                    )
-                    Log.d("$VCT_LOGS LET'S GOO!", "LET'S GOO!")
-                }
-            }
-        })
+        )
     }
 
     fun initFirebase(userId: String, scope: CoroutineScope, startFirebaseService: () -> Unit) {

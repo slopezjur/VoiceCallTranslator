@@ -12,11 +12,11 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun SignUpScreen(
-    navigateAndPopUp: (NavigationParams) -> Unit,
+    clearAndNavigate: (NavigationParams) -> Unit,
     signUpViewModel: SignUpViewModel = hiltViewModel()
 ) {
     SignUpScreenContent(
-        navigateAndPopUp = navigateAndPopUp,
+        clearAndNavigate = clearAndNavigate,
         signUpUiState = signUpViewModel.signUpUiState.collectAsStateWithLifecycle().value,
         resetUiState = { signUpViewModel.resetUiState() },
         email = signUpViewModel.emailState.collectAsStateWithLifecycle().value,
@@ -34,7 +34,7 @@ fun SignUpScreen(
 @Composable
 fun SignUpScreenContent(
     modifier: Modifier = Modifier,
-    navigateAndPopUp: (NavigationParams) -> Unit,
+    clearAndNavigate: (NavigationParams) -> Unit,
     signUpUiState: SignUpViewModel.SignUpUiState,
     resetUiState: () -> Unit,
     email: String,
@@ -62,7 +62,7 @@ fun SignUpScreenContent(
             SignUpViewModel.SignUpUiState.CONTINUE -> {
                 ShowSignUpScreenContent(
                     modifier = modifier,
-                    navigateAndPopUp = navigateAndPopUp,
+                    clearAndNavigate = clearAndNavigate,
                     paddingValues = paddingValues,
                     email = email,
                     updateEmail = updateEmail,
@@ -87,7 +87,7 @@ fun SignUpScreenContent(
 fun SignUpScreenPasswordErrorPreview() {
     VoiceCallTranslatorPreview {
         SignUpScreenContent(
-            navigateAndPopUp = {},
+            clearAndNavigate = {},
             email = "slopezjur@uoc.edu",
             password = "SUPERCOMPLEXPASSWORD",
             confirmPassword = "differentPassword",
@@ -108,7 +108,7 @@ fun SignUpScreenPasswordErrorPreview() {
 fun SignUpScreenLoadingPreview() {
     VoiceCallTranslatorPreview {
         SignUpScreenContent(
-            navigateAndPopUp = {},
+            clearAndNavigate = {},
             email = "slopezjur@uoc.edu",
             password = "SUPERCOMPLEXPASSWORD",
             confirmPassword = "SUPERCOMPLEXPASSWORD",
@@ -129,7 +129,7 @@ fun SignUpScreenLoadingPreview() {
 fun SignUpScreenErrorPreview() {
     VoiceCallTranslatorPreview {
         SignUpScreenContent(
-            navigateAndPopUp = {},
+            clearAndNavigate = {},
             email = "slopezjur@uoc.edu",
             password = "SUPERCOMPLEXPASSWORD",
             confirmPassword = "SUPERCOMPLEXPASSWORD",

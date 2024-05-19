@@ -4,6 +4,7 @@ import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.SaveUserUseCase
 import com.sergiolopez.voicecalltranslator.feature.signup.domain.usecase.SignUpUseCase
+import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -91,8 +92,8 @@ class SignUpViewModel @Inject constructor(
     private fun navigateToNextScreen(navigateAndPopUp: (NavigationParams) -> Unit) {
         navigateAndPopUp.invoke(
             NavigationParams(
-                NavigationRoute.CONTACT_LIST.navigationName,
-                NavigationRoute.LOGIN.navigationName
+                route = "${NavigationRoute.ACCOUNT_SETTINGS.navigationName}?$FIRST_START_UP=${true}",
+                popUp = NavigationRoute.SIGN_UP.navigationName
             )
         )
     }

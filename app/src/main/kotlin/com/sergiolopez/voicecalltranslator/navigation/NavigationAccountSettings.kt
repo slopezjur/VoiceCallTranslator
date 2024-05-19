@@ -5,5 +5,5 @@ import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model
 data class NavigationAccountSettings(
     val navigatePopBackStack: () -> Unit,
     val setThemeConfiguration: (ThemeOption) -> Unit,
-    val navigateAndPopUp: (NavigationParams) -> Unit
+    val clearAndNavigate: (NavigationParams) -> Unit
 )

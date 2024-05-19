@@ -22,6 +22,9 @@ import com.sergiolopez.voicecalltranslator.feature.splash.ui.SplashScreen
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID_ARG
+import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP
+import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP_ARG
+import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP_DEFAULT_VALUE
 import com.sergiolopez.voicecalltranslator.navigation.NavigationAccountSettings
 import com.sergiolopez.voicecalltranslator.navigation.NavigationAction
 import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
@@ -98,9 +101,9 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.SignUpNavigation.route) {
         SignUpScreen(
-            navigateAndPopUp = { navigationParams ->
-                navigationState.navigateAndPopUp(
-                    navigationParams = navigationParams
+            clearAndNavigate = { navigationParams ->
+                navigationState.clearAndNavigate(
+                    route = navigationParams.route
                 )
             }
         )
@@ -140,17 +143,23 @@ fun NavGraphBuilder.notesGraph(
         )
     }
 
-    composable(NavigationAction.AccountSettingsNavigation.route) {
+    composable(
+        route = "${NavigationAction.AccountSettingsNavigation.route}$FIRST_START_UP_ARG",
+        arguments = listOf(navArgument(FIRST_START_UP) {
+            defaultValue = FIRST_START_UP_DEFAULT_VALUE
+        })
+    ) {
         AccountSettingsScreen(
             navigationAccountSettings = NavigationAccountSettings(
                 navigatePopBackStack = { navigationState.popBackStack() },
                 setThemeConfiguration = themeConfiguration,
-                navigateAndPopUp = { navigationParams ->
+                clearAndNavigate = { navigationParams ->
                     navigationState.clearAndNavigate(
                         route = navigationParams.route
                     )
                 },
-            )
+            ),
+            firstStartUp = it.arguments?.getBoolean(FIRST_START_UP) ?: FIRST_START_UP_DEFAULT_VALUE,
         )
     }
 }
