@@ -29,31 +29,37 @@ import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAp
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsActions
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
-import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
+import com.sergiolopez.voicecalltranslator.navigation.NavigationAccountSettings
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun AccountSettingsScreen(
-    navigatePopBackStack: () -> Unit,
-    accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel(),
-    themeConfiguration: (ThemeOption) -> Unit
+    navigationAccountSettings: NavigationAccountSettings,
+    accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel()
 ) {
     AccountSettingsScreenContent(
-        navigatePopBackStack = navigatePopBackStack,
+        navigatePopBackStack = navigationAccountSettings.navigatePopBackStack,
         languageDropDownExpanded = false,
         themeDropDownExpanded = false,
         accountSettingsData = accountSettingsViewModel.accountSettingsDataState.collectAsStateWithLifecycle().value,
         accountSettingsAction = AccountSettingsActions(
-            setLanguage = { accountSettingsViewModel.setLanguage(it) },
+            setLanguage = {
+                accountSettingsViewModel.setLanguage(it)
+            },
             setTheme = {
                 accountSettingsViewModel.setTheme(it)
-                themeConfiguration.invoke(it)
+                navigationAccountSettings.setThemeConfiguration.invoke(it)
             },
             logout = {
-                accountSettingsViewModel.logout()
-                navigatePopBackStack.invoke()
+                accountSettingsViewModel.logout(
+                    navigationAccountSettings.navigateAndPopUp
+                )
             },
-            deleteAccount = { accountSettingsViewModel.deleteAccount() }
+            deleteAccount = {
+                accountSettingsViewModel.deleteAccount(
+                    navigationAccountSettings.navigateAndPopUp
+                )
+            }
         )
     )
 }

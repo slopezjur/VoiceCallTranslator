@@ -22,6 +22,7 @@ import com.sergiolopez.voicecalltranslator.feature.splash.ui.SplashScreen
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID_ARG
+import com.sergiolopez.voicecalltranslator.navigation.NavigationAccountSettings
 import com.sergiolopez.voicecalltranslator.navigation.NavigationAction
 import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
@@ -141,10 +142,15 @@ fun NavGraphBuilder.notesGraph(
 
     composable(NavigationAction.AccountSettingsNavigation.route) {
         AccountSettingsScreen(
-            navigatePopBackStack = {
-                navigationState.popBackStack()
-            },
-            themeConfiguration = themeConfiguration
+            navigationAccountSettings = NavigationAccountSettings(
+                navigatePopBackStack = { navigationState.popBackStack() },
+                setThemeConfiguration = themeConfiguration,
+                navigateAndPopUp = { navigationParams ->
+                    navigationState.clearAndNavigate(
+                        route = navigationParams.route
+                    )
+                },
+            )
         )
     }
 }

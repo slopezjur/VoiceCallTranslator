@@ -14,7 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,11 +39,17 @@ class AccountSettingsDataStore @Inject constructor(
     }
 
     suspend fun getAccountSettings(userId: String): AccountSettingsData? {
-        return context.dataStore.data.mapNotNull { prefs ->
+        return context.dataStore.data.map { prefs ->
             prefs[stringPreferencesKey(userId)]?.let {
                 Json.decodeFromString<AccountSettingsData>(it)
             }
         }.firstOrNull()
+    }
+
+    suspend fun remove(userId: String) {
+        context.dataStore.edit { preferences ->
+            preferences.remove(stringPreferencesKey(userId))
+        }
     }
 
     suspend fun clear() {

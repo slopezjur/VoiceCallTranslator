@@ -45,6 +45,12 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
+    suspend fun removeUser(userId: String): Boolean {
+        return performSimpleApiOperation {
+            vctDatabase.child(USERS_TABLE_NAME).child(userId).removeValue().await()
+        }
+    }
+
     fun getIncomingCalls(calleeId: String): Result<Flow<List<Call.CallData>>> {
         return runCatching {
             vctDatabase.child(CALLS_TABLE_NAME).orderByChild(FIELD_CALLEE_ID).equalTo(calleeId)

@@ -1,12 +1,18 @@
 package com.sergiolopez.voicecalltranslator.feature.settings.account.ui
 
+import android.content.Context
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseDatabaseRepository
+import com.sergiolopez.voicecalltranslator.feature.common.utils.LocaleProvider
 import com.sergiolopez.voicecalltranslator.feature.settings.account.data.datastore.AccountSettingsDataStore
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.LanguageOption
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
+import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
+import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountSettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val firebaseAuthRepository: FirebaseAuthRepository,
+    private val firebaseDatabaseRepository: FirebaseDatabaseRepository,
     private val accountSettingsDataStore: AccountSettingsDataStore
 ) : VoiceCallTranslatorViewModel() {
 
@@ -45,6 +53,7 @@ class AccountSettingsViewModel @Inject constructor(
             languageOption = languageOption
         )
         setAccountSettings()
+        LocaleProvider.updateLanguage(context, languageOption.getLocalValue())
     }
 
     fun setTheme(theme: ThemeOption) {
@@ -54,21 +63,47 @@ class AccountSettingsViewModel @Inject constructor(
         setAccountSettings()
     }
 
-    fun logout() {
+    fun logout(
+        navigateAndPopUp: (NavigationParams) -> Unit
+    ) {
         launchCatching {
             val result = firebaseAuthRepository.logout()
             if (result) {
-                // Remove data store and go to login
+                navigateAndPopUp(
+                    NavigationParams(
+                        route = NavigationRoute.LOGIN.navigationName,
+                        popUp = NavigationRoute.ACCOUNT_SETTINGS.navigationName
+                    )
+                )
             }
         }
     }
 
-    fun deleteAccount() {
+    fun deleteAccount(
+        navigateAndPopUp: (NavigationParams) -> Unit
+    ) {
+        // TODO : Implement loading
         launchCatching {
-            val result = firebaseAuthRepository.deleteAccount()
-            if (result) {
-                // Remove data store and go to login
+            user?.let { user ->
+                val result = firebaseDatabaseRepository.removeUser(
+                    userId = user.id
+                )
+
+                if (result) {
+                    // NOTE : Implement only one call to remove User from both sources
+                    firebaseAuthRepository.deleteAccount()
+                    accountSettingsDataStore.remove(
+                        userId = user.id
+                    )
+                }
             }
+
+            navigateAndPopUp(
+                NavigationParams(
+                    route = NavigationRoute.LOGIN.navigationName,
+                    popUp = NavigationRoute.ACCOUNT_SETTINGS.navigationName
+                )
+            )
         }
     }
 
