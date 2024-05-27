@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.SpatialAudioOff
 import androidx.compose.material.icons.rounded.SpeakerPhone
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +41,9 @@ import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
+import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
@@ -46,7 +51,8 @@ internal fun CallScreenDetails(
     modifier: Modifier,
     callStatus: CallStatus,
     call: Call,
-    onCallAction: (CallAction) -> Unit
+    onCallAction: (CallAction) -> Unit,
+    messages: List<Message>
 ) {
     if (call is Call.CallData) {
         var isMuted by remember { mutableStateOf(false) }
@@ -80,7 +86,8 @@ internal fun CallScreenDetails(
                         onCallAction.invoke(CallAction.Disconnect)
                     }
                 }
-            }
+            },
+            messages = messages
         )
     } else {
         // IF we are here...
@@ -98,32 +105,43 @@ private fun CallScreenDetailsContent(
     isActive: Boolean,
     isMuted: Boolean,
     isSpeaker: Boolean,
-    onCallAction: (CallAction) -> Unit
+    onCallAction: (CallAction) -> Unit,
+    messages: List<Message>
 ) {
-    Column(
+    Box(
         modifier
             .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CallInfoCard(
-            modifier = modifier,
-            name = name,
-            info = info,
-            isActive = isActive
-        )
-        if (incoming && !isActive) {
-            IncomingCallActions(
+        Column(
+            modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            CallInfoCard(
                 modifier = modifier,
-                onCallAction = onCallAction
+                name = name,
+                info = info,
+                isActive = isActive
             )
-        } else {
-            OngoingCallActions(
+            HorizontalDivider()
+            Spacer(modifier = Modifier.weight(1f))
+            CallScreenConversation(
                 modifier = modifier,
-                isMuted = isMuted,
-                isSpeaker = isSpeaker,
-                onCallAction = onCallAction,
+                messages = messages
             )
+            if (incoming && !isActive) {
+                IncomingCallActions(
+                    modifier = modifier,
+                    onCallAction = onCallAction
+                )
+            } else {
+                OngoingCallActions(
+                    modifier = modifier,
+                    isMuted = isMuted,
+                    isSpeaker = isSpeaker,
+                    onCallAction = onCallAction,
+                )
+            }
         }
     }
 }
@@ -199,8 +217,7 @@ private fun CallInfoCard(
     isActive: Boolean
 ) {
     Column(
-        modifier
-            .fillMaxSize(0.5f),
+        modifier.padding(48.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -300,7 +317,8 @@ fun CallScreenDetailsPreview() {
             modifier = Modifier,
             callStatus = CallStatus.STARTING,
             call = Call.CallNoData,
-            onCallAction = {}
+            onCallAction = {},
+            messages = emptyList()
         )
     }
 }
@@ -321,7 +339,8 @@ fun CallScreenDetailsIncomingCallStartingPreview() {
                 answerData = "",
                 timestamp = 1716836446515
             ),
-            onCallAction = {}
+            onCallAction = {},
+            messages = emptyList()
         )
     }
 }
@@ -342,7 +361,8 @@ fun CallScreenDetailsIncomingCallInProgressPreview() {
                 answerData = "",
                 timestamp = 1716836446515
             ),
-            onCallAction = {}
+            onCallAction = {},
+            messages = Dummy.messages
         )
     }
 }
@@ -363,7 +383,8 @@ fun CallScreenDetailsStartingPreview() {
                 answerData = "",
                 timestamp = 1716836446515
             ),
-            onCallAction = {}
+            onCallAction = {},
+            messages = emptyList()
         )
     }
 }
@@ -384,7 +405,8 @@ fun CallScreenDetailsCallInProgressPreview() {
                 answerData = "",
                 timestamp = 1716836446515
             ),
-            onCallAction = {}
+            onCallAction = {},
+            messages = Dummy.messages
         )
     }
 }

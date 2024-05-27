@@ -141,7 +141,8 @@ fun CallScreenContent(
                             sendEndCall.invoke()
                         }
                     }
-                }
+                },
+                messages = emptyList()
             )
         }
     }
