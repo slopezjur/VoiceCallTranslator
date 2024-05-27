@@ -1,14 +1,14 @@
-package com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge
+package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge
 
 import android.util.Log
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.IceCandidateSerializer
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.MyPeerObserver
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.WebRtcClient
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.ClearCallUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.IceCandidateSerializer
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.MyPeerObserver
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.WebRTCClient
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +25,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MainRepository @Inject constructor(
-    private val webRTCClient: WebRTCClient,
+class WebRtcRepository @Inject constructor(
+    private val webRTCClient: WebRtcClient,
     private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
     private val getConnectionUpdateUseCase: GetConnectionUpdateUseCase,
     private val clearCallUseCase: ClearCallUseCase
@@ -230,6 +230,4 @@ class MainRepository @Inject constructor(
             )
         }
     }
-
-    private fun getCallData() = (_currentCall.value as Call.CallData)
 }

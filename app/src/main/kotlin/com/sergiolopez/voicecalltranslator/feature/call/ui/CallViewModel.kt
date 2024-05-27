@@ -1,9 +1,9 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorViewModel
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.WebRtcRepository
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CallViewModel @Inject constructor(
     //private val webRtcManager: WebRtcManager,
-    private val mainRepository: MainRepository
+    private val webRtcRepository: WebRtcRepository
 ) : VoiceCallTranslatorViewModel() {
 
     private val _callState = MutableStateFlow<Call>(Call.CallNoData)
@@ -30,7 +30,7 @@ class CallViewModel @Inject constructor(
 
     private fun subscribeCallState() {
         launchCatching {
-            mainRepository.currentCall.collect { call ->
+            webRtcRepository.currentCall.collect { call ->
                 _callState.value = call
 
                 if (call is Call.CallData) {
@@ -42,7 +42,7 @@ class CallViewModel @Inject constructor(
 
     fun sendConnectionRequest(calleeId: String) {
         launchCatching {
-            mainRepository.sendConnectionRequest(
+            webRtcRepository.sendConnectionRequest(
                 target = calleeId
             )
         }
@@ -52,11 +52,11 @@ class CallViewModel @Inject constructor(
         if (_callState.value is Call.CallData) {
             val callData = _callState.value as Call.CallData
             if (callData.isIncoming && callData.callStatus == CallStatus.INCOMING_CALL) {
-                mainRepository.setTarget(callData.callerId)
-                mainRepository.startCall(callData = callData)
+                webRtcRepository.setTarget(callData.callerId)
+                webRtcRepository.startCall(callData = callData)
             } else {
                 // TODO : This is necessary?
-                mainRepository.setTarget(callData.calleeId)
+                webRtcRepository.setTarget(callData.calleeId)
             }
 
             //setCallUiState(CallUiState.CALL_IN_PROGRESS)
@@ -66,7 +66,7 @@ class CallViewModel @Inject constructor(
     fun sendEndCall() {
         if (_callState.value is Call.CallData) {
             val callData = (_callState.value as Call.CallData)
-            mainRepository.sendEndCall(
+            webRtcRepository.sendEndCall(
                 target = if (callData.isIncoming) {
                     callData.callerId
                 } else {
@@ -77,6 +77,6 @@ class CallViewModel @Inject constructor(
     }
 
     fun shouldBeMuted(shouldBeMuted: Boolean) {
-        mainRepository.toggleAudio(shouldBeMuted = shouldBeMuted)
+        webRtcRepository.toggleAudio(shouldBeMuted = shouldBeMuted)
     }
 }

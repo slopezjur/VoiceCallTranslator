@@ -30,6 +30,7 @@
             android:name=".VoiceCallTranslatorActivity"
             android:exported="true"
             android:screenOrientation="portrait">
+            <!-- I know, I know, it would be awesome to provide a different orientation... -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +38,7 @@
             </intent-filter>
         </activity>
         <receiver
-            android:name=".feature.call.telecom.broadcast.CallBroadcast"
+            android:name=".feature.call.ui.notification.broadcast.CallBroadcast"
             android:exported="false" />
 
         <service

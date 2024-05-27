@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.telecom.notification
+package com.sergiolopez.voicecalltranslator.feature.call.ui.notification
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

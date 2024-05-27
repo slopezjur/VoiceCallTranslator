@@ -4,12 +4,12 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModelType
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.WebRtcRepository
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnectionUpdateUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationManager
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
+import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
@@ -32,7 +32,7 @@ class FirebaseService : Service() {
     lateinit var firebaseAuthRepository: FirebaseAuthRepository
 
     @Inject
-    lateinit var mainRepository: MainRepository
+    lateinit var webRtcRepository: WebRtcRepository
 
     @Inject
     lateinit var getLanguageOptionUseCase: GetLanguageOptionUseCase
@@ -82,12 +82,12 @@ class FirebaseService : Service() {
     }
 
     private fun startWebRtcManager(user: User, language: String) {
-        mainRepository.initFirebase(
+        webRtcRepository.initFirebase(
             userId = user.id,
             startFirebaseService = startFirebaseService,
             scope = scope
         )
-        mainRepository.initWebrtcClient(
+        webRtcRepository.initWebrtcClient(
             username = user.id,
             language = language
         )
@@ -101,8 +101,9 @@ class FirebaseService : Service() {
                 result.getOrThrow().collect { call ->
                     when (call.type) {
                         DataModelType.StartAudioCall -> {
-                            val callData = if (mainRepository.currentCall.value is Call.CallData) {
-                                mainRepository.currentCall.value as Call.CallData
+                            val callData =
+                                if (webRtcRepository.currentCall.value is Call.CallData) {
+                                    webRtcRepository.currentCall.value as Call.CallData
                             } else {
                                 val newCallData = Call.CallData(
                                     callerId = call.sender ?: "",
@@ -113,7 +114,7 @@ class FirebaseService : Service() {
                                     answerData = "",
                                     timestamp = call.timeStamp
                                 )
-                                mainRepository.setNewCallData(newCallData)
+                                    webRtcRepository.setNewCallData(newCallData)
                                 newCallData
                             }
                             launchIncomingCall(
@@ -123,8 +124,9 @@ class FirebaseService : Service() {
 
                         DataModelType.EndCall -> {
                             //initWebrtcClient(user)
-                            val callData = if (mainRepository.currentCall.value is Call.CallData) {
-                                (mainRepository.currentCall.value as Call.CallData).copy(
+                            val callData =
+                                if (webRtcRepository.currentCall.value is Call.CallData) {
+                                    (webRtcRepository.currentCall.value as Call.CallData).copy(
                                     callStatus = CallStatus.CALL_FINISHED
                                 )
                             } else {
@@ -137,7 +139,7 @@ class FirebaseService : Service() {
                                     answerData = "",
                                     timestamp = call.timeStamp
                                 )
-                                mainRepository.setNewCallData(newCallData)
+                                    webRtcRepository.setNewCallData(newCallData)
                                 newCallData
                             }
                             endCall(
@@ -158,11 +160,11 @@ class FirebaseService : Service() {
         Log.d("$VCT_LOGS launchIncomingCall: ", callData.toString())
         if (callData.callStatus == CallStatus.CALLING || callData.callStatus == CallStatus.CALL_IN_PROGRESS) {
             if (callData.isIncoming) {
-                mainRepository.setTarget(callData.callerId)
-                mainRepository.startCall(callData = callData)
+                webRtcRepository.setTarget(callData.callerId)
+                webRtcRepository.startCall(callData = callData)
             } else {
                 // TODO : This is necessary?
-                mainRepository.setTarget(callData.calleeId)
+                webRtcRepository.setTarget(callData.calleeId)
             }
         }
         callNotificationManager.updateCallNotification(callData)
@@ -172,9 +174,9 @@ class FirebaseService : Service() {
         Log.d("$VCT_LOGS endCall: ", callData.toString())
         callNotificationManager.updateCallNotification(callData)
         if (callData.isIncoming) {
-            mainRepository.endCall(callData.callerId)
+            webRtcRepository.endCall(callData.callerId)
         } else {
-            mainRepository.endCall(callData.calleeId)
+            webRtcRepository.endCall(callData.calleeId)
         }
     }
 

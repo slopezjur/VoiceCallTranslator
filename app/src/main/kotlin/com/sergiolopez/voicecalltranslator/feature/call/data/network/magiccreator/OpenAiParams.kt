@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.magiccreator
+package com.sergiolopez.voicecalltranslator.feature.call.data.network.magiccreator
 
 object OpenAiParams {
 

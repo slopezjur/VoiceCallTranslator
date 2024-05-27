@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge
+package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

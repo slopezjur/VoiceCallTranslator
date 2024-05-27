@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.webrtc
+package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc
 
 import android.util.Log
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS

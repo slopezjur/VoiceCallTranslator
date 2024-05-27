@@ -1,14 +1,14 @@
-package com.sergiolopez.voicecalltranslator.feature.call.telecom.broadcast
+package com.sergiolopez.voicecalltranslator.feature.call.ui.notification.broadcast
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.WebRtcRepository
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationAction
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.notification.CallNotificationManager
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.MainRepository
+import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationAction
+import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class CallBroadcast @Inject constructor() : BroadcastReceiver() {
 
     @Inject
-    lateinit var mainRepository: MainRepository
+    lateinit var webRtcRepository: WebRtcRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         val callData = intent.getCallData()
@@ -26,8 +26,8 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
         when {
             callData == null || action == null -> {
                 // If for some reason notification is "corrupted", we dispatched!
-                if (mainRepository.currentCall.value is Call.CallData) {
-                    CallNotificationManager(context).updateCallNotification(mainRepository.currentCall.value as Call.CallData)
+                if (webRtcRepository.currentCall.value is Call.CallData) {
+                    CallNotificationManager(context).updateCallNotification(webRtcRepository.currentCall.value as Call.CallData)
                 } else {
                     dispatchNotification(
                         context = context
@@ -38,14 +38,14 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
             else -> {
                 when (action) {
                     CallNotificationAction.Answer -> {
-                        mainRepository.setTarget(target = callData.callerId)
-                        mainRepository.startCall(callData = callData)
+                        webRtcRepository.setTarget(target = callData.callerId)
+                        webRtcRepository.startCall(callData = callData)
                         CallNotificationManager(context).updateCallNotification(callData)
                     }
 
                     CallNotificationAction.Disconnect -> {
-                        mainRepository.setTarget(target = callData.callerId)
-                        mainRepository.sendEndCall(target = callData.callerId)
+                        webRtcRepository.setTarget(target = callData.callerId)
+                        webRtcRepository.sendEndCall(target = callData.callerId)
                         CallNotificationManager(context).updateCallNotification(callData)
                     }
                 }

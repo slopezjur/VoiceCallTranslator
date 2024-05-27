@@ -1,11 +1,11 @@
-package com.sergiolopez.voicecalltranslator.feature.call.webrtc
+package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc
 
 import android.content.Context
 import android.util.Log
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModel
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModelType
 import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.MagicAudioProcessor
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModelType
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.OPEN_AI_SAMPLE_RATE
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class WebRTCClient @Inject constructor(
+class WebRtcClient @Inject constructor(
     private val context: Context,
     private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
     private val magicAudioProcessor: MagicAudioProcessor
@@ -41,7 +41,19 @@ class WebRTCClient @Inject constructor(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
             .createIceServer(),
         PeerConnection.IceServer.builder("stun:stun.relay.metered.ca:80")
-            .createIceServer()
+            .createIceServer(),
+        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:80")
+            .setUsername("cb206d600f88b1849b99f06c")
+            .setPassword("UflvJt/7UzWqVPF1").createIceServer(),
+        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:80?transport=tcp")
+            .setUsername("cb206d600f88b1849b99f06c")
+            .setPassword("UflvJt/7UzWqVPF1").createIceServer(),
+        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:443")
+            .setUsername("cb206d600f88b1849b99f06c")
+            .setPassword("UflvJt/7UzWqVPF1").createIceServer(),
+        PeerConnection.IceServer.builder("turns:global.relay.metered.ca:443?transport=tcp")
+            .setUsername("cb206d600f88b1849b99f06c")
+            .setPassword("UflvJt/7UzWqVPF1").createIceServer()
     )
     private val localAudioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints()) }
     private val mediaConstraint = MediaConstraints().apply {

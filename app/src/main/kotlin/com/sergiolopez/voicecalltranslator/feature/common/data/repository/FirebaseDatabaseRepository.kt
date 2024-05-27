@@ -4,8 +4,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
 import com.google.firebase.database.snapshots
 import com.sergiolopez.voicecalltranslator.feature.call.data.CallDatabase
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.FirebaseRepositoryMapper
 import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.ResultOperation.performSimpleApiOperation
 import com.sergiolopez.voicecalltranslator.feature.common.data.model.UserDatabase

@@ -15,11 +15,9 @@ import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
 import com.sergiolopez.voicecalltranslator.VctApiKeys
 import com.sergiolopez.voicecalltranslator.feature.call.data.mapper.OpenAiSyntheticVoiceMapper
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.magiccreator.OpenAiParams
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.OpenAiSyntheticVoice
-import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetRawAudioByteArrayUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetSyntheticVoiceOptionUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SaveRawAudioByteArrayUseCase
-import com.sergiolopez.voicecalltranslator.feature.call.magiccreator.OpenAiParams
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName
 import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
@@ -37,8 +35,9 @@ class MagicAudioRepository @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository,
     private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper,
     private val getLanguageOptionUseCase: GetLanguageOptionUseCase,
-    private val saveRawAudioByteArrayUseCase: SaveRawAudioByteArrayUseCase,
-    private val getRawAudioByteArrayUseCase: GetRawAudioByteArrayUseCase
+    // For testing purpose
+    //private val saveRawAudioByteArrayUseCase: SaveRawAudioByteArrayUseCase,
+    //private val getRawAudioByteArrayUseCase: GetRawAudioByteArrayUseCase
 ) {
     private var openAI = OpenAI(
         token = VctApiKeys.OPEN_AI_API_KEY,

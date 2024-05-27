@@ -1,6 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.call.domain.usecase
 
-import com.sergiolopez.voicecalltranslator.feature.call.webrtc.bridge.DataModel
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModel
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseDatabaseRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

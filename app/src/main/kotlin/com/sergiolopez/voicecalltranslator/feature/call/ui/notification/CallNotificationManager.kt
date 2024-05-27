@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sergiolopez.voicecalltranslator.feature.call.telecom.notification
+package com.sergiolopez.voicecalltranslator.feature.call.ui.notification
 
 import android.Manifest
 import android.app.Notification
@@ -35,7 +35,7 @@ import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorActivity
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
-import com.sergiolopez.voicecalltranslator.feature.call.telecom.broadcast.CallBroadcast
+import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.broadcast.CallBroadcast
 import kotlinx.serialization.json.Json
 
 class CallNotificationManager(private val context: Context) {

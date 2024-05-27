@@ -1,4 +1,4 @@
-package com.sergiolopez.voicecalltranslator.feature.call.webrtc
+package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
