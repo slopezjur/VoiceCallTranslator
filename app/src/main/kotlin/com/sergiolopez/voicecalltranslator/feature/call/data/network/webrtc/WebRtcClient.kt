@@ -235,6 +235,10 @@ class WebRtcClient @Inject constructor(
         }
     }
 
+    fun toggleSpeaker(shouldBeSpeaker: Boolean) {
+        // TODO : Implementation needs further investigation...
+    }
+
     fun startLocalStreaming() {
         // TODO : java.lang.IllegalStateException: C++ addTrack failed.
         // Fails when try to add a new tracker after a previous call

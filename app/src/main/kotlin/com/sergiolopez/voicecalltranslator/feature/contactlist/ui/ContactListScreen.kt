@@ -32,7 +32,6 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
-
 @Composable
 fun ContactListScreen(
     navigateAndPopUp: (NavigationParams) -> Unit,

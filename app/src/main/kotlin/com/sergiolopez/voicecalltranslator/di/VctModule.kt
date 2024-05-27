@@ -13,17 +13,4 @@ class VctModule {
 
     @Provides
     fun provideContext(@ApplicationContext context: Context): Context = context.applicationContext
-
-    /*@Provides
-    fun provideWebRtcManager(
-        webRTCClient: WebRTCClient,
-        firebaseAuthService: FirebaseAuthService,
-        sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
-        answerCallUseCase: AnswerCallUseCase
-    ) = WebRtcManager(
-        webRTCClient = webRTCClient,
-        firebaseAuthService = firebaseAuthService,
-        sendConnectionUpdateUseCase = sendConnectionUpdateUseCase,
-        answerCallUseCase = answerCallUseCase
-    )*/
 }

@@ -55,6 +55,12 @@ fun CallScreen(
         )
     }
 
+    val shouldBeSpeaker: (Boolean) -> Unit = {
+        callViewModel.shouldBeSpeaker(
+            shouldBeSpeaker = it
+        )
+    }
+
     CallScreenContent(
         navigateAndPopUp = navigateAndPopUp,
         restartFirebaseService = restartFirebaseService,
@@ -64,12 +70,14 @@ fun CallScreen(
         sendConnectionRequest = sendConnectionRequest,
         answerCall = answerCall,
         sendEndCall = sendEndCall,
-        shouldBeMuted = shouldBeMuted
+        shouldBeMuted = shouldBeMuted,
+        shouldBeSpeaker = shouldBeSpeaker
     )
 }
 
 @Composable
 fun CallScreenContent(
+    modifier: Modifier = Modifier,
     navigateAndPopUp: (NavigationParams) -> Unit,
     restartFirebaseService: () -> Unit,
     callStatus: CallStatus,
@@ -78,7 +86,8 @@ fun CallScreenContent(
     sendConnectionRequest: (String) -> Unit,
     answerCall: () -> Unit,
     sendEndCall: () -> Unit,
-    shouldBeMuted: (Boolean) -> Unit
+    shouldBeMuted: (Boolean) -> Unit,
+    shouldBeSpeaker: (Boolean) -> Unit
 ) {
     when (callStatus) {
         CallStatus.STARTING -> when (call) {
@@ -104,11 +113,14 @@ fun CallScreenContent(
                 navigateToContactList(navigateAndPopUp)
             }
             // Show call ended when there is no active call
-            NoCallScreen()
+            NoCallScreen(
+                modifier = modifier
+            )
         }
 
         else -> {
-            TelecomCallScreen(
+            CallScreenDetails(
+                modifier = modifier,
                 callStatus = callStatus,
                 call = call,
                 onCallAction = {
@@ -119,6 +131,10 @@ fun CallScreenContent(
 
                         is CallAction.ToggleMute -> {
                             shouldBeMuted.invoke(it.isMuted)
+                        }
+
+                        is CallAction.ToggleSpeaker -> {
+                            shouldBeSpeaker.invoke(it.isSpeaker)
                         }
 
                         is CallAction.Disconnect -> {
@@ -141,9 +157,9 @@ private fun navigateToContactList(navigateAndPopUp: (NavigationParams) -> Unit) 
 }
 
 @Composable
-private fun NoCallScreen() {
+private fun NoCallScreen(modifier: Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         contentAlignment = Alignment.Center,
@@ -185,7 +201,8 @@ fun CallScreenPreview() {
             sendConnectionRequest = {},
             answerCall = {},
             sendEndCall = {},
-            shouldBeMuted = {}
+            shouldBeMuted = {},
+            shouldBeSpeaker = {}
         )
     }
 }

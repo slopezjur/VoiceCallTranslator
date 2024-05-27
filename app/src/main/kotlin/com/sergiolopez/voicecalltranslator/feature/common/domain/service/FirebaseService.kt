@@ -72,7 +72,7 @@ class FirebaseService : Service() {
                 user?.let {
                     startWebRtcManager(
                         user = it,
-                        // TODO : Default value responsability?
+                        // TODO : Default value responsibility?
                         language = getLanguageOptionUseCase.invoke(it.id)?.name
                             ?: LanguageOption.ENGLISH.name
                     )
@@ -104,19 +104,19 @@ class FirebaseService : Service() {
                             val callData =
                                 if (webRtcRepository.currentCall.value is Call.CallData) {
                                     webRtcRepository.currentCall.value as Call.CallData
-                            } else {
-                                val newCallData = Call.CallData(
-                                    callerId = call.sender ?: "",
-                                    calleeId = call.target,
-                                    isIncoming = true,
-                                    callStatus = CallStatus.INCOMING_CALL,
-                                    offerData = call.toString(),
-                                    answerData = "",
-                                    timestamp = call.timeStamp
-                                )
+                                } else {
+                                    val newCallData = Call.CallData(
+                                        callerId = call.sender ?: "",
+                                        calleeId = call.target,
+                                        isIncoming = true,
+                                        callStatus = CallStatus.INCOMING_CALL,
+                                        offerData = call.toString(),
+                                        answerData = "",
+                                        timestamp = call.timeStamp
+                                    )
                                     webRtcRepository.setNewCallData(newCallData)
-                                newCallData
-                            }
+                                    newCallData
+                                }
                             launchIncomingCall(
                                 callData = callData
                             )
@@ -127,21 +127,21 @@ class FirebaseService : Service() {
                             val callData =
                                 if (webRtcRepository.currentCall.value is Call.CallData) {
                                     (webRtcRepository.currentCall.value as Call.CallData).copy(
-                                    callStatus = CallStatus.CALL_FINISHED
-                                )
-                            } else {
-                                val newCallData = Call.CallData(
-                                    callerId = call.sender ?: "",
-                                    calleeId = call.target,
-                                    isIncoming = false,
-                                    callStatus = CallStatus.CALL_FINISHED,
-                                    offerData = call.toString(),
-                                    answerData = "",
-                                    timestamp = call.timeStamp
-                                )
+                                        callStatus = CallStatus.CALL_FINISHED
+                                    )
+                                } else {
+                                    val newCallData = Call.CallData(
+                                        callerId = call.sender ?: "",
+                                        calleeId = call.target,
+                                        isIncoming = false,
+                                        callStatus = CallStatus.CALL_FINISHED,
+                                        offerData = call.toString(),
+                                        answerData = "",
+                                        timestamp = call.timeStamp
+                                    )
                                     webRtcRepository.setNewCallData(newCallData)
-                                newCallData
-                            }
+                                    newCallData
+                                }
                             endCall(
                                 callData = callData
                             )

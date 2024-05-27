@@ -79,4 +79,8 @@ class CallViewModel @Inject constructor(
     fun shouldBeMuted(shouldBeMuted: Boolean) {
         webRtcRepository.toggleAudio(shouldBeMuted = shouldBeMuted)
     }
+
+    fun shouldBeSpeaker(shouldBeSpeaker: Boolean) {
+        webRtcRepository.toggleSpeaker(shouldBeSpeaker = shouldBeSpeaker)
+    }
 }

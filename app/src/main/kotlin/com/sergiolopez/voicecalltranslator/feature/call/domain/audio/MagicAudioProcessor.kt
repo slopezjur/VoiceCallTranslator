@@ -33,7 +33,7 @@ class MagicAudioProcessor @Inject constructor(
     private val byteBufferList = mutableListOf<ByteBuffer>()
 
     private val minimumDelayBuffer = 300  // 3 seconds delay to start processing audio
-    private val oneSecondFromWebRtc = 100  // Every "100" represents 10ms buffer from WebRTC
+    private val oneSecondFromWebRtc = 100  // Each "100" represents 10ms buffer from WebRTC
 
     @Volatile
     private var counter: Long = 0

@@ -13,5 +13,8 @@ sealed interface CallAction : Parcelable {
     data class ToggleMute(val isMuted: Boolean) : CallAction, Parcelable
 
     @Parcelize
+    data class ToggleSpeaker(val isSpeaker: Boolean) : CallAction, Parcelable
+
+    @Parcelize
     data object Disconnect : CallAction, Parcelable
 }

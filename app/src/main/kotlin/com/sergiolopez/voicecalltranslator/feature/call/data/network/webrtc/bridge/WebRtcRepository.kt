@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 @Singleton
 class WebRtcRepository @Inject constructor(
-    private val webRTCClient: WebRtcClient,
+    private val webRtcClient: WebRtcClient,
     private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
     private val getConnectionUpdateUseCase: GetConnectionUpdateUseCase,
     private val clearCallUseCase: ClearCallUseCase
@@ -43,8 +43,8 @@ class WebRtcRepository @Inject constructor(
     private lateinit var scope: CoroutineScope
 
     fun initWebrtcClient(username: String, language: String) {
-        webRTCClient.setScope(scope = scope)
-        webRTCClient.initializeWebrtcClient(
+        webRtcClient.setScope(scope = scope)
+        webRtcClient.initializeWebrtcClient(
             username = username,
             language = language,
             observer = object : MyPeerObserver() {
@@ -58,7 +58,7 @@ class WebRtcRepository @Inject constructor(
                     super.onIceCandidate(p0)
                     Log.d("$VCT_LOGS onIceCandidate", p0.toString())
                     p0?.let {
-                        webRTCClient.sendIceCandidate(target, it)
+                        webRtcClient.sendIceCandidate(target, it)
                     }
                 }
 
@@ -91,14 +91,14 @@ class WebRtcRepository @Inject constructor(
                 it.collect { event ->
                     when (event.type) {
                         DataModelType.Offer -> {
-                            webRTCClient.onRemoteSessionReceived(
+                            webRtcClient.onRemoteSessionReceived(
                                 SessionDescription(
                                     SessionDescription.Type.OFFER,
                                     event.data.toString()
                                 )
                             )
                             try {
-                                webRTCClient.answer(target)
+                                webRtcClient.answer(target)
                                 updateCallStatus(CallStatus.ANSWERING)
                             } catch (exception: Exception) {
                                 event.sender?.let { sender ->
@@ -108,7 +108,7 @@ class WebRtcRepository @Inject constructor(
                         }
 
                         DataModelType.Answer -> {
-                            webRTCClient.onRemoteSessionReceived(
+                            webRtcClient.onRemoteSessionReceived(
                                 SessionDescription(
                                     SessionDescription.Type.ANSWER,
                                     event.data.toString()
@@ -123,7 +123,7 @@ class WebRtcRepository @Inject constructor(
                                 null
                             }
                             candidate?.let { iceCandidate ->
-                                webRTCClient.addIceCandidateToPeer(
+                                webRtcClient.addIceCandidateToPeer(
                                     iceCandidate = iceCandidate
                                 )
                             }
@@ -164,7 +164,7 @@ class WebRtcRepository @Inject constructor(
             timestamp = Instant.now().epochSecond
         )
 
-        webRTCClient.startLocalStreaming()
+        webRtcClient.startLocalStreaming()
 
         scope.launch {
             sendConnectionUpdateUseCase.invoke(
@@ -174,11 +174,11 @@ class WebRtcRepository @Inject constructor(
     }
 
     fun startCall(callData: Call.CallData) {
-        webRTCClient.startLocalStreaming()
+        webRtcClient.startLocalStreaming()
         _currentCall.value = callData.copy(
             callStatus = CallStatus.ANSWERING
         )
-        webRTCClient.call(target)
+        webRtcClient.call(target)
     }
 
     /*private fun endCall(target: String) {
@@ -201,14 +201,18 @@ class WebRtcRepository @Inject constructor(
         updateCallStatus(
             callStatus = CallStatus.CALL_FINISHED
         )
-        webRTCClient.closeConnection()
+        webRtcClient.closeConnection()
         clearCall(target = target)
         _currentCall.value = Call.CallNoData
         startFirebaseService.invoke()
     }
 
     fun toggleAudio(shouldBeMuted: Boolean) {
-        webRTCClient.toggleAudio(shouldBeMuted)
+        webRtcClient.toggleAudio(shouldBeMuted)
+    }
+
+    fun toggleSpeaker(shouldBeSpeaker: Boolean) {
+        webRtcClient.toggleSpeaker(shouldBeSpeaker)
     }
 
     private fun onTransferEventToSocket(data: DataModel) {
