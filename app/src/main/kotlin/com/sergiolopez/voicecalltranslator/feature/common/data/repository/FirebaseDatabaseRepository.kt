@@ -4,7 +4,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
 import com.google.firebase.database.snapshots
 import com.sergiolopez.voicecalltranslator.feature.call.data.CallDatabase
-import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModel
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.FirebaseRepositoryMapper
 import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.ResultOperation.performSimpleApiOperation
@@ -66,21 +66,21 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
-    suspend fun sendConnectionUpdate(call: DataModel) {
+    suspend fun sendConnectionUpdate(call: CallDataModel) {
         runCatching {
             //al callData = firebaseRepositoryMapper.mapCallToCallDatabase(call)
             vctDatabase.child(CALLS_TABLE_NAME).child(call.target).child(LATEST_EVENT).setValue(
-                Json.encodeToString(DataModel.serializer(), call)
+                Json.encodeToString(CallDataModel.serializer(), call)
             ).await()
         }
     }
 
-    fun getConnectionUpdate(userId: String): Result<Flow<DataModel>> {
+    fun getConnectionUpdate(userId: String): Result<Flow<CallDataModel>> {
         return runCatching {
             vctDatabase.child(CALLS_TABLE_NAME).child(userId).child(LATEST_EVENT)
                 .snapshots.mapNotNull { dataSnapshot ->
                     dataSnapshot.getValue<String>()?.let { jsonString ->
-                        Json.decodeFromString(DataModel.serializer(), jsonString)
+                        Json.decodeFromString(CallDataModel.serializer(), jsonString)
                     }
                 }
 

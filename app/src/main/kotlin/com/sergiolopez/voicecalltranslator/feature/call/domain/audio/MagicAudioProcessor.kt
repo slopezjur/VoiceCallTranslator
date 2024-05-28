@@ -44,16 +44,22 @@ class MagicAudioProcessor @Inject constructor(
         this.scope = scope
     }
 
-    fun initialize(
-        sourceLanguage: String,
-        destinationLanguage: String
-    ) {
-        isMagicNeeded = sourceLanguage != destinationLanguage
+    fun initialize() {
         scope.launch {
-            magicAudioRepository.initializeMagicCreator(
-                destinationLanguage = destinationLanguage
-            )
+            magicAudioRepository.initializeMagicCreator()
         }
+    }
+
+    fun setIsMagicNeeded(isMagicNeeded: Boolean) {
+        this.isMagicNeeded = isMagicNeeded
+    }
+
+    fun cleanResources() {
+        isMagicNeeded = false
+        bufferMiddleQueue.clear()
+        byteBufferList.clear()
+        counter = 0
+        fileIdentifier = 0
     }
 
     override fun onAudioDataRecorded(

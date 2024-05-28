@@ -2,8 +2,8 @@ package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc
 
 import android.content.Context
 import android.util.Log
-import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModel
-import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModelType
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModel
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModelType
 import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.MagicAudioProcessor
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.OPEN_AI_SAMPLE_RATE
@@ -110,7 +110,7 @@ class WebRtcClient @Inject constructor(
         language: String,
         observer: PeerConnection.Observer
     ) {
-        magicAudioProcessor.initialize(language, "")
+        magicAudioProcessor.initialize()
         Log.d("$VCT_LOGS initializeWebrtcClient: ", "initializeWebrtcClient $username")
         this.username = username
         this.language = language
@@ -124,31 +124,37 @@ class WebRtcClient @Inject constructor(
     }
 
     //negotiation section
-    fun call(target: String) {
+    fun call(target: String, targetLanguage: String) {
+        magicAudioProcessor.setIsMagicNeeded(
+            targetLanguage != language
+        )
         peerConnection?.createOffer(object : MySdpObserver() {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 super.onCreateSuccess(desc)
                 peerConnection?.setLocalDescription(object : MySdpObserver() {
                     override fun onSetSuccess() {
                         super.onSetSuccess()
-                        val dataModel = DataModel(
-                            type = DataModelType.Offer,
+                        val callDataModel = CallDataModel(
+                            type = CallDataModelType.Offer,
                             sender = username,
                             target = target,
                             data = desc?.description,
                             language = language
                         )
                         onTransferEventToSocket(
-                            dataModel
+                            callDataModel
                         )
-                        Log.d("$VCT_LOGS call", dataModel.toString())
+                        Log.d("$VCT_LOGS call", callDataModel.toString())
                     }
                 }, desc)
             }
         }, mediaConstraint)
     }
 
-    fun answer(target: String) {
+    fun answer(target: String, targetLanguage: String) {
+        magicAudioProcessor.setIsMagicNeeded(
+            targetLanguage != language
+        )
         try {
             peerConnection?.createAnswer(object : MySdpObserver() {
                 override fun onCreateSuccess(desc: SessionDescription?) {
@@ -156,17 +162,18 @@ class WebRtcClient @Inject constructor(
                     peerConnection?.setLocalDescription(object : MySdpObserver() {
                         override fun onSetSuccess() {
                             super.onSetSuccess()
-                            val dataModel = DataModel(
-                                type = DataModelType.Answer,
+                            val callDataModel = CallDataModel(
+                                type = CallDataModelType.Answer,
                                 sender = username,
                                 target = target,
-                                data = desc?.description
+                                data = desc?.description,
+                                language = language
                             )
                             // TODO : Update Firebase with the Answer
                             onTransferEventToSocket(
-                                dataModel
+                                callDataModel
                             )
-                            Log.d("$VCT_LOGS answer", dataModel.toString())
+                            Log.d("$VCT_LOGS answer", callDataModel.toString())
                         }
                     }, desc)
                 }
@@ -185,9 +192,9 @@ class WebRtcClient @Inject constructor(
         }
     }
 
-    private fun onTransferEventToSocket(dataModel: DataModel) {
+    private fun onTransferEventToSocket(callDataModel: CallDataModel) {
         scope.launch {
-            sendConnectionUpdateUseCase.invoke(dataModel)
+            sendConnectionUpdateUseCase.invoke(callDataModel)
         }
     }
 
@@ -201,16 +208,17 @@ class WebRtcClient @Inject constructor(
 
     fun sendIceCandidate(target: String, iceCandidate: IceCandidate) {
         addIceCandidateToPeer(iceCandidate)
-        val dataModel = DataModel(
-            type = DataModelType.IceCandidates,
+        val callDataModel = CallDataModel(
+            type = CallDataModelType.IceCandidates,
             sender = username,
             target = target,
-            data = Json.encodeToString(IceCandidateSerializer, iceCandidate)
+            data = Json.encodeToString(IceCandidateSerializer, iceCandidate),
+            language = language
         )
         onTransferEventToSocket(
-            dataModel
+            callDataModel
         )
-        Log.d("$VCT_LOGS sendIceCandidate", dataModel.toString())
+        Log.d("$VCT_LOGS sendIceCandidate", callDataModel.toString())
     }
 
     fun closeConnection() {
@@ -218,6 +226,7 @@ class WebRtcClient @Inject constructor(
             localAudioTrack = null
             rtpSenderTrack = null
             peerConnection?.close()
+            magicAudioProcessor.cleanResources()
         } catch (e: Exception) {
             e.printStackTrace()
         }

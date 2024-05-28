@@ -57,8 +57,7 @@ class MagicAudioRepository @Inject constructor(
         )
     )
 
-    suspend fun initializeMagicCreator(destinationLanguage: String) {
-        this.destinationLanguage = destinationLanguage
+    suspend fun initializeMagicCreator() {
         firebaseAuthRepository.currentUser.collect { user ->
             user?.id?.let { userId ->
                 openAiSyntheticVoice = openAiSyntheticVoiceMapper.mapUserDatabaseToUserData(

@@ -336,7 +336,7 @@ fun CallScreenDetailsIncomingCallStartingPreview() {
                 isIncoming = true,
                 callStatus = CallStatus.INCOMING_CALL,
                 offerData = "offer",
-                answerData = "",
+                language = "es",
                 timestamp = 1716836446515
             ),
             onCallAction = {},
@@ -358,7 +358,7 @@ fun CallScreenDetailsIncomingCallInProgressPreview() {
                 isIncoming = true,
                 callStatus = CallStatus.INCOMING_CALL,
                 offerData = "offer",
-                answerData = "",
+                language = "es",
                 timestamp = 1716836446515
             ),
             onCallAction = {},
@@ -380,7 +380,7 @@ fun CallScreenDetailsStartingPreview() {
                 isIncoming = false,
                 callStatus = CallStatus.STARTING,
                 offerData = "offer",
-                answerData = "",
+                language = "es",
                 timestamp = 1716836446515
             ),
             onCallAction = {},
@@ -402,7 +402,7 @@ fun CallScreenDetailsCallInProgressPreview() {
                 isIncoming = false,
                 callStatus = CallStatus.CALL_IN_PROGRESS,
                 offerData = "offer",
-                answerData = "",
+                language = "es",
                 timestamp = 1716836446515
             ),
             onCallAction = {},

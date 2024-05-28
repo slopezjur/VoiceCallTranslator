@@ -6,8 +6,8 @@ data class CallDatabase(
     val callerId: String? = null,
     val calleeId: String? = null,
     val offerData: String? = null,
-    val answerData: String? = null,
     val isIncoming: Boolean? = null,
     val callStatus: CallStatus? = null,
+    val language: String,
     val timestamp: Long? = null
 )

@@ -4,7 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.DataModelType
+import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModelType
 import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.WebRtcRepository
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
@@ -38,6 +38,7 @@ class FirebaseService : Service() {
     lateinit var getLanguageOptionUseCase: GetLanguageOptionUseCase
 
     private lateinit var callNotificationManager: CallNotificationManager
+    //private lateinit var language: String
 
     companion object {
         internal const val ACTION_START_SERVICE = "start_service"
@@ -100,7 +101,7 @@ class FirebaseService : Service() {
             if (result.isSuccess) {
                 result.getOrThrow().collect { call ->
                     when (call.type) {
-                        DataModelType.StartAudioCall -> {
+                        CallDataModelType.StartAudioCall -> {
                             val callData =
                                 if (webRtcRepository.currentCall.value is Call.CallData) {
                                     webRtcRepository.currentCall.value as Call.CallData
@@ -111,7 +112,7 @@ class FirebaseService : Service() {
                                         isIncoming = true,
                                         callStatus = CallStatus.INCOMING_CALL,
                                         offerData = call.toString(),
-                                        answerData = "",
+                                        language = call.language,
                                         timestamp = call.timeStamp
                                     )
                                     webRtcRepository.setNewCallData(newCallData)
@@ -122,7 +123,7 @@ class FirebaseService : Service() {
                             )
                         }
 
-                        DataModelType.EndCall -> {
+                        CallDataModelType.EndCall -> {
                             //initWebrtcClient(user)
                             val callData =
                                 if (webRtcRepository.currentCall.value is Call.CallData) {
@@ -136,7 +137,7 @@ class FirebaseService : Service() {
                                         isIncoming = false,
                                         callStatus = CallStatus.CALL_FINISHED,
                                         offerData = call.toString(),
-                                        answerData = "",
+                                        language = call.language,
                                         timestamp = call.timeStamp
                                     )
                                     webRtcRepository.setNewCallData(newCallData)

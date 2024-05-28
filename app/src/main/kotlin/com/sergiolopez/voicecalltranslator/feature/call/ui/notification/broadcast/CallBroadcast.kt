@@ -82,9 +82,9 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
                 callerId = "",
                 calleeId = "",
                 offerData = "",
-                answerData = "",
                 isIncoming = false,
                 callStatus = CallStatus.CALL_FINISHED,
+                language = "",
                 timestamp = 0
             )
         )

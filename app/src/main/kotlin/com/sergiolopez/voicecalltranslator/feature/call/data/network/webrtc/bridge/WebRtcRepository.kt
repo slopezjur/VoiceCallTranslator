@@ -38,11 +38,13 @@ class WebRtcRepository @Inject constructor(
 
     private lateinit var userId: String
     private lateinit var target: String
+    private lateinit var language: String
     private lateinit var startFirebaseService: () -> Unit
 
     private lateinit var scope: CoroutineScope
 
     fun initWebrtcClient(username: String, language: String) {
+        this.language = language
         webRtcClient.setScope(scope = scope)
         webRtcClient.initializeWebrtcClient(
             username = username,
@@ -88,37 +90,43 @@ class WebRtcRepository @Inject constructor(
         this.scope.launch {
             val result = getConnectionUpdateUseCase.invoke(userId)
             result.onSuccess {
-                it.collect { event ->
-                    when (event.type) {
-                        DataModelType.Offer -> {
+                it.collect { callDataModel ->
+                    when (callDataModel.type) {
+                        CallDataModelType.Offer -> {
                             webRtcClient.onRemoteSessionReceived(
                                 SessionDescription(
                                     SessionDescription.Type.OFFER,
-                                    event.data.toString()
+                                    callDataModel.data.toString()
                                 )
                             )
                             try {
-                                webRtcClient.answer(target)
+                                webRtcClient.answer(
+                                    target = target,
+                                    targetLanguage = callDataModel.language
+                                )
                                 updateCallStatus(CallStatus.ANSWERING)
                             } catch (exception: Exception) {
-                                event.sender?.let { sender ->
+                                callDataModel.sender?.let { sender ->
                                     sendEndCall(sender)
                                 }
                             }
                         }
 
-                        DataModelType.Answer -> {
+                        CallDataModelType.Answer -> {
                             webRtcClient.onRemoteSessionReceived(
                                 SessionDescription(
                                     SessionDescription.Type.ANSWER,
-                                    event.data.toString()
+                                    callDataModel.data.toString()
                                 )
                             )
                         }
 
-                        DataModelType.IceCandidates -> {
+                        CallDataModelType.IceCandidates -> {
                             val candidate: IceCandidate? = try {
-                                Json.decodeFromString(IceCandidateSerializer, event.data.toString())
+                                Json.decodeFromString(
+                                    IceCandidateSerializer,
+                                    callDataModel.data.toString()
+                                )
                             } catch (e: Exception) {
                                 null
                             }
@@ -148,19 +156,20 @@ class WebRtcRepository @Inject constructor(
         target: String,
     ) {
         this.target = target
-        val dataModel = DataModel(
+        val callDataModel = CallDataModel(
             sender = userId,
-            type = DataModelType.StartAudioCall,
-            target = target
+            target = target,
+            type = CallDataModelType.StartAudioCall,
+            language = language
         )
 
         _currentCall.value = Call.CallData(
             callerId = userId,
             calleeId = target,
             offerData = "",
-            answerData = "",
             isIncoming = false,
             callStatus = CallStatus.CALLING,
+            language = language,
             timestamp = Instant.now().epochSecond
         )
 
@@ -168,7 +177,7 @@ class WebRtcRepository @Inject constructor(
 
         scope.launch {
             sendConnectionUpdateUseCase.invoke(
-                dataModel
+                callDataModel
             )
         }
     }
@@ -178,7 +187,10 @@ class WebRtcRepository @Inject constructor(
         _currentCall.value = callData.copy(
             callStatus = CallStatus.ANSWERING
         )
-        webRtcClient.call(target)
+        webRtcClient.call(
+            target = target,
+            targetLanguage = callData.language
+        )
     }
 
     /*private fun endCall(target: String) {
@@ -188,9 +200,10 @@ class WebRtcRepository @Inject constructor(
 
     fun sendEndCall(target: String) {
         onTransferEventToSocket(
-            DataModel(
-                type = DataModelType.EndCall,
-                target = target
+            CallDataModel(
+                type = CallDataModelType.EndCall,
+                target = target,
+                language = language
             )
         )
         endCall(target = target)
@@ -215,7 +228,7 @@ class WebRtcRepository @Inject constructor(
         webRtcClient.toggleSpeaker(shouldBeSpeaker)
     }
 
-    private fun onTransferEventToSocket(data: DataModel) {
+    private fun onTransferEventToSocket(data: CallDataModel) {
         scope.launch {
             sendConnectionUpdateUseCase.invoke(data)
         }
