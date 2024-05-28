@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,6 +21,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -90,7 +89,7 @@ internal fun CallScreenDetails(
             messages = messages
         )
     } else {
-        // IF we are here...
+        // If we are here...
         //onCallStatus.invoke(CallViewModel.CallUiState.ERROR)
         Log.d("$VCT_LOGS: TelecomCallScreen", "$callStatus $call")
     }
@@ -108,27 +107,22 @@ private fun CallScreenDetailsContent(
     onCallAction: (CallAction) -> Unit,
     messages: List<Message>
 ) {
-    Box(
-        modifier
-            .fillMaxSize(),
-    ) {
-        Column(
-            modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            CallInfoCard(
+    Scaffold(
+        topBar = {
+            Column(
                 modifier = modifier,
-                name = name,
-                info = info,
-                isActive = isActive
-            )
-            HorizontalDivider()
-            Spacer(modifier = Modifier.weight(1f))
-            CallScreenConversation(
-                modifier = modifier,
-                messages = messages
-            )
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                CallInfoCard(
+                    modifier = modifier,
+                    name = name,
+                    info = info,
+                    isActive = isActive
+                )
+                HorizontalDivider()
+            }
+        },
+        bottomBar = {
             if (incoming && !isActive) {
                 IncomingCallActions(
                     modifier = modifier,
@@ -142,6 +136,49 @@ private fun CallScreenDetailsContent(
                     onCallAction = onCallAction,
                 )
             }
+        }
+    ) { paddingValues ->
+        Box(modifier = modifier.padding(paddingValues)) {
+            CallScreenConversation(
+                modifier = modifier,
+                messages = messages
+            )
+        }
+    }
+}
+
+@Composable
+private fun CallInfoCard(
+    modifier: Modifier,
+    name: String,
+    info: String,
+    isActive: Boolean
+) {
+    Column(
+        modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            imageVector = Icons.Rounded.Person,
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+        )
+        Text(text = name, style = MaterialTheme.typography.titleMedium)
+        Text(text = info, style = MaterialTheme.typography.bodyMedium)
+
+        if (!isActive) {
+            Text(
+                text = stringResource(id = R.string.connecting),
+                style = MaterialTheme.typography.titleSmall
+            )
+        } else {
+            Text(
+                text = stringResource(id = R.string.connected),
+                style = MaterialTheme.typography.titleSmall
+            )
         }
     }
 }
@@ -158,9 +195,7 @@ private fun OngoingCallActions(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primaryContainer)
             .shadow(1.dp)
-            .padding(26.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(26.dp)
     ) {
         CallControls(
             modifier = modifier,
@@ -179,6 +214,7 @@ private fun IncomingCallActions(
     Row(
         modifier
             .fillMaxWidth()
+            .shadow(1.dp)
             .padding(26.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -210,40 +246,6 @@ private fun IncomingCallActions(
 }
 
 @Composable
-private fun CallInfoCard(
-    modifier: Modifier,
-    name: String,
-    info: String,
-    isActive: Boolean
-) {
-    Column(
-        modifier.padding(48.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Image(
-            imageVector = Icons.Rounded.Person,
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-        )
-        Text(text = name, style = MaterialTheme.typography.titleMedium)
-        Text(text = info, style = MaterialTheme.typography.bodyMedium)
-
-        if (!isActive) {
-            Text(
-                text = stringResource(id = R.string.connecting),
-                style = MaterialTheme.typography.titleSmall
-            )
-        } else {
-            Text(
-                text = stringResource(id = R.string.connected),
-                style = MaterialTheme.typography.titleSmall
-            )
-        }
-    }
-}
-
-@Composable
 private fun CallControls(
     modifier: Modifier,
     isMuted: Boolean,
@@ -252,8 +254,7 @@ private fun CallControls(
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         IconToggleButton(

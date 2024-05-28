@@ -33,20 +33,18 @@ internal fun CallScreenConversation(
 ) {
     val listState = rememberLazyListState()
 
-    Box {
-        LazyColumn(
-            state = listState,
-            modifier = modifier
-                .padding(horizontal = 8.dp),
-            reverseLayout = true
-        ) {
-            items(messages.size) { index ->
-                val message = messages[messages.size - 1 - index]
-                CallScreenConversationMessage(
-                    modifier = modifier,
-                    message = message
-                )
-            }
+    LazyColumn(
+        state = listState,
+        modifier = modifier
+            .padding(horizontal = 8.dp),
+        reverseLayout = true
+    ) {
+        items(messages.size) { index ->
+            val message = messages[messages.size - 1 - index]
+            CallScreenConversationMessage(
+                modifier = modifier,
+                message = message
+            )
         }
     }
 }
