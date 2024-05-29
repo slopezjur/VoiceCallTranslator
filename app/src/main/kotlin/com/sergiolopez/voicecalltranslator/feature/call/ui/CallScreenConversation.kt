@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,12 +35,15 @@ internal fun CallScreenConversation(
     val listState = rememberLazyListState()
 
     LazyColumn(
-        state = listState,
         modifier = modifier
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .fillMaxSize(),
+        state = listState,
         reverseLayout = true
     ) {
-        items(messages.size) { index ->
+        items(
+            count = messages.size,
+            key = { messages[it].timestamp }) { index ->
             val message = messages[messages.size - 1 - index]
             CallScreenConversationMessage(
                 modifier = modifier,
@@ -102,6 +106,17 @@ fun CallScreenConversationPreview() {
         CallScreenConversation(
             modifier = Modifier,
             messages = Dummy.messages
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun CallScreenConversationOneMessagePreview() {
+    VoiceCallTranslatorPreview {
+        CallScreenConversation(
+            modifier = Modifier,
+            messages = listOf(Dummy.message)
         )
     }
 }

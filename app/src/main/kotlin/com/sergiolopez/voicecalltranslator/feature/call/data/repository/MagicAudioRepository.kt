@@ -22,6 +22,10 @@ import com.sergiolopez.voicecalltranslator.feature.common.data.repository.Fireba
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName
 import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
 import com.sergiolopez.voicecalltranslator.feature.common.domain.usecase.GetLanguageOptionUseCase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import okio.source
 import java.io.File
 import java.util.LinkedList
@@ -56,6 +60,14 @@ class MagicAudioRepository @Inject constructor(
             content = SYSTEM_ROLE_PROMPT
         )
     )
+
+    private var _lastTranscription: MutableStateFlow<String?> = MutableStateFlow(null)
+    val lastTranscription: StateFlow<String?>
+        get() = _lastTranscription.asStateFlow()
+
+    private var _lastTranslation: MutableStateFlow<String?> = MutableStateFlow(null)
+    val lastTranslation: StateFlow<String?>
+        get() = _lastTranslation.asStateFlow()
 
     suspend fun initializeMagicCreator() {
         firebaseAuthRepository.currentUser.collect { user ->
@@ -106,6 +118,8 @@ class MagicAudioRepository @Inject constructor(
             request = transcriptionRequest
         )
 
+        _lastTranscription.value = transcription.text
+
         return transcription.text
     }
 
@@ -142,6 +156,8 @@ class MagicAudioRepository @Inject constructor(
             request = chatCompletionRequest
         )
 
+        _lastTranslation.value = translation.choices.firstOrNull()?.message?.content
+
         return translation.choices.firstOrNull()?.message?.content
     }
 
@@ -161,6 +177,10 @@ class MagicAudioRepository @Inject constructor(
         //saveRawAudioByteArrayUseCase.invoke(rawAudio)
 
         return openAI.speech(speechRequest) //getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
+    }
+
+    suspend fun getLastTranscription(): Flow<String?> {
+        return _lastTranscription.asStateFlow()
     }
 
     companion object {

@@ -6,20 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Mic
-import androidx.compose.material.icons.rounded.MicOff
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.SpatialAudioOff
-import androidx.compose.material.icons.rounded.SpeakerPhone
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
@@ -124,7 +114,7 @@ private fun CallScreenDetailsContent(
         },
         bottomBar = {
             if (incoming && !isActive) {
-                IncomingCallActions(
+                CallIncomingActions(
                     modifier = modifier,
                     onCallAction = onCallAction
                 )
@@ -138,7 +128,9 @@ private fun CallScreenDetailsContent(
             }
         }
     ) { paddingValues ->
-        Box(modifier = modifier.padding(paddingValues)) {
+        Box(
+            modifier = modifier.padding(paddingValues)
+        ) {
             CallScreenConversation(
                 modifier = modifier,
                 messages = messages
@@ -203,110 +195,6 @@ private fun OngoingCallActions(
             isSpeaker = isSpeaker,
             onCallAction = onCallAction,
         )
-    }
-}
-
-@Composable
-private fun IncomingCallActions(
-    modifier: Modifier,
-    onCallAction: (CallAction) -> Unit
-) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .shadow(1.dp)
-            .padding(26.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        FloatingActionButton(
-            onClick = {
-                onCallAction(
-                    CallAction.Disconnect
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.error,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Call,
-                contentDescription = null,
-                modifier = modifier.rotate(90f),
-            )
-        }
-        FloatingActionButton(
-            onClick = {
-                onCallAction(
-                    CallAction.Answer
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.primary,
-        ) {
-            Icon(imageVector = Icons.Rounded.Call, contentDescription = null)
-        }
-    }
-}
-
-@Composable
-private fun CallControls(
-    modifier: Modifier,
-    isMuted: Boolean,
-    isSpeaker: Boolean,
-    onCallAction: (CallAction) -> Unit
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        IconToggleButton(
-            checked = isMuted,
-            onCheckedChange = {
-                onCallAction(
-                    CallAction.ToggleMute(
-                        isMuted = it
-                    )
-                )
-            },
-        ) {
-            if (isMuted) {
-                Icon(imageVector = Icons.Rounded.MicOff, contentDescription = "Mic on")
-            } else {
-                Icon(imageVector = Icons.Rounded.Mic, contentDescription = "Mic off")
-            }
-        }
-        IconToggleButton(
-            checked = isSpeaker,
-            onCheckedChange = {
-                onCallAction(
-                    CallAction.ToggleSpeaker(
-                        isSpeaker = it
-                    )
-                )
-            },
-        ) {
-            if (isSpeaker) {
-                Icon(imageVector = Icons.Rounded.SpeakerPhone, contentDescription = "Speaker on")
-            } else {
-                Icon(
-                    imageVector = Icons.Rounded.SpatialAudioOff,
-                    contentDescription = "Speaker off"
-                )
-            }
-        }
-
-        FloatingActionButton(
-            onClick = {
-                onCallAction(
-                    CallAction.Disconnect,
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.error,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Call,
-                contentDescription = "Disconnect call",
-                modifier = modifier.rotate(90f),
-            )
-        }
     }
 }
 
@@ -408,6 +296,28 @@ fun CallScreenDetailsCallInProgressPreview() {
             ),
             onCallAction = {},
             messages = Dummy.messages
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun CallScreenDetailsCallInProgressOneMessagesPreview() {
+    VoiceCallTranslatorPreview {
+        CallScreenDetails(
+            modifier = Modifier,
+            callStatus = CallStatus.CALL_IN_PROGRESS,
+            call = Call.CallData(
+                callerId = "slopezjur@uoc.edu",
+                calleeId = "",
+                isIncoming = true,
+                callStatus = CallStatus.INCOMING_CALL,
+                offerData = "offer",
+                language = "es",
+                timestamp = 1716836446515
+            ),
+            onCallAction = {},
+            messages = listOf(Dummy.message)
         )
     }
 }

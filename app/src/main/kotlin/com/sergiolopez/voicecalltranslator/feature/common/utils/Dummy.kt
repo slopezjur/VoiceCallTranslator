@@ -31,12 +31,14 @@ object Dummy {
         themeOption = ThemeOption.LIGHT
     )
 
+    val message = Message(
+        text = "Hey there, it's me!",
+        timestamp = 1716847321565,
+        isSent = true
+    )
+
     val messages = listOf(
-        Message(
-            text = "Hey there, it's me!",
-            timestamp = 1716847321565,
-            isSent = true
-        ),
+        message,
         Message(
             text = "I see, I see...",
             timestamp = 1716848321565,

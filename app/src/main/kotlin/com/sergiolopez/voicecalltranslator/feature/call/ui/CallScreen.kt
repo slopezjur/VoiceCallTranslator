@@ -18,6 +18,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
+import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
+import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
 import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -36,6 +38,8 @@ fun CallScreen(
     val call = callViewModel.callState.collectAsStateWithLifecycle().value
 
     val callUiState = callViewModel.callStatusState.collectAsStateWithLifecycle().value
+
+    val messageQueueState = callViewModel.messageQueueState.collectAsStateWithLifecycle().value
 
     val sendConnectionRequest: (String) -> Unit = {
         callViewModel.sendConnectionRequest(it)
@@ -71,7 +75,8 @@ fun CallScreen(
         answerCall = answerCall,
         sendEndCall = sendEndCall,
         shouldBeMuted = shouldBeMuted,
-        shouldBeSpeaker = shouldBeSpeaker
+        shouldBeSpeaker = shouldBeSpeaker,
+        messages = messageQueueState.toList()
     )
 }
 
@@ -87,7 +92,8 @@ fun CallScreenContent(
     answerCall: () -> Unit,
     sendEndCall: () -> Unit,
     shouldBeMuted: (Boolean) -> Unit,
-    shouldBeSpeaker: (Boolean) -> Unit
+    shouldBeSpeaker: (Boolean) -> Unit,
+    messages: List<Message>
 ) {
     when (callStatus) {
         CallStatus.STARTING -> when (call) {
@@ -106,13 +112,11 @@ fun CallScreenContent(
         }
 
         CallStatus.CALL_FINISHED -> {
-            // If there is no call invoke finish after a small delay
             LaunchedEffect(Unit) {
                 //restartFirebaseService.invoke()
                 delay(1500)
                 navigateToContactList(navigateAndPopUp)
             }
-            // Show call ended when there is no active call
             NoCallScreen(
                 modifier = modifier
             )
@@ -203,7 +207,8 @@ fun CallScreenPreview() {
             answerCall = {},
             sendEndCall = {},
             shouldBeMuted = {},
-            shouldBeSpeaker = {}
+            shouldBeSpeaker = {},
+            messages = Dummy.messages
         )
     }
 }

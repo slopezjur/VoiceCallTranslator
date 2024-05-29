@@ -20,6 +20,7 @@ import org.webrtc.IceCandidate
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
+import java.sql.Timestamp
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -170,7 +171,7 @@ class WebRtcRepository @Inject constructor(
             isIncoming = false,
             callStatus = CallStatus.CALLING,
             language = language,
-            timestamp = Instant.now().epochSecond
+            timestamp = Timestamp.from(Instant.now()).time
         )
 
         webRtcClient.startLocalStreaming()
