@@ -18,11 +18,9 @@ import com.sergiolopez.voicecalltranslator.feature.call.data.mapper.OpenAiSynthe
 import com.sergiolopez.voicecalltranslator.feature.call.data.network.magiccreator.OpenAiParams
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.OpenAiSyntheticVoice
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetSyntheticVoiceOptionUseCase
-import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName
 import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
 import com.sergiolopez.voicecalltranslator.feature.common.domain.usecase.GetLanguageOptionUseCase
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +34,6 @@ import javax.inject.Singleton
 @Singleton
 class MagicAudioRepository @Inject constructor(
     private val getSyntheticVoiceOptionUseCase: GetSyntheticVoiceOptionUseCase,
-    private val firebaseAuthRepository: FirebaseAuthRepository,
     private val openAiSyntheticVoiceMapper: OpenAiSyntheticVoiceMapper,
     private val getLanguageOptionUseCase: GetLanguageOptionUseCase,
     // For testing purpose
@@ -49,8 +46,8 @@ class MagicAudioRepository @Inject constructor(
     )
 
     private var openAiSyntheticVoice: OpenAiSyntheticVoice? = null
-    private var languageOption: LanguageOption? = null
-    private lateinit var destinationLanguage: String
+    private lateinit var languageOption: LanguageOption
+    private lateinit var targetLanguage: String
 
     private val chatMessageHistoryQueue: Queue<ChatMessage> = LinkedList()
 
@@ -69,19 +66,19 @@ class MagicAudioRepository @Inject constructor(
     val lastTranslation: StateFlow<String?>
         get() = _lastTranslation.asStateFlow()
 
-    suspend fun initializeMagicCreator() {
-        firebaseAuthRepository.currentUser.collect { user ->
-            user?.id?.let { userId ->
-                openAiSyntheticVoice = openAiSyntheticVoiceMapper.mapUserDatabaseToUserData(
-                    getSyntheticVoiceOptionUseCase.invoke(
-                        userId = userId
-                    )
-                )
-                languageOption = getLanguageOptionUseCase.invoke(
+    suspend fun initializeSyntheticVoice(userId: String) {
+        openAiSyntheticVoice =
+            openAiSyntheticVoiceMapper.mapSyntheticVoiceOptionToOpenAiSyntheticVoice(
+                getSyntheticVoiceOptionUseCase.invoke(
                     userId = userId
                 )
-            }
-        }
+            )
+    }
+
+    suspend fun initializeLanguageOption(userId: String) {
+        languageOption = getLanguageOptionUseCase.invoke(
+            userId = userId
+        )
     }
 
     suspend fun speechToText(
@@ -111,14 +108,16 @@ class MagicAudioRepository @Inject constructor(
             prompt = chatMessageHistory,
             responseFormat = AudioResponseFormat.Text,
             temperature = WHISPER_TEMPERATURE,
-            language = languageOption?.getLocalValue()
+            language = languageOption.getLocalValue()
         )
 
         val transcription = openAI.transcription(
             request = transcriptionRequest
         )
 
-        _lastTranscription.value = transcription.text
+        if (transcription.text.isNotBlank()) {
+            _lastTranscription.value = transcription.text
+        }
 
         return transcription.text
     }
@@ -141,7 +140,7 @@ class MagicAudioRepository @Inject constructor(
     suspend fun translation(textToTranslate: String): String? {
         val currentChatMessage = ChatMessage(
             role = ChatRole.User,
-            content = "Translate '$textToTranslate' from ${languageOption?.name} to $destinationLanguage. Answer only with the final translation without adding anything else."
+            content = "Translate '$textToTranslate' from ${languageOption.name} to $targetLanguage. Answer only with the final translation without adding anything else. If the text is already in English, do not translate it again, just return the text you have received to translate."
         )
 
         val chatCompletionRequest = ChatCompletionRequest(
@@ -179,8 +178,8 @@ class MagicAudioRepository @Inject constructor(
         return openAI.speech(speechRequest) //getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
     }
 
-    suspend fun getLastTranscription(): Flow<String?> {
-        return _lastTranscription.asStateFlow()
+    fun setTargetLanguage(targetLanguage: String) {
+        this.targetLanguage = targetLanguage
     }
 
     companion object {

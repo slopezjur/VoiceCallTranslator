@@ -110,7 +110,9 @@ class WebRtcClient @Inject constructor(
         language: String,
         observer: PeerConnection.Observer
     ) {
-        magicAudioProcessor.initialize()
+        magicAudioProcessor.initialize(
+            userId = username
+        )
         Log.d("$VCT_LOGS initializeWebrtcClient: ", "initializeWebrtcClient $username")
         this.username = username
         this.language = language
@@ -126,7 +128,8 @@ class WebRtcClient @Inject constructor(
     //negotiation section
     fun call(target: String, targetLanguage: String) {
         magicAudioProcessor.setIsMagicNeeded(
-            targetLanguage != language
+            isMagicNeeded = targetLanguage != language,
+            targetLanguage = targetLanguage
         )
         peerConnection?.createOffer(object : MySdpObserver() {
             override fun onCreateSuccess(desc: SessionDescription?) {
@@ -153,7 +156,8 @@ class WebRtcClient @Inject constructor(
 
     fun answer(target: String, targetLanguage: String) {
         magicAudioProcessor.setIsMagicNeeded(
-            targetLanguage != language
+            targetLanguage != language,
+            targetLanguage
         )
         try {
             peerConnection?.createAnswer(object : MySdpObserver() {

@@ -12,7 +12,6 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnec
 import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
-import com.sergiolopez.voicecalltranslator.feature.common.domain.model.LanguageOption
 import com.sergiolopez.voicecalltranslator.feature.common.domain.usecase.GetLanguageOptionUseCase
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
@@ -73,9 +72,7 @@ class FirebaseService : Service() {
                 user?.let {
                     startWebRtcManager(
                         user = it,
-                        // TODO : Default value responsibility?
-                        language = getLanguageOptionUseCase.invoke(it.id)?.name
-                            ?: LanguageOption.ENGLISH.name
+                        language = getLanguageOptionUseCase.invoke(it.id).name
                     )
                 }
             }

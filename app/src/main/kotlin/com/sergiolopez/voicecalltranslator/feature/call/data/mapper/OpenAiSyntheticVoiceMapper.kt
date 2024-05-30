@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class OpenAiSyntheticVoiceMapper @Inject constructor() {
 
-    fun mapUserDatabaseToUserData(syntheticVoiceOption: SyntheticVoiceOption?): OpenAiSyntheticVoice {
+    fun mapSyntheticVoiceOptionToOpenAiSyntheticVoice(syntheticVoiceOption: SyntheticVoiceOption?): OpenAiSyntheticVoice {
         return when (syntheticVoiceOption) {
             SyntheticVoiceOption.MALE -> OpenAiSyntheticVoice.MALE_ONYX
             SyntheticVoiceOption.FEMALE -> OpenAiSyntheticVoice.FEMALE_ALOY

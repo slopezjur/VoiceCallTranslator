@@ -7,14 +7,14 @@ androidxTestExt = "1.1.5"
 androidxTestRules = "1.5.0"
 androidxTestRunner = "1.5.2"
 agp = "8.3.2"
-appcompat = "1.6.1"
+appcompat = "1.7.0"
 composeBom = "2024.05.00"
 composeMaterial3 = "1.2.1"
 coreKtx = "1.13.1"
 datastorePreferences = "1.1.1"
 espressoCore = "3.5.1"
-firebaseBom = "33.0.0"
-googleServices = "4.4.1"
+firebaseBom = "33.1.0"
+googleServices = "4.4.2"
 hiltNavigation = "1.2.0"
 hiltVersion = "2.51.1"
 kotlin = "1.9.23"
@@ -54,6 +54,7 @@ firebase-database-ktx = { group = "com.google.firebase", name = "firebase-databa
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion"}
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }

@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 enum class CallDataModelType {
-    StartAudioCall, Offer, Answer, IceCandidates, EndCall
+    StartAudioCall, Offer, Answer, IceCandidates, Message, EndCall
 }
 
 @Parcelize
@@ -16,5 +16,6 @@ data class CallDataModel(
     val data: String? = null,
     val type: CallDataModelType,
     val language: String,
+    val message: String? = null,
     val timeStamp: Long = System.currentTimeMillis()
 ) : Parcelable

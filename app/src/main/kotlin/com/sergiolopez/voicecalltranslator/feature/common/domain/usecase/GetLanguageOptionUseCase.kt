@@ -7,9 +7,10 @@ import javax.inject.Inject
 class GetLanguageOptionUseCase @Inject constructor(
     private val accountSettingsDataStore: AccountSettingsDataStore
 ) {
-    suspend fun invoke(userId: String): LanguageOption? {
+    suspend fun invoke(userId: String): LanguageOption {
         return accountSettingsDataStore.getAccountSettings(
             userId = userId
-        )?.languageOption
+            // TODO : Default value responsibility?
+        )?.languageOption ?: LanguageOption.ENGLISH
     }
 }

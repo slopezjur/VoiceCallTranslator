@@ -5,7 +5,9 @@ import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.brid
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
+import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastMessageFromCallUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastTranscriptionMessageUseCase
+import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +19,9 @@ import javax.inject.Inject
 @HiltViewModel
 class CallViewModel @Inject constructor(
     private val webRtcRepository: WebRtcRepository,
-    private val getLastTranscriptionMessageUseCase: GetLastTranscriptionMessageUseCase
+    private val getLastTranscriptionMessageUseCase: GetLastTranscriptionMessageUseCase,
+    private val getLastMessageFromCallUseCase: GetLastMessageFromCallUseCase,
+    private val firebaseAuthRepository: FirebaseAuthRepository
 ) : VoiceCallTranslatorViewModel() {
 
     private val _callState = MutableStateFlow<Call>(Call.CallNoData)
@@ -33,11 +37,12 @@ class CallViewModel @Inject constructor(
         get() = _messageQueueState.asStateFlow()
 
     init {
-        subscribeCallState()
-        subscribeConversationState()
+        subscribeToCallState()
+        subscribeToTranscriptionState()
+        subscribeToTranslationFromCallState()
     }
 
-    private fun subscribeCallState() {
+    private fun subscribeToCallState() {
         launchCatching {
             webRtcRepository.currentCall.collect { call ->
                 _callState.value = call
@@ -49,19 +54,37 @@ class CallViewModel @Inject constructor(
         }
     }
 
-    private fun subscribeConversationState() {
+    private fun subscribeToTranscriptionState() {
         launchCatching {
             getLastTranscriptionMessageUseCase.invoke().collect { message ->
-                val updatedQueue = LinkedList(_messageQueueState.value).apply {
-                    add(message)
-                    // NOTE: Add limit to control resources?
-                    if (size > CHAT_MESSAGE_HISTORY_LIMIT) {
-                        pop()
-                    }
-                }
-                _messageQueueState.value = updatedQueue
+                updateQueueStatus(message)
             }
         }
+    }
+
+    private fun subscribeToTranslationFromCallState() {
+        launchCatching {
+            firebaseAuthRepository.currentUser.value?.id?.let { userId ->
+                getLastMessageFromCallUseCase.invoke(
+                    userId
+                ).onSuccess {
+                    it.collect { message ->
+                        updateQueueStatus(message)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateQueueStatus(message: Message) {
+        val updatedQueue = LinkedList(_messageQueueState.value).apply {
+            add(message)
+            // NOTE: Add limit to control resources?
+            if (size > CHAT_MESSAGE_HISTORY_LIMIT) {
+                pop()
+            }
+        }
+        _messageQueueState.value = updatedQueue
     }
 
     fun sendConnectionRequest(calleeId: String) {
@@ -88,6 +111,7 @@ class CallViewModel @Inject constructor(
     }
 
     fun sendEndCall() {
+        _messageQueueState.value = LinkedList()
         if (_callState.value is Call.CallData) {
             val callData = (_callState.value as Call.CallData)
             webRtcRepository.sendEndCall(

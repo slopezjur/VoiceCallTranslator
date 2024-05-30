@@ -3,7 +3,6 @@ package com.sergiolopez.voicecalltranslator.feature.common.data.repository
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
 import com.google.firebase.database.snapshots
-import com.sergiolopez.voicecalltranslator.feature.call.data.CallDatabase
 import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModel
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.common.data.mapper.FirebaseRepositoryMapper
@@ -51,21 +50,6 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
-    fun getIncomingCalls(calleeId: String): Result<Flow<List<Call.CallData>>> {
-        return runCatching {
-            vctDatabase.child(CALLS_TABLE_NAME).orderByChild(FIELD_CALLEE_ID).equalTo(calleeId)
-                .snapshots.mapNotNull { dataSnapshot ->
-                    dataSnapshot.children.mapNotNull {
-                        it.getValue<CallDatabase>()?.let { call ->
-                            firebaseRepositoryMapper.mapCallDatabaseToCall(call)
-                        }
-                    }.sortedByDescending {
-                        it.timestamp
-                    }
-                }
-        }
-    }
-
     suspend fun sendConnectionUpdate(call: CallDataModel) {
         runCatching {
             //al callData = firebaseRepositoryMapper.mapCallToCallDatabase(call)
@@ -108,11 +92,21 @@ class FirebaseDatabaseRepository @Inject constructor(
         }
     }
 
+    fun getLastMessage(userId: String): Result<Flow<String>> {
+        return runCatching {
+            vctDatabase.child(CALLS_TABLE_NAME).child(userId).child(LATEST_EVENT)
+                .snapshots.mapNotNull { dataSnapshot ->
+                    dataSnapshot.getValue<String>()?.let { jsonString ->
+                        Json.decodeFromString(CallDataModel.serializer(), jsonString)
+                    }?.message
+                }
+        }
+    }
+
     companion object {
         const val DATABASE_NAME = "vct"
         const val USERS_TABLE_NAME = "users"
         const val CALLS_TABLE_NAME = "calls"
-        const val FIELD_CALLEE_ID = "calleeId"
 
         const val LATEST_EVENT = "latest_event"
     }

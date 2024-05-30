@@ -44,14 +44,24 @@ class MagicAudioProcessor @Inject constructor(
         this.scope = scope
     }
 
-    fun initialize() {
+    fun initialize(userId: String) {
         scope.launch {
-            magicAudioRepository.initializeMagicCreator()
+            magicAudioRepository.initializeSyntheticVoice(
+                userId = userId
+            )
+        }
+        scope.launch {
+            magicAudioRepository.initializeLanguageOption(
+                userId = userId
+            )
         }
     }
 
-    fun setIsMagicNeeded(isMagicNeeded: Boolean) {
+    fun setIsMagicNeeded(isMagicNeeded: Boolean, targetLanguage: String) {
         this.isMagicNeeded = isMagicNeeded
+        magicAudioRepository.setTargetLanguage(
+            targetLanguage = targetLanguage
+        )
     }
 
     fun cleanResources() {
@@ -174,7 +184,7 @@ class MagicAudioProcessor @Inject constructor(
 
                 Log.d(VCT_MAGIC, "containsKnownHallucination: $containsKnownHallucination")
 
-                if (!containsKnownHallucination) {
+                if (!containsKnownHallucination && audioTranscription.isNotBlank()) {
                     updateCallTranscriptionHistory(
                         audioTranscription = audioTranscription
                     )
@@ -252,7 +262,7 @@ class MagicAudioProcessor @Inject constructor(
         return audioTranscription
     }
 
-    private suspend fun updateCallTranscriptionHistory(
+    private fun updateCallTranscriptionHistory(
         audioTranscription: String
     ) {
         magicAudioRepository.updateCallTranscriptionHistory(

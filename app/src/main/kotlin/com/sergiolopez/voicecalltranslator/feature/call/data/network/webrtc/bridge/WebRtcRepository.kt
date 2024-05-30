@@ -8,6 +8,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.ClearCallUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnectionUpdateUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastTranslationMessageUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +31,8 @@ class WebRtcRepository @Inject constructor(
     private val webRtcClient: WebRtcClient,
     private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
     private val getConnectionUpdateUseCase: GetConnectionUpdateUseCase,
-    private val clearCallUseCase: ClearCallUseCase
+    private val clearCallUseCase: ClearCallUseCase,
+    private val getLastTranslationMessageUseCase: GetLastTranslationMessageUseCase
 ) {
     // Keeps track of the current Call state
     private var _currentCall: MutableStateFlow<Call> = MutableStateFlow(Call.CallNoData)
@@ -46,6 +48,7 @@ class WebRtcRepository @Inject constructor(
 
     fun initWebrtcClient(username: String, language: String) {
         this.language = language
+        subscribeToTranslationState()
         webRtcClient.setScope(scope = scope)
         webRtcClient.initializeWebrtcClient(
             username = username,
@@ -246,6 +249,22 @@ class WebRtcRepository @Inject constructor(
             _currentCall.value = (_currentCall.value as Call.CallData).copy(
                 callStatus = callStatus
             )
+        }
+    }
+
+    private fun subscribeToTranslationState() {
+        scope.launch {
+            getLastTranslationMessageUseCase.invoke().collect { message ->
+                onTransferEventToSocket(
+                    CallDataModel(
+                        sender = userId,
+                        target = target,
+                        type = CallDataModelType.Message,
+                        language = language,
+                        message = message
+                    )
+                )
+            }
         }
     }
 }
