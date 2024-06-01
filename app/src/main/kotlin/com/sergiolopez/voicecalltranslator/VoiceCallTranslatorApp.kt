@@ -52,7 +52,6 @@ fun VoiceCallTranslatorApp(
             notesGraph(
                 navigationState = navigationState,
                 restartFirebaseService = restartFirebaseService,
-                navigationCallExtra = navigationCallExtra,
                 themeConfiguration = themeConfiguration
             )
         }
@@ -70,7 +69,6 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
 fun NavGraphBuilder.notesGraph(
     navigationState: NavigationState,
     restartFirebaseService: () -> Unit,
-    navigationCallExtra: NavigationCallExtra,
     themeConfiguration: (ThemeOption) -> Unit
 ) {
     composable(NavigationAction.SplashNavigation.route) {
@@ -130,7 +128,6 @@ fun NavGraphBuilder.notesGraph(
                 )
             },
             calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID,
-            navigationCallExtra = navigationCallExtra,
             restartFirebaseService = restartFirebaseService
         )
     }

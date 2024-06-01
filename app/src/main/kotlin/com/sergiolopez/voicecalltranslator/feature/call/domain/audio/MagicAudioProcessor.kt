@@ -197,7 +197,7 @@ class MagicAudioProcessor @Inject constructor(
                         null
                     }
 
-                    /*val byteArraySpeech = translatedText?.let {
+                    val byteArraySpeech = translatedText?.let {
                         if (it.isNotBlank()) {
                             getAudioSpeech(
                                 translatedText = it
@@ -213,19 +213,20 @@ class MagicAudioProcessor @Inject constructor(
                             bufferMiddleQueue = bufferMiddleQueue
                         )
                         // Testing purpose
-                        createWavFileFromByteArray(
+                        /*createWavFileFromByteArray(
                             it, createOutputFile(
                                 context = context,
                                 nameFile = buildNameFile(
                                     fileIdentifier = fileIdentifier
                                 )
                             )
-                        )
-                    }*/
+                        )*/
+                    }
                 }
 
                 fileIdentifier++
 
+                // Uncomment to keep user recordings
                 deleteFile(filePath = outputFile.path)
             }
         }

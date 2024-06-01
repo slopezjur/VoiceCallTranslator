@@ -21,7 +21,6 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
-import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
@@ -31,7 +30,6 @@ import kotlinx.coroutines.delay
 fun CallScreen(
     navigateAndPopUp: (NavigationParams) -> Unit,
     calleeId: String,
-    navigationCallExtra: NavigationCallExtra,
     restartFirebaseService: () -> Unit,
     callViewModel: CallViewModel = hiltViewModel()
 ) {

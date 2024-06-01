@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.sergiolopez.voicecalltranslator.VoiceCallTranslatorActivity
 import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.WebRtcRepository
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
@@ -41,6 +42,7 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
                         webRtcRepository.setTarget(target = callData.callerId)
                         webRtcRepository.startCall(callData = callData)
                         CallNotificationManager(context).updateCallNotification(callData)
+                        startVoiceCallTranslator(context, callData)
                     }
 
                     CallNotificationAction.Disconnect -> {
@@ -51,6 +53,21 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
                 }
             }
         }
+    }
+
+    private fun startVoiceCallTranslator(
+        context: Context,
+        callData: Call.CallData
+    ) {
+        context.startActivity(
+            Intent(context, VoiceCallTranslatorActivity::class.java).apply {
+                putExtra(
+                    VoiceCallTranslatorActivity.CALL_DATA_FROM_NOTIFICATION,
+                    Json.encodeToString(Call.CallData.serializer(), callData)
+                )
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        )
     }
 
     private fun Intent.getCallData(): Call.CallData? {
