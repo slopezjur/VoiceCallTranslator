@@ -2,6 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc
 
 import android.content.Context
 import android.util.Log
+import com.sergiolopez.voicecalltranslator.VctApiKeys
 import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModel
 import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModelType
 import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.MagicAudioProcessor
@@ -37,24 +38,6 @@ class WebRtcClient @Inject constructor(
         createPeerConnectionFactory()
     }
     private var peerConnection: PeerConnection? = null
-    private val iceServer = listOf(
-        PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
-            .createIceServer(),
-        PeerConnection.IceServer.builder("stun:stun.relay.metered.ca:80")
-            .createIceServer(),
-        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:80")
-            .setUsername("cb206d600f88b1849b99f06c")
-            .setPassword("UflvJt/7UzWqVPF1").createIceServer(),
-        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:80?transport=tcp")
-            .setUsername("cb206d600f88b1849b99f06c")
-            .setPassword("UflvJt/7UzWqVPF1").createIceServer(),
-        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:443")
-            .setUsername("cb206d600f88b1849b99f06c")
-            .setPassword("UflvJt/7UzWqVPF1").createIceServer(),
-        PeerConnection.IceServer.builder("turns:global.relay.metered.ca:443?transport=tcp")
-            .setUsername("cb206d600f88b1849b99f06c")
-            .setPassword("UflvJt/7UzWqVPF1").createIceServer()
-    )
     private val localAudioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints()) }
     private val mediaConstraint = MediaConstraints().apply {
         mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
@@ -121,8 +104,8 @@ class WebRtcClient @Inject constructor(
     }
 
     private fun createPeerConnection(observer: PeerConnection.Observer): PeerConnection? {
-        Log.d("$VCT_LOGS createPeerConnection", iceServer.toString())
-        return peerConnectionFactory.createPeerConnection(iceServer, observer)
+        Log.d("$VCT_LOGS createPeerConnection", VctApiKeys.ICE_SERVERS.toString())
+        return peerConnectionFactory.createPeerConnection(VctApiKeys.ICE_SERVERS, observer)
     }
 
     //negotiation section
