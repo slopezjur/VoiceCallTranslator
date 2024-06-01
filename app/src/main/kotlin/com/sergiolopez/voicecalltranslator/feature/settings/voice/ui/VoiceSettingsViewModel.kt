@@ -5,6 +5,8 @@ import com.sergiolopez.voicecalltranslator.feature.common.data.repository.Fireba
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.data.datastore.VoiceSettingsDataStore
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.SyntheticVoiceOption
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.domain.model.VoiceSettingsData
+import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
+import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -74,5 +76,15 @@ class VoiceSettingsViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun continueAction(navigateAndPopUp: (NavigationParams) -> Unit) {
+        setVoiceSettings()
+        navigateAndPopUp(
+            NavigationParams(
+                route = NavigationRoute.CONTACT_LIST.navigationName,
+                popUp = NavigationRoute.VOICE_SETTINGS.navigationName
+            )
+        )
     }
 }

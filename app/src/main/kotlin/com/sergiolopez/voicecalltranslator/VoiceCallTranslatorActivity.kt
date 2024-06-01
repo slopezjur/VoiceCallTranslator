@@ -18,10 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.getSystemService
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
+import com.sergiolopez.voicecalltranslator.feature.call.ui.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseService
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
-import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorTheme
 import dagger.hilt.android.AndroidEntryPoint

@@ -11,6 +11,7 @@ import com.sergiolopez.voicecalltranslator.feature.common.utils.LocaleProvider
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.usecase.RemoveAccountSettingsUseCase
+import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,7 +72,7 @@ class AccountSettingsViewModel @Inject constructor(
         setAccountSettings()
         navigateAndPopUp(
             NavigationParams(
-                route = NavigationRoute.CONTACT_LIST.navigationName,
+                route = "${NavigationRoute.VOICE_SETTINGS.navigationName}?$FIRST_START_UP=${true}",
                 popUp = NavigationRoute.ACCOUNT_SETTINGS.navigationName
             )
         )

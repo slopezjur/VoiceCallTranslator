@@ -12,11 +12,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.sergiolopez.voicecalltranslator.feature.call.ui.CallScreen
+import com.sergiolopez.voicecalltranslator.feature.call.ui.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.feature.contactlist.ui.ContactListScreen
 import com.sergiolopez.voicecalltranslator.feature.login.ui.LoginScreen
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 import com.sergiolopez.voicecalltranslator.feature.settings.account.ui.AccountSettingsScreen
+import com.sergiolopez.voicecalltranslator.feature.settings.account.ui.navigation.NavigationAccountSettings
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.VoiceSettingsScreen
+import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.navigation.NavigationVoiceSettings
 import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
 import com.sergiolopez.voicecalltranslator.feature.splash.ui.SplashScreen
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
@@ -25,9 +28,7 @@ import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID_ARG
 import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP
 import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP_ARG
 import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP_DEFAULT_VALUE
-import com.sergiolopez.voicecalltranslator.navigation.NavigationAccountSettings
 import com.sergiolopez.voicecalltranslator.navigation.NavigationAction
-import com.sergiolopez.voicecalltranslator.navigation.NavigationCallExtra
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
 import com.sergiolopez.voicecalltranslator.navigation.NavigationState
 
@@ -132,19 +133,34 @@ fun NavGraphBuilder.notesGraph(
         )
     }
 
-    composable(NavigationAction.VoiceSettingsNavigation.route) {
-        VoiceSettingsScreen(
-            navigateAndPopUp = {
-                navigationState.popBackStack()
+    composable(
+        route = "${NavigationAction.VoiceSettingsNavigation.route}$FIRST_START_UP_ARG",
+        arguments = listOf(
+            navArgument(FIRST_START_UP) {
+                defaultValue = FIRST_START_UP_DEFAULT_VALUE
             }
+        )
+    ) {
+        VoiceSettingsScreen(
+            navigationVoiceSettings = NavigationVoiceSettings(
+                navigatePopBackStack = { navigationState.popBackStack() },
+                clearAndNavigate = { navigationParams ->
+                    navigationState.clearAndNavigate(
+                        route = navigationParams.route
+                    )
+                }
+            ),
+            firstStartUp = it.arguments?.getBoolean(FIRST_START_UP) ?: FIRST_START_UP_DEFAULT_VALUE,
         )
     }
 
     composable(
         route = "${NavigationAction.AccountSettingsNavigation.route}$FIRST_START_UP_ARG",
-        arguments = listOf(navArgument(FIRST_START_UP) {
-            defaultValue = FIRST_START_UP_DEFAULT_VALUE
-        })
+        arguments = listOf(
+            navArgument(FIRST_START_UP) {
+                defaultValue = FIRST_START_UP_DEFAULT_VALUE
+            }
+        )
     ) {
         AccountSettingsScreen(
             navigationAccountSettings = NavigationAccountSettings(
