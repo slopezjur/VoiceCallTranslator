@@ -144,7 +144,7 @@ fun CallScreenContent(
                         }
                     }
                 },
-                messages = emptyList()
+                messages = messages
             )
         }
     }
