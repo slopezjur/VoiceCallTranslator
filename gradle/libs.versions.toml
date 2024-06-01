@@ -25,6 +25,7 @@ mockk = "1.13.10"
 navigationCompose = "2.7.7"
 openAi = "3.7.2"
 serialization = "1.6.3"
+streamWebRtc = "1.1.2"
 webRtc = "1.0.32006"
 
 [libraries]
@@ -66,6 +67,7 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-common"
 openai-client = { group = "com.aallam.openai", name = "openai-client" }
 openai-client-bom = { group = "com.aallam.openai", name = "openai-client-bom", version.ref = "openAi" }
 #web-rtc = { group = "org.webrtc", name = "google-webrtc", version.ref = "webRtc" }
+stream-webrtc-android = { group = "io.getstream", name = "stream-webrtc-android", version.ref = "streamWebRtc" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

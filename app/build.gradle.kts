@@ -84,6 +84,7 @@ dependencies {
     implementation(openAiBom)
     implementation(libs.openai.client)
     //implementation(libs.web.rtc)
+    implementation(libs.stream.webrtc.android)
 
     runtimeOnly(libs.ktor.client.okhttp)
 
