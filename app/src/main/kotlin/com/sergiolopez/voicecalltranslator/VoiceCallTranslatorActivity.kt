@@ -51,7 +51,6 @@ class VoiceCallTranslatorActivity : AppCompatActivity() {
         }
 
         setContent {
-            // TODO : To update the device Theme will overwrite User configuration...
             var themeOption by remember { mutableStateOf(ThemeOption.SYSTEM) }
             val themeConfiguration: (ThemeOption) -> Unit = {
                 themeOption = it
@@ -131,7 +130,7 @@ class VoiceCallTranslatorActivity : AppCompatActivity() {
 
         permissions.add(Manifest.permission.MANAGE_OWN_CALLS)
 
-        // To show call notifications we need permissions since Android 13
+        // To show call notification we need permissions since Android 13
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -149,7 +148,6 @@ class VoiceCallTranslatorActivity : AppCompatActivity() {
 
     companion object {
         const val CALL_DATA_FROM_NOTIFICATION = "call_data_from_notification"
-        const val APP_ALREADY_RUNNING = "APP_ALREADY_RUNNING"
     }
 }
 

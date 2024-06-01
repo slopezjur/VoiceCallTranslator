@@ -40,7 +40,6 @@ internal fun VoiceTrainingView(
 
         Button(
             onClick = {
-                // TODO : start voice training flow
                 setVoiceTrainingCompleted.invoke(!voiceTrainingCompleted)
             },
             modifier = modifier.fillMaxWidth()

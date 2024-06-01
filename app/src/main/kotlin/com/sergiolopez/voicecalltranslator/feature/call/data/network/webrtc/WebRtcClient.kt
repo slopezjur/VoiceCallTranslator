@@ -156,7 +156,6 @@ class WebRtcClient @Inject constructor(
                                 data = desc?.description,
                                 language = language
                             )
-                            // TODO : Update Firebase with the Answer
                             onTransferEventToSocket(
                                 callDataModel
                             )
@@ -236,8 +235,6 @@ class WebRtcClient @Inject constructor(
     }
 
     fun startLocalStreaming() {
-        // TODO : java.lang.IllegalStateException: C++ addTrack failed.
-        // Fails when try to add a new tracker after a previous call
         try {
             localAudioTrack =
                 peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)

@@ -143,15 +143,6 @@ class CallNotificationManager(private val context: Context) {
             .setOngoing(true)
             .setStyle(callStyle)
 
-        // TODO figure out why custom actions are not working
-        /*if (call.isOnHold) {
-            builder.addAction(
-                R.drawable.ic_phone_paused_24, "Resume",
-                getPendingIntent(
-                    TelecomCallAction.Activate,
-                ),
-            )
-        }*/
         return builder.build()
     }
 

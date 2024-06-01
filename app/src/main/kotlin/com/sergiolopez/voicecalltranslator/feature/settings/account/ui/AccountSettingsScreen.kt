@@ -12,6 +12,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,18 +39,24 @@ fun AccountSettingsScreen(
     firstStartUp: Boolean,
     accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel()
 ) {
+    val accountSettingsDataState by accountSettingsViewModel.accountSettingsDataState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(accountSettingsDataState) {
+        // NOTE : After updating the Locale, we have to reload the them with the User option
+        navigationAccountSettings.setThemeConfiguration.invoke(accountSettingsDataState.themeOption)
+    }
+
     AccountSettingsScreenContent(
         navigatePopBackStack = navigationAccountSettings.navigatePopBackStack,
         languageDropDownExpanded = false,
         themeDropDownExpanded = false,
-        accountSettingsData = accountSettingsViewModel.accountSettingsDataState.collectAsStateWithLifecycle().value,
+        accountSettingsData = accountSettingsDataState,
         accountSettingsAction = AccountSettingsActions(
             setLanguage = {
                 accountSettingsViewModel.setLanguage(it)
             },
             setTheme = {
                 accountSettingsViewModel.setTheme(it)
-                navigationAccountSettings.setThemeConfiguration.invoke(it)
             },
             continueAction = {
                 accountSettingsViewModel.continueAction(
