@@ -11,6 +11,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnec
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastTranslationMessageUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,8 +41,8 @@ class WebRtcRepository @Inject constructor(
     val currentCall: StateFlow<Call>
         get() = _currentCall.asStateFlow()
 
-    private lateinit var userId: String
-    private lateinit var target: String
+    private lateinit var currentUserContact: Contact
+    private lateinit var targetUserContact: Contact
     private lateinit var language: String
     private lateinit var startFirebaseService: () -> Unit
 
@@ -66,7 +67,7 @@ class WebRtcRepository @Inject constructor(
                         super.onIceCandidate(p0)
                         Log.d("$VCT_LOGS onIceCandidate", p0.toString())
                         p0?.let {
-                            webRtcClient.sendIceCandidate(target, it)
+                            webRtcClient.sendIceCandidate(targetUserContact, it)
                         }
                     }
 
@@ -101,14 +102,14 @@ class WebRtcRepository @Inject constructor(
         }
     }
 
-    fun initFirebase(userId: String, scope: CoroutineScope, startFirebaseService: () -> Unit) {
-        Log.d("$VCT_LOGS initFirebase: ", userId)
-        this.userId = userId
+    fun initFirebase(contact: Contact, scope: CoroutineScope, startFirebaseService: () -> Unit) {
+        Log.d("$VCT_LOGS initFirebase: ", contact.toString())
+        this.currentUserContact = contact
         this.startFirebaseService = startFirebaseService
         if (this.scope == null || !scope.isActive) {
             this.scope = scope
             this.scope?.launch {
-                val result = getConnectionUpdateUseCase.invoke(userId)
+                val result = getConnectionUpdateUseCase.invoke(contact.id)
                 result.onSuccess {
                     it.collect { callDataModel ->
                         when (callDataModel.type) {
@@ -121,13 +122,18 @@ class WebRtcRepository @Inject constructor(
                                 )
                                 try {
                                     webRtcClient.answer(
-                                        target = target,
+                                        targetUserContact = targetUserContact,
                                         targetLanguage = callDataModel.language
                                     )
                                     updateCallStatus(CallStatus.ANSWERING)
                                 } catch (exception: Exception) {
                                     callDataModel.sender?.let { sender ->
-                                        sendEndCall(sender)
+                                        sendEndCall(
+                                            targetContact = Contact(
+                                                id = sender,
+                                                email = callDataModel.senderEmail ?: ""
+                                            )
+                                        )
                                     }
                                 }
                             }
@@ -169,24 +175,28 @@ class WebRtcRepository @Inject constructor(
         _currentCall.value = newCallData
     }
 
-    fun setTarget(target: String) {
-        this.target = target
+    fun setTargetContact(targetUserContact: Contact) {
+        this.targetUserContact = targetUserContact
     }
 
     fun sendConnectionRequest(
-        target: String,
+        targetContact: Contact,
     ) {
-        this.target = target
+        this.targetUserContact = targetContact
         val callDataModel = CallDataModel(
-            sender = userId,
-            target = target,
+            sender = this.currentUserContact.id,
+            senderEmail = this.currentUserContact.email,
+            target = targetUserContact.id,
+            targetEmail = targetUserContact.email,
             type = CallDataModelType.StartAudioCall,
             language = language
         )
 
         _currentCall.value = Call.CallData(
-            callerId = userId,
-            calleeId = target,
+            callerId = this.currentUserContact.id,
+            callerEmail = this.currentUserContact.email,
+            calleeId = targetUserContact.id,
+            calleeEmail = targetUserContact.email,
             offerData = "",
             isIncoming = false,
             callStatus = CallStatus.CALLING,
@@ -209,21 +219,17 @@ class WebRtcRepository @Inject constructor(
             callStatus = CallStatus.ANSWERING
         )
         webRtcClient.call(
-            target = target,
+            targetUserContact = targetUserContact,
             targetLanguage = callData.language
         )
     }
 
-    /*private fun endCall(target: String) {
-        webRTCClient.closeConnection()
-        clearCall(userId = target)
-    }*/
-
-    fun sendEndCall(target: String) {
+    fun sendEndCall(targetContact: Contact) {
         onTransferEventToSocket(
             CallDataModel(
+                target = targetContact.id,
+                targetEmail = targetContact.email,
                 type = CallDataModelType.EndCall,
-                target = target,
                 language = language
             )
         )
@@ -256,7 +262,7 @@ class WebRtcRepository @Inject constructor(
 
     private fun clearCall() {
         scope?.launch {
-            clearCallUseCase.invoke(userId)
+            clearCallUseCase.invoke(currentUserContact.id)
         }
     }
 
@@ -273,8 +279,10 @@ class WebRtcRepository @Inject constructor(
             getLastTranslationMessageUseCase.invoke().collect { message ->
                 onTransferEventToSocket(
                     CallDataModel(
-                        sender = userId,
-                        target = target,
+                        sender = currentUserContact.id,
+                        senderEmail = currentUserContact.email,
+                        target = targetUserContact.id,
+                        targetEmail = targetUserContact.email,
                         type = CallDataModelType.Message,
                         language = language,
                         message = message

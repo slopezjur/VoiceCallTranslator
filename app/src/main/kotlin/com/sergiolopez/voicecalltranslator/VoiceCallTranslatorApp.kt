@@ -23,9 +23,11 @@ import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.VoiceSettin
 import com.sergiolopez.voicecalltranslator.feature.settings.voice.ui.navigation.NavigationVoiceSettings
 import com.sergiolopez.voicecalltranslator.feature.signup.ui.SignUpScreen
 import com.sergiolopez.voicecalltranslator.feature.splash.ui.SplashScreen
+import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_EMAIL
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
+import com.sergiolopez.voicecalltranslator.navigation.CALLEE_EMAIL
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
-import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID_ARG
+import com.sergiolopez.voicecalltranslator.navigation.CONTACT_ARG
 import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP
 import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP_ARG
 import com.sergiolopez.voicecalltranslator.navigation.FIRST_START_UP_DEFAULT_VALUE
@@ -117,8 +119,11 @@ fun NavGraphBuilder.notesGraph(
     }
 
     composable(
-        route = "${NavigationAction.CallNavigation.route}$CALLEE_ID_ARG",
-        arguments = listOf(navArgument(CALLEE_ID) { defaultValue = CALLEE_DEFAULT_ID })
+        route = "${NavigationAction.CallNavigation.route}$CONTACT_ARG",
+        arguments = listOf(
+            navArgument(CALLEE_ID) { defaultValue = CALLEE_DEFAULT_ID },
+            navArgument(CALLEE_EMAIL) { defaultValue = CALLEE_DEFAULT_EMAIL },
+        )
     ) {
         BackHandler(true) {
             // DO NOTHING
@@ -130,7 +135,8 @@ fun NavGraphBuilder.notesGraph(
                     navigationParams = navigationParams
                 )
             },
-            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID
+            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID,
+            calleeEmail = it.arguments?.getString(CALLEE_EMAIL) ?: CALLEE_DEFAULT_EMAIL
         )
     }
 

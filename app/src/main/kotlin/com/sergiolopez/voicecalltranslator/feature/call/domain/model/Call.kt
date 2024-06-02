@@ -14,7 +14,9 @@ sealed class Call : Parcelable {
     @Parcelize
     data class CallData(
         val callerId: String,
+        val callerEmail: String,
         val calleeId: String,
+        val calleeEmail: String,
         val offerData: String,
         val isIncoming: Boolean,
         val callStatus: CallStatus,

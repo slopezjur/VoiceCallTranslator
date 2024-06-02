@@ -8,6 +8,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastMessageFromCallUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastTranscriptionMessageUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -87,10 +88,10 @@ class CallViewModel @Inject constructor(
         _messageQueueState.value = updatedQueue
     }
 
-    fun sendConnectionRequest(calleeId: String) {
+    fun sendConnectionRequest(targetContact: Contact) {
         launchCatching {
             webRtcRepository.sendConnectionRequest(
-                target = calleeId
+                targetContact = targetContact
             )
         }
     }
@@ -99,11 +100,21 @@ class CallViewModel @Inject constructor(
         if (_callState.value is Call.CallData) {
             val callData = _callState.value as Call.CallData
             if (callData.isIncoming && callData.callStatus == CallStatus.INCOMING_CALL) {
-                webRtcRepository.setTarget(callData.callerId)
+                webRtcRepository.setTargetContact(
+                    Contact(
+                        id = callData.callerId,
+                        email = callData.callerEmail
+                    )
+                )
                 webRtcRepository.startCall(callData = callData)
             } else {
                 // TODO : This is necessary?
-                webRtcRepository.setTarget(callData.calleeId)
+                webRtcRepository.setTargetContact(
+                    Contact(
+                        id = callData.calleeId,
+                        email = callData.calleeEmail
+                    )
+                )
             }
 
             //setCallUiState(CallUiState.CALL_IN_PROGRESS)
@@ -115,10 +126,16 @@ class CallViewModel @Inject constructor(
         if (_callState.value is Call.CallData) {
             val callData = (_callState.value as Call.CallData)
             webRtcRepository.sendEndCall(
-                target = if (callData.isIncoming) {
-                    callData.callerId
+                targetContact = if (callData.isIncoming) {
+                    Contact(
+                        id = callData.callerId,
+                        email = callData.callerEmail
+                    )
                 } else {
-                    callData.calleeId
+                    Contact(
+                        id = callData.calleeId,
+                        email = callData.calleeEmail
+                    )
                 }
             )
         }

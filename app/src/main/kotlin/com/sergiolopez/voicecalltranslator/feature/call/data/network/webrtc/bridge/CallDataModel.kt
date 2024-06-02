@@ -12,7 +12,9 @@ enum class CallDataModelType {
 @Serializable
 data class CallDataModel(
     val sender: String? = null,
+    val senderEmail: String? = null,
     val target: String,
+    val targetEmail: String,
     val data: String? = null,
     val type: CallDataModelType,
     val language: String,

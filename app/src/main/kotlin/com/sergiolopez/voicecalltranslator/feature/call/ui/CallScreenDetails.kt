@@ -50,9 +50,9 @@ internal fun CallScreenDetails(
         CallScreenDetailsContent(
             modifier = modifier,
             name = if (call.isIncoming) {
-                call.calleeId
+                call.callerEmail
             } else {
-                call.callerId
+                call.calleeEmail
             },
             incoming = call.isIncoming,
             callUiState = callUiState,
@@ -219,8 +219,10 @@ fun CallScreenDetailsIncomingCallStartingPreview() {
             modifier = Modifier,
             callUiState = CallStatus.STARTING,
             call = Call.CallData(
-                callerId = "slopezjur@uoc.edu",
+                callerId = "123456",
+                callerEmail = "slopezjur@uoc.edu",
                 calleeId = "",
+                calleeEmail = "test@test.com",
                 isIncoming = true,
                 callStatus = CallStatus.INCOMING_CALL,
                 offerData = "offer",
@@ -241,8 +243,10 @@ fun CallScreenDetailsIncomingCallInProgressPreview() {
             modifier = Modifier,
             callUiState = CallStatus.CALL_IN_PROGRESS,
             call = Call.CallData(
-                callerId = "slopezjur@uoc.edu",
+                callerId = "123456",
+                callerEmail = "slopezjur@uoc.edu",
                 calleeId = "",
+                calleeEmail = "test@test.com",
                 isIncoming = true,
                 callStatus = CallStatus.INCOMING_CALL,
                 offerData = "offer",
@@ -263,8 +267,10 @@ fun CallScreenDetailsStartingPreview() {
             modifier = Modifier,
             callUiState = CallStatus.STARTING,
             call = Call.CallData(
-                callerId = "slopezjur@uoc.edu",
+                callerId = "123456",
+                callerEmail = "slopezjur@uoc.edu",
                 calleeId = "",
+                calleeEmail = "test@test.com",
                 isIncoming = false,
                 callStatus = CallStatus.STARTING,
                 offerData = "offer",
@@ -285,8 +291,10 @@ fun CallScreenDetailsCallInProgressPreview() {
             modifier = Modifier,
             callUiState = CallStatus.CALL_IN_PROGRESS,
             call = Call.CallData(
-                callerId = "slopezjur@uoc.edu",
+                callerId = "123456",
+                callerEmail = "slopezjur@uoc.edu",
                 calleeId = "",
+                calleeEmail = "test@test.com",
                 isIncoming = false,
                 callStatus = CallStatus.CALL_IN_PROGRESS,
                 offerData = "offer",
@@ -307,8 +315,10 @@ fun CallScreenDetailsCallInProgressOneMessagesPreview() {
             modifier = Modifier,
             callUiState = CallStatus.CALL_IN_PROGRESS,
             call = Call.CallData(
-                callerId = "slopezjur@uoc.edu",
+                callerId = "123456",
+                callerEmail = "slopezjur@uoc.edu",
                 calleeId = "",
+                calleeEmail = "test@test.com",
                 isIncoming = true,
                 callStatus = CallStatus.INCOMING_CALL,
                 offerData = "offer",
@@ -329,8 +339,10 @@ fun CallScreenDetailsReconnectingPreview() {
             modifier = Modifier,
             callUiState = CallStatus.RECONNECTING,
             call = Call.CallData(
-                callerId = "slopezjur@uoc.edu",
+                callerId = "123456",
+                callerEmail = "slopezjur@uoc.edu",
                 calleeId = "",
+                calleeEmail = "test@test.com",
                 isIncoming = false,
                 callStatus = CallStatus.CALL_IN_PROGRESS,
                 offerData = "offer",

@@ -17,6 +17,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallAction
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_DEFAULT_ID
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -28,6 +29,7 @@ import kotlinx.coroutines.delay
 fun CallScreen(
     navigateAndPopUp: (NavigationParams) -> Unit,
     calleeId: String,
+    calleeEmail: String,
     callViewModel: CallViewModel = hiltViewModel()
 ) {
     val call = callViewModel.callState.collectAsStateWithLifecycle().value
@@ -36,7 +38,7 @@ fun CallScreen(
 
     val messageQueueState = callViewModel.messageQueueState.collectAsStateWithLifecycle().value
 
-    val sendConnectionRequest: (String) -> Unit = {
+    val sendConnectionRequest: (Contact) -> Unit = {
         callViewModel.sendConnectionRequest(it)
     }
 
@@ -64,6 +66,7 @@ fun CallScreen(
         navigateAndPopUp = navigateAndPopUp,
         callUiState = callUiState,
         calleeId = calleeId,
+        calleeEmail = calleeEmail,
         call = call,
         sendConnectionRequest = sendConnectionRequest,
         answerCall = answerCall,
@@ -80,8 +83,9 @@ fun CallScreenContent(
     navigateAndPopUp: (NavigationParams) -> Unit,
     callUiState: CallStatus,
     calleeId: String,
+    calleeEmail: String,
     call: Call,
-    sendConnectionRequest: (String) -> Unit,
+    sendConnectionRequest: (Contact) -> Unit,
     answerCall: () -> Unit,
     sendEndCall: () -> Unit,
     shouldBeMuted: (Boolean) -> Unit,
@@ -93,13 +97,23 @@ fun CallScreenContent(
             // TODO : Unnecessary now?
             is Call.CallData -> {
                 if (call.callStatus != CallStatus.CALL_IN_PROGRESS && !call.isIncoming) {
-                    sendConnectionRequest.invoke(call.calleeId)
+                    sendConnectionRequest.invoke(
+                        Contact(
+                            id = call.calleeId,
+                            email = call.calleeEmail
+                        )
+                    )
                 }
             }
 
             else -> {
                 if (calleeId != CALLEE_DEFAULT_ID) {
-                    sendConnectionRequest.invoke(calleeId)
+                    sendConnectionRequest.invoke(
+                        Contact(
+                            id = calleeId,
+                            email = calleeEmail
+                        )
+                    )
                 }
             }
         }
@@ -173,6 +187,7 @@ fun CallScreenPreview() {
             navigateAndPopUp = {},
             callUiState = CallStatus.CALL_IN_PROGRESS,
             calleeId = CALLEE_DEFAULT_ID,
+            calleeEmail = "test@test.com",
             call = Call.CallNoData,
             sendConnectionRequest = {},
             answerCall = {},

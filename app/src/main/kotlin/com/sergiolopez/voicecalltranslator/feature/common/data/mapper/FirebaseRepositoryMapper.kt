@@ -35,7 +35,9 @@ class FirebaseRepositoryMapper @Inject constructor() {
     fun mapCallDatabaseToCall(callDatabase: CallDatabase): Call.CallData {
         return Call.CallData(
             callerId = callDatabase.callerId ?: "",
+            callerEmail = callDatabase.callerEmail ?: "",
             calleeId = callDatabase.calleeId ?: "",
+            calleeEmail = callDatabase.calleeEmail ?: "",
             offerData = callDatabase.offerData ?: "",
             isIncoming = callDatabase.isIncoming ?: false,
             callStatus = callDatabase.callStatus ?: CallStatus.CALL_IN_PROGRESS,
@@ -47,7 +49,9 @@ class FirebaseRepositoryMapper @Inject constructor() {
     fun mapCallToCallDatabase(call: Call.CallData): CallDatabase {
         return CallDatabase(
             callerId = call.callerId,
+            callerEmail = call.callerEmail,
             calleeId = call.calleeId,
+            calleeEmail = call.calleeEmail,
             offerData = call.offerData,
             isIncoming = call.isIncoming,
             language = call.language,

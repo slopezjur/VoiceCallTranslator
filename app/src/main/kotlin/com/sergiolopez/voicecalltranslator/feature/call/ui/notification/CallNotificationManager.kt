@@ -86,7 +86,7 @@ class CallNotificationManager(private val context: Context) {
 
     private fun createNotification(callData: Call.CallData): Notification {
         val caller = Person.Builder()
-            .setName(callData.callerId)
+            .setName(callData.callerEmail)
             .setUri(Uri.parse("Calling").toString())
             .setImportant(true)
             .build()

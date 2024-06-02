@@ -1,7 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.common.utils
 
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
-import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.Contact
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.UserStatus
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData

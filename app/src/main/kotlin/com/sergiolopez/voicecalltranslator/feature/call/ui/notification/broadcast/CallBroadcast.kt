@@ -10,6 +10,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationAction
 import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationManager
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -39,18 +40,27 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
             }
 
             else -> {
+                val targetContact = Contact(
+                    id = callData.callerId,
+                    email = callData.callerEmail
+                )
+
                 when (action) {
                     CallNotificationAction.Answer -> {
-                        webRtcRepository.setTarget(target = callData.callerId)
+                        webRtcRepository.setTargetContact(targetUserContact = targetContact)
                         webRtcRepository.startCall(callData = callData)
                         CallNotificationManager(context).updateCallNotification(callData)
                         startVoiceCallTranslator(context, callData)
                     }
 
                     CallNotificationAction.Disconnect -> {
-                        webRtcRepository.setTarget(target = callData.callerId)
-                        webRtcRepository.sendEndCall(target = callData.callerId)
-                        CallNotificationManager(context).updateCallNotification(callData)
+                        webRtcRepository.setTargetContact(targetUserContact = targetContact)
+                        webRtcRepository.sendEndCall(
+                            targetContact = targetContact
+                        )
+                        CallNotificationManager(context).updateCallNotification(
+                            call = callData
+                        )
                     }
                 }
             }
@@ -99,7 +109,9 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
         CallNotificationManager(context).updateCallNotification(
             Call.CallData(
                 callerId = "",
+                callerEmail = "",
                 calleeId = "",
+                calleeEmail = "",
                 offerData = "",
                 isIncoming = false,
                 callStatus = CallStatus.CALL_FINISHED,

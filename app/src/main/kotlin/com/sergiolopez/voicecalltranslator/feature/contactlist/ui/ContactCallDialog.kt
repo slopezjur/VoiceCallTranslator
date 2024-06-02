@@ -14,15 +14,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.R
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
-import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun ContactCallDialog(
     modifier: Modifier = Modifier,
     contact: Contact,
-    onContactUserCall: (String) -> Unit,
+    onContactUserCall: (Contact) -> Unit,
     onDismissDialog: () -> Unit
 ) {
     AlertDialog(
@@ -37,7 +37,7 @@ fun ContactCallDialog(
                     .padding(8.dp)
                     .clickable {
                         onDismissDialog.invoke()
-                        onContactUserCall.invoke(contact.id)
+                        onContactUserCall.invoke(contact)
                     }
             )
         },

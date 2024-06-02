@@ -9,6 +9,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.audio.MagicAudioP
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.SendConnectionUpdateUseCase
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.OPEN_AI_SAMPLE_RATE
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -109,7 +110,7 @@ class WebRtcClient @Inject constructor(
     }
 
     //negotiation section
-    fun call(target: String, targetLanguage: String) {
+    fun call(targetUserContact: Contact, targetLanguage: String) {
         magicAudioProcessor.setIsMagicNeeded(
             isMagicNeeded = targetLanguage != language,
             targetLanguage = targetLanguage
@@ -121,9 +122,10 @@ class WebRtcClient @Inject constructor(
                     override fun onSetSuccess() {
                         super.onSetSuccess()
                         val callDataModel = CallDataModel(
-                            type = CallDataModelType.Offer,
                             sender = username,
-                            target = target,
+                            target = targetUserContact.id,
+                            targetEmail = targetUserContact.email,
+                            type = CallDataModelType.Offer,
                             data = desc?.description,
                             language = language
                         )
@@ -137,7 +139,7 @@ class WebRtcClient @Inject constructor(
         }, mediaConstraint)
     }
 
-    fun answer(target: String, targetLanguage: String) {
+    fun answer(targetUserContact: Contact, targetLanguage: String) {
         magicAudioProcessor.setIsMagicNeeded(
             targetLanguage != language,
             targetLanguage
@@ -150,9 +152,10 @@ class WebRtcClient @Inject constructor(
                         override fun onSetSuccess() {
                             super.onSetSuccess()
                             val callDataModel = CallDataModel(
-                                type = CallDataModelType.Answer,
                                 sender = username,
-                                target = target,
+                                target = targetUserContact.id,
+                                targetEmail = targetUserContact.email,
+                                type = CallDataModelType.Answer,
                                 data = desc?.description,
                                 language = language
                             )
@@ -192,12 +195,13 @@ class WebRtcClient @Inject constructor(
         peerConnection?.addIceCandidate(iceCandidate)
     }
 
-    fun sendIceCandidate(target: String, iceCandidate: IceCandidate) {
+    fun sendIceCandidate(targetUserContact: Contact, iceCandidate: IceCandidate) {
         addIceCandidateToPeer(iceCandidate)
         val callDataModel = CallDataModel(
-            type = CallDataModelType.IceCandidates,
             sender = username,
-            target = target,
+            target = targetUserContact.id,
+            targetEmail = targetUserContact.email,
+            type = CallDataModelType.IceCandidates,
             data = Json.encodeToString(IceCandidateSerializer, iceCandidate),
             language = language
         )

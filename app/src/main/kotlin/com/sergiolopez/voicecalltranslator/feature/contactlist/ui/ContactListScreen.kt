@@ -24,10 +24,11 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
-import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
+import com.sergiolopez.voicecalltranslator.navigation.CALLEE_EMAIL
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
 import com.sergiolopez.voicecalltranslator.navigation.NavigationRoute
@@ -43,7 +44,7 @@ fun ContactListScreen(
         onContactUserCall = {
             navigateAndPopUp.invoke(
                 NavigationParams(
-                    route = "${NavigationRoute.CALL.navigationName}?$CALLEE_ID=${it}",
+                    route = "${NavigationRoute.CALL.navigationName}?$CALLEE_ID=${it.id}&$CALLEE_EMAIL=${it.email}",
                     popUp = NavigationRoute.CONTACT_LIST.navigationName
                 )
             )
@@ -73,7 +74,7 @@ fun ContactListScreen(
 fun ContactListContent(
     modifier: Modifier = Modifier,
     contactList: List<User>,
-    onContactUserCall: (String) -> Unit,
+    onContactUserCall: (Contact) -> Unit,
     showCallDialog: Boolean,
     showSettingsDropDownMenu: Boolean,
     onVoiceSettings: () -> Unit,

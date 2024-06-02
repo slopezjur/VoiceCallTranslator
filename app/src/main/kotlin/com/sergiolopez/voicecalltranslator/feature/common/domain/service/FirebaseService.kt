@@ -12,6 +12,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetConnec
 import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
+import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.common.domain.usecase.GetLanguageOptionUseCase
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import dagger.hilt.android.AndroidEntryPoint
@@ -79,7 +80,10 @@ class FirebaseService : Service() {
 
     private suspend fun startWebRtcManager(user: User) {
         webRtcRepository.initFirebase(
-            userId = user.id,
+            contact = Contact(
+                id = user.id,
+                email = user.email
+            ),
             startFirebaseService = startFirebaseService,
             scope = scope
         )
@@ -105,7 +109,9 @@ class FirebaseService : Service() {
                             } else {
                                 val newCallData = Call.CallData(
                                     callerId = call.sender ?: "",
+                                    callerEmail = call.senderEmail ?: "",
                                     calleeId = call.target,
+                                    calleeEmail = call.targetEmail,
                                     isIncoming = true,
                                     callStatus = CallStatus.INCOMING_CALL,
                                     offerData = call.toString(),
@@ -129,7 +135,9 @@ class FirebaseService : Service() {
                             } else {
                                 val newCallData = Call.CallData(
                                     callerId = call.sender ?: "",
+                                    callerEmail = call.senderEmail ?: "",
                                     calleeId = call.target,
+                                    calleeEmail = call.targetEmail,
                                     isIncoming = false,
                                     callStatus = CallStatus.CALL_FINISHED,
                                     offerData = call.toString(),
@@ -156,11 +164,21 @@ class FirebaseService : Service() {
         Log.d("$VCT_LOGS launchIncomingCall: ", callData.toString())
         if (callData.callStatus == CallStatus.CALLING || callData.callStatus == CallStatus.CALL_IN_PROGRESS) {
             if (callData.isIncoming) {
-                webRtcRepository.setTarget(callData.callerId)
+                webRtcRepository.setTargetContact(
+                    targetUserContact = Contact(
+                        id = callData.callerId,
+                        email = callData.callerEmail
+                    )
+                )
                 webRtcRepository.startCall(callData = callData)
             } else {
                 // TODO : This is necessary?
-                webRtcRepository.setTarget(callData.calleeId)
+                webRtcRepository.setTargetContact(
+                    targetUserContact = Contact(
+                        id = callData.calleeId,
+                        email = callData.calleeEmail
+                    )
+                )
             }
         }
         callNotificationManager.updateCallNotification(callData)
