@@ -20,8 +20,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @AndroidEntryPoint
+@Singleton
 class FirebaseService : Service() {
 
     @Inject
@@ -37,13 +39,10 @@ class FirebaseService : Service() {
     lateinit var getLanguageOptionUseCase: GetLanguageOptionUseCase
 
     private lateinit var callNotificationManager: CallNotificationManager
-    //private lateinit var language: String
-
-    companion object {
-        internal const val ACTION_START_SERVICE = "start_service"
-    }
 
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
+
+    private var isConnectionUpdateRunning = false
 
     override fun onCreate() {
         Log.d("$VCT_LOGS FirebaseService: ", "onCreate")
@@ -71,15 +70,14 @@ class FirebaseService : Service() {
             firebaseAuthRepository.currentUser.collect { user ->
                 user?.let {
                     startWebRtcManager(
-                        user = it,
-                        language = getLanguageOptionUseCase.invoke(it.id).name
+                        user = it
                     )
                 }
             }
         }
     }
 
-    private fun startWebRtcManager(user: User, language: String) {
+    private suspend fun startWebRtcManager(user: User) {
         webRtcRepository.initFirebase(
             userId = user.id,
             startFirebaseService = startFirebaseService,
@@ -87,67 +85,67 @@ class FirebaseService : Service() {
         )
         webRtcRepository.initWebrtcClient(
             username = user.id,
-            language = language
+            language = getLanguageOptionUseCase.invoke(user.id).name
         )
-        manageCall(user)
+        if (!isConnectionUpdateRunning) {
+            manageCall(user)
+        }
     }
 
-    private fun manageCall(user: User) {
-        scope.launch {
-            val result = getConnectionUpdateUseCase.invoke(user.id)
-            if (result.isSuccess) {
-                result.getOrThrow().collect { call ->
-                    when (call.type) {
-                        CallDataModelType.StartAudioCall -> {
-                            val callData =
-                                if (webRtcRepository.currentCall.value is Call.CallData) {
-                                    webRtcRepository.currentCall.value as Call.CallData
-                                } else {
-                                    val newCallData = Call.CallData(
-                                        callerId = call.sender ?: "",
-                                        calleeId = call.target,
-                                        isIncoming = true,
-                                        callStatus = CallStatus.INCOMING_CALL,
-                                        offerData = call.toString(),
-                                        language = call.language,
-                                        timestamp = call.timeStamp
-                                    )
-                                    webRtcRepository.setNewCallData(newCallData)
-                                    newCallData
-                                }
-                            launchIncomingCall(
-                                callData = callData
-                            )
-                        }
+    private suspend fun manageCall(user: User) {
+        isConnectionUpdateRunning = true
+        val result = getConnectionUpdateUseCase.invoke(user.id)
+        result.onSuccess {
+            it.collect { call ->
+                when (call.type) {
+                    CallDataModelType.StartAudioCall -> {
+                        val callData =
+                            if (webRtcRepository.currentCall.value is Call.CallData) {
+                                webRtcRepository.currentCall.value as Call.CallData
+                            } else {
+                                val newCallData = Call.CallData(
+                                    callerId = call.sender ?: "",
+                                    calleeId = call.target,
+                                    isIncoming = true,
+                                    callStatus = CallStatus.INCOMING_CALL,
+                                    offerData = call.toString(),
+                                    language = call.language,
+                                    timestamp = call.timeStamp
+                                )
+                                webRtcRepository.setNewCallData(newCallData)
+                                newCallData
+                            }
+                        launchIncomingCall(
+                            callData = callData
+                        )
+                    }
 
-                        CallDataModelType.EndCall -> {
-                            //initWebrtcClient(user)
-                            val callData =
-                                if (webRtcRepository.currentCall.value is Call.CallData) {
-                                    (webRtcRepository.currentCall.value as Call.CallData).copy(
-                                        callStatus = CallStatus.CALL_FINISHED
-                                    )
-                                } else {
-                                    val newCallData = Call.CallData(
-                                        callerId = call.sender ?: "",
-                                        calleeId = call.target,
-                                        isIncoming = false,
-                                        callStatus = CallStatus.CALL_FINISHED,
-                                        offerData = call.toString(),
-                                        language = call.language,
-                                        timestamp = call.timeStamp
-                                    )
-                                    webRtcRepository.setNewCallData(newCallData)
-                                    newCallData
-                                }
-                            endCall(
-                                callData = callData
-                            )
-                        }
+                    CallDataModelType.EndCall -> {
+                        val callData =
+                            if (webRtcRepository.currentCall.value is Call.CallData) {
+                                (webRtcRepository.currentCall.value as Call.CallData).copy(
+                                    callStatus = CallStatus.CALL_FINISHED
+                                )
+                            } else {
+                                val newCallData = Call.CallData(
+                                    callerId = call.sender ?: "",
+                                    calleeId = call.target,
+                                    isIncoming = false,
+                                    callStatus = CallStatus.CALL_FINISHED,
+                                    offerData = call.toString(),
+                                    language = call.language,
+                                    timestamp = call.timeStamp
+                                )
+                                webRtcRepository.setNewCallData(newCallData)
+                                newCallData
+                            }
+                        endCall(
+                            callData = callData
+                        )
+                    }
 
-                        else -> {
-                            // DO NOTHING
-                        }
+                    else -> {
+                        // DO NOTHING
                     }
                 }
             }
@@ -179,11 +177,15 @@ class FirebaseService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Log.d("$VCT_LOGS onDestroy: ", "scope.cancel()")
         scope.cancel()
+        isConnectionUpdateRunning = false
+        super.onDestroy()
     }
 
     override fun onBind(p0: Intent?): IBinder? = null
 
+    companion object {
+        internal const val ACTION_START_SERVICE = "start_service"
+    }
 }

@@ -13,8 +13,10 @@ import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNoti
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @AndroidEntryPoint
+@Singleton
 class CallBroadcast @Inject constructor() : BroadcastReceiver() {
 
     @Inject

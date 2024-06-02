@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class FirebaseDatabaseRepository @Inject constructor(
     private val firebaseRepositoryMapper: FirebaseRepositoryMapper
 ) {

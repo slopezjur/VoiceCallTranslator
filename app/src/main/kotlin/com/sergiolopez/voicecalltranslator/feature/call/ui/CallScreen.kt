@@ -30,7 +30,6 @@ import kotlinx.coroutines.delay
 fun CallScreen(
     navigateAndPopUp: (NavigationParams) -> Unit,
     calleeId: String,
-    restartFirebaseService: () -> Unit,
     callViewModel: CallViewModel = hiltViewModel()
 ) {
     val call = callViewModel.callState.collectAsStateWithLifecycle().value
@@ -65,7 +64,6 @@ fun CallScreen(
 
     CallScreenContent(
         navigateAndPopUp = navigateAndPopUp,
-        restartFirebaseService = restartFirebaseService,
         callStatus = callUiState,
         calleeId = calleeId,
         call = call,
@@ -82,7 +80,6 @@ fun CallScreen(
 fun CallScreenContent(
     modifier: Modifier = Modifier,
     navigateAndPopUp: (NavigationParams) -> Unit,
-    restartFirebaseService: () -> Unit,
     callStatus: CallStatus,
     calleeId: String,
     call: Call,
@@ -111,7 +108,6 @@ fun CallScreenContent(
 
         CallStatus.CALL_FINISHED -> {
             LaunchedEffect(Unit) {
-                //restartFirebaseService.invoke()
                 delay(1500)
                 navigateToContactList(navigateAndPopUp)
             }
@@ -197,7 +193,6 @@ fun CallScreenPreview() {
     VoiceCallTranslatorPreview {
         CallScreenContent(
             navigateAndPopUp = {},
-            restartFirebaseService = {},
             callStatus = CallStatus.CALL_IN_PROGRESS,
             calleeId = CALLEE_DEFAULT_ID,
             call = Call.CallNoData,

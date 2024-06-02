@@ -37,7 +37,9 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.broadcast.CallBroadcast
 import kotlinx.serialization.json.Json
+import javax.inject.Singleton
 
+@Singleton
 class CallNotificationManager(private val context: Context) {
 
     internal companion object {

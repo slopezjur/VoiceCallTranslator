@@ -1,5 +1,6 @@
 package com.sergiolopez.voicecalltranslator
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -34,7 +35,6 @@ import com.sergiolopez.voicecalltranslator.navigation.NavigationState
 
 @Composable
 fun VoiceCallTranslatorApp(
-    restartFirebaseService: () -> Unit,
     navigationCallExtra: NavigationCallExtra,
     themeConfiguration: (ThemeOption) -> Unit
 ) {
@@ -52,7 +52,6 @@ fun VoiceCallTranslatorApp(
         ) {
             notesGraph(
                 navigationState = navigationState,
-                restartFirebaseService = restartFirebaseService,
                 themeConfiguration = themeConfiguration
             )
         }
@@ -69,7 +68,6 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
 
 fun NavGraphBuilder.notesGraph(
     navigationState: NavigationState,
-    restartFirebaseService: () -> Unit,
     themeConfiguration: (ThemeOption) -> Unit
 ) {
     composable(NavigationAction.SplashNavigation.route) {
@@ -122,14 +120,17 @@ fun NavGraphBuilder.notesGraph(
         route = "${NavigationAction.CallNavigation.route}$CALLEE_ID_ARG",
         arguments = listOf(navArgument(CALLEE_ID) { defaultValue = CALLEE_DEFAULT_ID })
     ) {
+        BackHandler(true) {
+            // DO NOTHING
+        }
+
         CallScreen(
             navigateAndPopUp = { navigationParams ->
                 navigationState.navigateAndPopUp(
                     navigationParams = navigationParams
                 )
             },
-            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID,
-            restartFirebaseService = restartFirebaseService
+            calleeId = it.arguments?.getString(CALLEE_ID) ?: CALLEE_DEFAULT_ID
         )
     }
 

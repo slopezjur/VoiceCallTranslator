@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.getSystemService
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Call
 import com.sergiolopez.voicecalltranslator.feature.call.ui.navigation.NavigationCallExtra
-import com.sergiolopez.voicecalltranslator.feature.common.domain.VctGlobalName.VCT_LOGS
 import com.sergiolopez.voicecalltranslator.feature.common.domain.service.FirebaseService
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.ThemeOption
 import com.sergiolopez.voicecalltranslator.permissions.PermissionBox
@@ -65,13 +63,6 @@ class VoiceCallTranslatorActivity : AppCompatActivity() {
                     PermissionBox(permissions = setUpPermissions()) {
                         VoiceCallTranslatorApp(
                             navigationCallExtra = navigationCallExtra,
-                            restartFirebaseService = {
-                                Log.d(
-                                    "$VCT_LOGS restartFirebaseService: ",
-                                    "restartFirebaseService"
-                                )
-                                startFirebaseService.invoke()
-                            },
                             themeConfiguration = themeConfiguration
                         )
                     }

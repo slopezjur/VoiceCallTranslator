@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.webrtc.IceCandidate
@@ -44,104 +45,108 @@ class WebRtcRepository @Inject constructor(
     private lateinit var language: String
     private lateinit var startFirebaseService: () -> Unit
 
-    private lateinit var scope: CoroutineScope
+    private var scope: CoroutineScope? = null
 
     fun initWebrtcClient(username: String, language: String) {
         this.language = language
         subscribeToTranslationState()
-        webRtcClient.setScope(scope = scope)
-        webRtcClient.initializeWebrtcClient(
-            username = username,
-            language = language,
-            observer = object : MyPeerObserver() {
+        scope?.let {
+            webRtcClient.setScope(scope = it)
+            webRtcClient.initializeWebrtcClient(
+                username = username,
+                language = language,
+                observer = object : MyPeerObserver() {
 
-                override fun onAddStream(p0: MediaStream?) {
-                    super.onAddStream(p0)
-                    Log.d("$VCT_LOGS onAddStream", p0.toString())
-                }
+                    override fun onAddStream(p0: MediaStream?) {
+                        super.onAddStream(p0)
+                        Log.d("$VCT_LOGS onAddStream", p0.toString())
+                    }
 
-                override fun onIceCandidate(p0: IceCandidate?) {
-                    super.onIceCandidate(p0)
-                    Log.d("$VCT_LOGS onIceCandidate", p0.toString())
-                    p0?.let {
-                        webRtcClient.sendIceCandidate(target, it)
+                    override fun onIceCandidate(p0: IceCandidate?) {
+                        super.onIceCandidate(p0)
+                        Log.d("$VCT_LOGS onIceCandidate", p0.toString())
+                        p0?.let {
+                            webRtcClient.sendIceCandidate(target, it)
+                        }
+                    }
+
+                    override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
+                        super.onConnectionChange(newState)
+                        Log.d("$VCT_LOGS onConnectionChange", newState.toString())
+                        if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
+                            // 1. change my status to in call
+                            //changeMyStatus(UserStatus.IN_CALL)
+                            // 2. clear latest event inside my user section in firebase database
+                            //onTransferEventToSocket()
+                            updateCallStatus(
+                                callStatus = CallStatus.CALL_IN_PROGRESS
+                            )
+                            Log.d("$VCT_LOGS LET'S GOO!", "LET'S GOO!")
+                        }
                     }
                 }
-
-                override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
-                    super.onConnectionChange(newState)
-                    Log.d("$VCT_LOGS onConnectionChange", newState.toString())
-                    if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
-                        // 1. change my status to in call
-                        //changeMyStatus(UserStatus.IN_CALL)
-                        // 2. clear latest event inside my user section in firebase database
-                        //onTransferEventToSocket()
-                        updateCallStatus(
-                            callStatus = CallStatus.CALL_IN_PROGRESS
-                        )
-                        Log.d("$VCT_LOGS LET'S GOO!", "LET'S GOO!")
-                    }
-                }
-            }
-        )
+            )
+        }
     }
 
     fun initFirebase(userId: String, scope: CoroutineScope, startFirebaseService: () -> Unit) {
         Log.d("$VCT_LOGS initFirebase: ", userId)
         this.userId = userId
         this.startFirebaseService = startFirebaseService
-        this.scope = scope
-        this.scope.launch {
-            val result = getConnectionUpdateUseCase.invoke(userId)
-            result.onSuccess {
-                it.collect { callDataModel ->
-                    when (callDataModel.type) {
-                        CallDataModelType.Offer -> {
-                            webRtcClient.onRemoteSessionReceived(
-                                SessionDescription(
-                                    SessionDescription.Type.OFFER,
-                                    callDataModel.data.toString()
+        if (this.scope == null || !scope.isActive) {
+            this.scope = scope
+            this.scope?.launch {
+                val result = getConnectionUpdateUseCase.invoke(userId)
+                result.onSuccess {
+                    it.collect { callDataModel ->
+                        when (callDataModel.type) {
+                            CallDataModelType.Offer -> {
+                                webRtcClient.onRemoteSessionReceived(
+                                    SessionDescription(
+                                        SessionDescription.Type.OFFER,
+                                        callDataModel.data.toString()
+                                    )
                                 )
-                            )
-                            try {
-                                webRtcClient.answer(
-                                    target = target,
-                                    targetLanguage = callDataModel.language
-                                )
-                                updateCallStatus(CallStatus.ANSWERING)
-                            } catch (exception: Exception) {
-                                callDataModel.sender?.let { sender ->
-                                    sendEndCall(sender)
+                                try {
+                                    webRtcClient.answer(
+                                        target = target,
+                                        targetLanguage = callDataModel.language
+                                    )
+                                    updateCallStatus(CallStatus.ANSWERING)
+                                } catch (exception: Exception) {
+                                    callDataModel.sender?.let { sender ->
+                                        sendEndCall(sender)
+                                    }
                                 }
                             }
-                        }
 
-                        CallDataModelType.Answer -> {
-                            webRtcClient.onRemoteSessionReceived(
-                                SessionDescription(
-                                    SessionDescription.Type.ANSWER,
-                                    callDataModel.data.toString()
-                                )
-                            )
-                        }
-
-                        CallDataModelType.IceCandidates -> {
-                            val candidate: IceCandidate? = try {
-                                Json.decodeFromString(
-                                    IceCandidateSerializer,
-                                    callDataModel.data.toString()
-                                )
-                            } catch (e: Exception) {
-                                null
-                            }
-                            candidate?.let { iceCandidate ->
-                                webRtcClient.addIceCandidateToPeer(
-                                    iceCandidate = iceCandidate
+                            CallDataModelType.Answer -> {
+                                webRtcClient.onRemoteSessionReceived(
+                                    SessionDescription(
+                                        SessionDescription.Type.ANSWER,
+                                        callDataModel.data.toString()
+                                    )
                                 )
                             }
-                        }
 
-                        else -> Unit
+                            CallDataModelType.IceCandidates -> {
+                                val candidate: IceCandidate? = try {
+                                    Json.decodeFromString(
+                                        IceCandidateSerializer,
+                                        callDataModel.data.toString()
+                                    )
+                                } catch (e: Exception) {
+                                    null
+                                }
+                                candidate?.let { iceCandidate ->
+                                    webRtcClient.addIceCandidateToPeer(
+                                        iceCandidate = iceCandidate
+                                    )
+                                }
+                            }
+
+                            else -> Unit
+                        }
                     }
                 }
             }
@@ -179,7 +184,7 @@ class WebRtcRepository @Inject constructor(
 
         webRtcClient.startLocalStreaming()
 
-        scope.launch {
+        scope?.launch {
             sendConnectionUpdateUseCase.invoke(
                 callDataModel
             )
@@ -214,7 +219,6 @@ class WebRtcRepository @Inject constructor(
     }
 
     fun endCall(target: String) {
-
         updateCallStatus(
             callStatus = CallStatus.CALL_FINISHED
         )
@@ -233,13 +237,13 @@ class WebRtcRepository @Inject constructor(
     }
 
     private fun onTransferEventToSocket(data: CallDataModel) {
-        scope.launch {
+        scope?.launch {
             sendConnectionUpdateUseCase.invoke(data)
         }
     }
 
     private fun clearCall(target: String) {
-        scope.launch {
+        scope?.launch {
             clearCallUseCase.invoke(target)
         }
     }
@@ -253,7 +257,7 @@ class WebRtcRepository @Inject constructor(
     }
 
     private fun subscribeToTranslationState() {
-        scope.launch {
+        scope?.launch {
             getLastTranslationMessageUseCase.invoke().collect { message ->
                 onTransferEventToSocket(
                     CallDataModel(

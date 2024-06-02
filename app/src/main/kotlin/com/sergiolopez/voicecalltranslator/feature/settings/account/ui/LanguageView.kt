@@ -50,7 +50,7 @@ private fun DropDownMenuView(
     languageOption: LanguageOption,
     setLanguage: (LanguageOption) -> Unit
 ) {
-    // TODO : Create generic DropDown for Voice, Theme and Language
+    // TODO : Create generic DropDown component for Voice, Theme and Language
     var expanded by remember { mutableStateOf(dropDownExpanded) }
     val defaultDropDownMenu = stringResource(id = languageOption.nameValue)
     var selectedOptionText by remember { mutableStateOf(defaultDropDownMenu) }
