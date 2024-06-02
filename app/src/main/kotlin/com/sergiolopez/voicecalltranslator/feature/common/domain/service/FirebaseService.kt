@@ -169,11 +169,7 @@ class FirebaseService : Service() {
     private fun endCall(callData: Call.CallData) {
         Log.d("$VCT_LOGS endCall: ", callData.toString())
         callNotificationManager.updateCallNotification(callData)
-        if (callData.isIncoming) {
-            webRtcRepository.endCall(callData.callerId)
-        } else {
-            webRtcRepository.endCall(callData.calleeId)
-        }
+        webRtcRepository.endCall()
     }
 
     override fun onDestroy() {

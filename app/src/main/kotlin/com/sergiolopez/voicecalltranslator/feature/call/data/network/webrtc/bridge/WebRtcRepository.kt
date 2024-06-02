@@ -215,15 +215,15 @@ class WebRtcRepository @Inject constructor(
                 language = language
             )
         )
-        endCall(target = target)
+        endCall()
     }
 
-    fun endCall(target: String) {
+    fun endCall() {
         updateCallStatus(
             callStatus = CallStatus.CALL_FINISHED
         )
         webRtcClient.closeConnection()
-        clearCall(target = target)
+        clearCall()
         _currentCall.value = Call.CallNoData
         startFirebaseService.invoke()
     }
@@ -242,9 +242,9 @@ class WebRtcRepository @Inject constructor(
         }
     }
 
-    private fun clearCall(target: String) {
+    private fun clearCall() {
         scope?.launch {
-            clearCallUseCase.invoke(target)
+            clearCallUseCase.invoke(userId)
         }
     }
 
