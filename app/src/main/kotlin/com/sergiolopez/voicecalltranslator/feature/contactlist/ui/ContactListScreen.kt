@@ -2,8 +2,11 @@ package com.sergiolopez.voicecalltranslator.feature.contactlist.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -21,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
@@ -108,7 +112,9 @@ fun ContactListContent(
                 .fillMaxWidth()
                 .fillMaxHeight()
         ) {
-            LazyColumn {
+            LazyColumn(
+                modifier = modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            ) {
                 items(contactList, key = { it.email }) { contactItem ->
                     ContactItem(
                         user = contactItem,
@@ -117,6 +123,7 @@ fun ContactListContent(
                             showCallDialogRemember = true
                         }
                     )
+                    Spacer(modifier = modifier.size(16.dp))
                 }
             }
         }

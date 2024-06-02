@@ -19,9 +19,24 @@ object Dummy {
     )
 
     val userList = listOf(
-        user,
-        user.copy(email = "test@test.com"),
-        user.copy(email = "test2@test.com")
+        user.copy(email = "john.doe@example.com"),
+        user.copy(email = "jane.smith@example.com"),
+        user.copy(email = "michael.brown@example.com"),
+        user.copy(email = "emily.davis@example.com"),
+        user.copy(email = "daniel.jones@example.com"),
+        user.copy(email = "laura.martin@example.com"),
+        user.copy(email = "robert.garcia@example.com"),
+        user.copy(email = "linda.hernandez@example.com"),
+        user.copy(email = "william.miller@example.com"),
+        user.copy(email = "jessica.lopez@example.com"),
+        user.copy(email = "james.wilson@example.com"),
+        user.copy(email = "sarah.moore@example.com"),
+        user.copy(email = "david.taylor@example.com"),
+        user.copy(email = "mary.anderson@example.com"),
+        user.copy(email = "richard.thomas@example.com"),
+        user.copy(email = "patricia.jackson@example.com"),
+        user.copy(email = "charles.white@example.com"),
+        user.copy(email = "barbara.lewis@example.com")
     )
 
     val contact = Contact(

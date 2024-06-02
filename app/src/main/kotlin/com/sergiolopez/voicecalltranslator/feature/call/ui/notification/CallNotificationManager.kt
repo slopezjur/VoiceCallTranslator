@@ -90,21 +90,20 @@ class CallNotificationManager @Inject constructor(
     private fun createNotification(callData: Call.CallData): Notification {
         val caller = Person.Builder()
             .setName(callData.callerEmail)
-            .setUri(Uri.parse("Calling").toString())
+            .setUri(Uri.parse("NOTIFICATION").toString())
             .setImportant(true)
             .build()
 
         val contentIntent = PendingIntent.getActivity(
-            /* context = */ context,
-            /* requestCode = */ 0,
-            /* intent = */
+            context,
+            0,
             Intent(context, VoiceCallTranslatorActivity::class.java).apply {
                 putExtra(
                     VoiceCallTranslatorActivity.CALL_DATA_FROM_NOTIFICATION,
                     Json.encodeToString(Call.CallData.serializer(), callData)
                 )
             },
-            /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val isIncoming = callData.isIncoming && (callData.callStatus == CallStatus.INCOMING_CALL)
