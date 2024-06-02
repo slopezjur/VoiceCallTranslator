@@ -73,15 +73,27 @@ class WebRtcRepository @Inject constructor(
                     override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
                         super.onConnectionChange(newState)
                         Log.d("$VCT_LOGS onConnectionChange", newState.toString())
-                        if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
-                            // 1. change my status to in call
-                            //changeMyStatus(UserStatus.IN_CALL)
-                            // 2. clear latest event inside my user section in firebase database
-                            //onTransferEventToSocket()
-                            updateCallStatus(
-                                callStatus = CallStatus.CALL_IN_PROGRESS
-                            )
-                            Log.d("$VCT_LOGS LET'S GOO!", "LET'S GOO!")
+                        when (newState) {
+                            PeerConnection.PeerConnectionState.CONNECTED -> {
+                                // 1. change my status to in call
+                                //changeMyStatus(UserStatus.IN_CALL)
+                                // 2. clear latest event inside my user section in firebase database
+                                //onTransferEventToSocket()
+                                updateCallStatus(
+                                    callStatus = CallStatus.CALL_IN_PROGRESS
+                                )
+                                Log.d("$VCT_LOGS LET'S GOO!", "LET'S GOO!")
+                            }
+
+                            PeerConnection.PeerConnectionState.DISCONNECTED -> {
+                                updateCallStatus(
+                                    callStatus = CallStatus.RECONNECTING
+                                )
+                            }
+
+                            else -> {
+                                // DO NOTHING
+                            }
                         }
                     }
                 }

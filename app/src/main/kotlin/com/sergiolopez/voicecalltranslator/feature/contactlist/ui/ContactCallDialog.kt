@@ -15,18 +15,19 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
 @Composable
 fun ContactCallDialog(
     modifier: Modifier = Modifier,
-    contactToCall: String,
+    contact: Contact,
     onContactUserCall: (String) -> Unit,
     onDismissDialog: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = { onDismissDialog.invoke() },
-        title = { Text(text = stringResource(id = R.string.call_dialog_title, contactToCall)) },
+        title = { Text(text = stringResource(id = R.string.call_dialog_title, contact.email)) },
         text = { Text(text = stringResource(id = R.string.call_dialog_subtitle)) },
         confirmButton = {
             Icon(
@@ -36,7 +37,7 @@ fun ContactCallDialog(
                     .padding(8.dp)
                     .clickable {
                         onDismissDialog.invoke()
-                        onContactUserCall.invoke(contactToCall)
+                        onContactUserCall.invoke(contact.id)
                     }
             )
         },
@@ -59,7 +60,7 @@ fun ContactCallDialog(
 fun ContactCallDialogPreview() {
     VoiceCallTranslatorPreview {
         ContactCallDialog(
-            contactToCall = Dummy.user.email,
+            contact = Dummy.contact,
             onContactUserCall = {},
             onDismissDialog = {}
         )

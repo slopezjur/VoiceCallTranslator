@@ -28,9 +28,9 @@ class CallViewModel @Inject constructor(
     val callState: StateFlow<Call>
         get() = _callState.asStateFlow()
 
-    private val _callStatusState = MutableStateFlow(CallStatus.STARTING)
-    val callStatusState: StateFlow<CallStatus>
-        get() = _callStatusState.asStateFlow()
+    private val _callUiStatusState = MutableStateFlow(CallStatus.STARTING)
+    val callUiStatusState: StateFlow<CallStatus>
+        get() = _callUiStatusState.asStateFlow()
 
     private val _messageQueueState = MutableStateFlow(LinkedList<Message>())
     val messageQueueState: StateFlow<Queue<Message>>
@@ -48,7 +48,7 @@ class CallViewModel @Inject constructor(
                 _callState.value = call
 
                 if (call is Call.CallData) {
-                    _callStatusState.value = call.callStatus
+                    _callUiStatusState.value = call.callStatus
                 }
             }
         }

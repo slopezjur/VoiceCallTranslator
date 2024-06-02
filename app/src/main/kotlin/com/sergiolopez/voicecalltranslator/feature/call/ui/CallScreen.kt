@@ -1,8 +1,6 @@
 package com.sergiolopez.voicecalltranslator.feature.call.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +32,7 @@ fun CallScreen(
 ) {
     val call = callViewModel.callState.collectAsStateWithLifecycle().value
 
-    val callUiState = callViewModel.callStatusState.collectAsStateWithLifecycle().value
+    val callUiState = callViewModel.callUiStatusState.collectAsStateWithLifecycle().value
 
     val messageQueueState = callViewModel.messageQueueState.collectAsStateWithLifecycle().value
 
@@ -64,7 +62,7 @@ fun CallScreen(
 
     CallScreenContent(
         navigateAndPopUp = navigateAndPopUp,
-        callStatus = callUiState,
+        callUiState = callUiState,
         calleeId = calleeId,
         call = call,
         sendConnectionRequest = sendConnectionRequest,
@@ -80,7 +78,7 @@ fun CallScreen(
 fun CallScreenContent(
     modifier: Modifier = Modifier,
     navigateAndPopUp: (NavigationParams) -> Unit,
-    callStatus: CallStatus,
+    callUiState: CallStatus,
     calleeId: String,
     call: Call,
     sendConnectionRequest: (String) -> Unit,
@@ -90,7 +88,7 @@ fun CallScreenContent(
     shouldBeSpeaker: (Boolean) -> Unit,
     messages: List<Message>
 ) {
-    when (callStatus) {
+    when (callUiState) {
         CallStatus.STARTING -> when (call) {
             // TODO : Unnecessary now?
             is Call.CallData -> {
@@ -119,7 +117,7 @@ fun CallScreenContent(
         else -> {
             CallScreenDetails(
                 modifier = modifier,
-                callStatus = callStatus,
+                callUiState = callUiState,
                 call = call,
                 onCallAction = {
                     when (it) {
@@ -167,33 +165,13 @@ private fun NoCallScreen(modifier: Modifier) {
     }
 }
 
-@Composable
-private fun CallDismissedFromReceiver() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(text = "Call ended", style = MaterialTheme.typography.titleLarge)
-            Text(text = "REALLY BIG ERROR!")
-        }
-    }
-}
-
 @PreviewLightDark
 @Composable
 fun CallScreenPreview() {
     VoiceCallTranslatorPreview {
         CallScreenContent(
             navigateAndPopUp = {},
-            callStatus = CallStatus.CALL_IN_PROGRESS,
+            callUiState = CallStatus.CALL_IN_PROGRESS,
             calleeId = CALLEE_DEFAULT_ID,
             call = Call.CallNoData,
             sendConnectionRequest = {},

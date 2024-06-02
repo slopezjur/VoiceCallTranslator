@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 
@@ -22,11 +23,18 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 fun ContactItem(
     modifier: Modifier = Modifier,
     user: User,
-    onContactUserClick: (String) -> Unit
+    onContactUserClick: (Contact) -> Unit
 ) {
     Card(
         modifier = modifier,
-        onClick = { onContactUserClick.invoke(user.id) }
+        onClick = {
+            onContactUserClick.invoke(
+                Contact(
+                    id = user.id,
+                    email = user.email
+                )
+            )
+        }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

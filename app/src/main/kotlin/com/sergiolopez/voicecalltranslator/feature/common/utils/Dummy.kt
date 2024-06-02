@@ -1,6 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.common.utils
 
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.UserStatus
 import com.sergiolopez.voicecalltranslator.feature.settings.account.domain.model.AccountSettingsData
@@ -21,6 +22,11 @@ object Dummy {
         user,
         user.copy(email = "test@test.com"),
         user.copy(email = "test2@test.com")
+    )
+
+    val contact = Contact(
+        id = "01",
+        email = "slopezjur@uco.edu"
     )
 
     val accountSettingsDataDark = AccountSettingsData(

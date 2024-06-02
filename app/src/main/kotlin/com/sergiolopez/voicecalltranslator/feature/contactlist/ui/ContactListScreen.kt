@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiolopez.voicecalltranslator.R
 import com.sergiolopez.voicecalltranslator.feature.common.ui.components.VctTopAppBar
 import com.sergiolopez.voicecalltranslator.feature.common.utils.Dummy
+import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.Contact
 import com.sergiolopez.voicecalltranslator.feature.contactlist.domain.model.User
 import com.sergiolopez.voicecalltranslator.navigation.CALLEE_ID
 import com.sergiolopez.voicecalltranslator.navigation.NavigationParams
@@ -78,7 +79,7 @@ fun ContactListContent(
     onVoiceSettings: () -> Unit,
     onAccountSettings: () -> Unit
 ) {
-    var contactToCall by remember { mutableStateOf("") }
+    var contactToCall by remember { mutableStateOf<Contact?>(null) }
 
     var showCallDialogRemember by remember { mutableStateOf(showCallDialog) }
 
@@ -121,12 +122,14 @@ fun ContactListContent(
     }
 
     if (showCallDialogRemember) {
-        ContactCallDialog(
-            modifier = modifier,
-            contactToCall = contactToCall,
-            onContactUserCall = onContactUserCall,
-            onDismissDialog = { showCallDialogRemember = false }
-        )
+        contactToCall?.let {
+            ContactCallDialog(
+                modifier = modifier,
+                contact = it,
+                onContactUserCall = onContactUserCall,
+                onDismissDialog = { showCallDialogRemember = false }
+            )
+        }
     }
 }
 

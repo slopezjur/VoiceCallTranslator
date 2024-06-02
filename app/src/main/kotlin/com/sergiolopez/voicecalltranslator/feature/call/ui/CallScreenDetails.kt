@@ -38,7 +38,7 @@ import com.sergiolopez.voicecalltranslator.theme.VoiceCallTranslatorPreview
 @Composable
 internal fun CallScreenDetails(
     modifier: Modifier,
-    callStatus: CallStatus,
+    callUiState: CallStatus,
     call: Call,
     onCallAction: (CallAction) -> Unit,
     messages: List<Message>
@@ -49,10 +49,13 @@ internal fun CallScreenDetails(
 
         CallScreenDetailsContent(
             modifier = modifier,
-            name = call.callerId,
-            info = call.offerData,
+            name = if (call.isIncoming) {
+                call.calleeId
+            } else {
+                call.callerId
+            },
             incoming = call.isIncoming,
-            isActive = callStatus == CallStatus.CALL_IN_PROGRESS,
+            callUiState = callUiState,
             isMuted = isMuted,
             isSpeaker = isSpeaker,
             onCallAction = { callAction ->
@@ -81,7 +84,7 @@ internal fun CallScreenDetails(
     } else {
         // If we are here...
         //onCallStatus.invoke(CallViewModel.CallUiState.ERROR)
-        Log.d("$VCT_LOGS: TelecomCallScreen", "$callStatus $call")
+        Log.d("$VCT_LOGS: CallScreenDetails", "$callUiState $call")
     }
 }
 
@@ -89,9 +92,8 @@ internal fun CallScreenDetails(
 private fun CallScreenDetailsContent(
     modifier: Modifier,
     name: String,
-    info: String,
     incoming: Boolean,
-    isActive: Boolean,
+    callUiState: CallStatus,
     isMuted: Boolean,
     isSpeaker: Boolean,
     onCallAction: (CallAction) -> Unit,
@@ -106,14 +108,13 @@ private fun CallScreenDetailsContent(
                 CallInfoCard(
                     modifier = modifier,
                     name = name,
-                    info = info,
-                    isActive = isActive
+                    isActive = callUiState == CallStatus.CALL_IN_PROGRESS
                 )
                 HorizontalDivider()
             }
         },
         bottomBar = {
-            if (incoming && !isActive) {
+            if (incoming && callUiState != CallStatus.CALL_IN_PROGRESS && callUiState != CallStatus.RECONNECTING) {
                 CallIncomingActions(
                     modifier = modifier,
                     onCallAction = onCallAction
@@ -143,7 +144,6 @@ private fun CallScreenDetailsContent(
 private fun CallInfoCard(
     modifier: Modifier,
     name: String,
-    info: String,
     isActive: Boolean
 ) {
     Column(
@@ -159,7 +159,6 @@ private fun CallInfoCard(
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
         )
         Text(text = name, style = MaterialTheme.typography.titleMedium)
-        Text(text = info, style = MaterialTheme.typography.bodyMedium)
 
         if (!isActive) {
             Text(
@@ -204,7 +203,7 @@ fun CallScreenDetailsPreview() {
     VoiceCallTranslatorPreview {
         CallScreenDetails(
             modifier = Modifier,
-            callStatus = CallStatus.STARTING,
+            callUiState = CallStatus.STARTING,
             call = Call.CallNoData,
             onCallAction = {},
             messages = emptyList()
@@ -218,7 +217,7 @@ fun CallScreenDetailsIncomingCallStartingPreview() {
     VoiceCallTranslatorPreview {
         CallScreenDetails(
             modifier = Modifier,
-            callStatus = CallStatus.STARTING,
+            callUiState = CallStatus.STARTING,
             call = Call.CallData(
                 callerId = "slopezjur@uoc.edu",
                 calleeId = "",
@@ -240,7 +239,7 @@ fun CallScreenDetailsIncomingCallInProgressPreview() {
     VoiceCallTranslatorPreview {
         CallScreenDetails(
             modifier = Modifier,
-            callStatus = CallStatus.CALL_IN_PROGRESS,
+            callUiState = CallStatus.CALL_IN_PROGRESS,
             call = Call.CallData(
                 callerId = "slopezjur@uoc.edu",
                 calleeId = "",
@@ -262,7 +261,7 @@ fun CallScreenDetailsStartingPreview() {
     VoiceCallTranslatorPreview {
         CallScreenDetails(
             modifier = Modifier,
-            callStatus = CallStatus.STARTING,
+            callUiState = CallStatus.STARTING,
             call = Call.CallData(
                 callerId = "slopezjur@uoc.edu",
                 calleeId = "",
@@ -284,7 +283,7 @@ fun CallScreenDetailsCallInProgressPreview() {
     VoiceCallTranslatorPreview {
         CallScreenDetails(
             modifier = Modifier,
-            callStatus = CallStatus.CALL_IN_PROGRESS,
+            callUiState = CallStatus.CALL_IN_PROGRESS,
             call = Call.CallData(
                 callerId = "slopezjur@uoc.edu",
                 calleeId = "",
@@ -306,7 +305,7 @@ fun CallScreenDetailsCallInProgressOneMessagesPreview() {
     VoiceCallTranslatorPreview {
         CallScreenDetails(
             modifier = Modifier,
-            callStatus = CallStatus.CALL_IN_PROGRESS,
+            callUiState = CallStatus.CALL_IN_PROGRESS,
             call = Call.CallData(
                 callerId = "slopezjur@uoc.edu",
                 calleeId = "",
@@ -318,6 +317,28 @@ fun CallScreenDetailsCallInProgressOneMessagesPreview() {
             ),
             onCallAction = {},
             messages = listOf(Dummy.message)
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun CallScreenDetailsReconnectingPreview() {
+    VoiceCallTranslatorPreview {
+        CallScreenDetails(
+            modifier = Modifier,
+            callUiState = CallStatus.RECONNECTING,
+            call = Call.CallData(
+                callerId = "slopezjur@uoc.edu",
+                calleeId = "",
+                isIncoming = false,
+                callStatus = CallStatus.CALL_IN_PROGRESS,
+                offerData = "offer",
+                language = "es",
+                timestamp = 1716836446515
+            ),
+            onCallAction = {},
+            messages = Dummy.messages
         )
     }
 }

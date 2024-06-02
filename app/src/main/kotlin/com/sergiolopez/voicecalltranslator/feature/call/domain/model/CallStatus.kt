@@ -9,5 +9,6 @@ enum class CallStatus {
     INCOMING_CALL,
     ANSWERING,
     CALL_IN_PROGRESS,
+    RECONNECTING,
     CALL_FINISHED
 }
