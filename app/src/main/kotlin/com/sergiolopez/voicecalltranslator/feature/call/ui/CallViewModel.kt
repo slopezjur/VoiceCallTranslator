@@ -7,6 +7,7 @@ import com.sergiolopez.voicecalltranslator.feature.call.domain.model.CallStatus
 import com.sergiolopez.voicecalltranslator.feature.call.domain.model.Message
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastMessageFromCallUseCase
 import com.sergiolopez.voicecalltranslator.feature.call.domain.usecase.GetLastTranscriptionMessageUseCase
+import com.sergiolopez.voicecalltranslator.feature.call.ui.notification.CallNotificationManager
 import com.sergiolopez.voicecalltranslator.feature.common.data.repository.FirebaseAuthRepository
 import com.sergiolopez.voicecalltranslator.feature.common.domain.model.Contact
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,8 @@ class CallViewModel @Inject constructor(
     private val webRtcRepository: WebRtcRepository,
     private val getLastTranscriptionMessageUseCase: GetLastTranscriptionMessageUseCase,
     private val getLastMessageFromCallUseCase: GetLastMessageFromCallUseCase,
-    private val firebaseAuthRepository: FirebaseAuthRepository
+    private val firebaseAuthRepository: FirebaseAuthRepository,
+    private val callNotificationManager: CallNotificationManager
 ) : VoiceCallTranslatorViewModel() {
 
     private val _callState = MutableStateFlow<Call>(Call.CallNoData)
@@ -50,6 +52,9 @@ class CallViewModel @Inject constructor(
 
                 if (call is Call.CallData) {
                     _callUiStatusState.value = call.callStatus
+                    callNotificationManager.updateCallNotification(
+                        call = call
+                    )
                 }
             }
         }

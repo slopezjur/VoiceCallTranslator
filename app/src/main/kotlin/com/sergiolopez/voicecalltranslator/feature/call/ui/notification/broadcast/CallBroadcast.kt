@@ -40,10 +40,17 @@ class CallBroadcast @Inject constructor() : BroadcastReceiver() {
             }
 
             else -> {
-                val targetContact = Contact(
-                    id = callData.callerId,
-                    email = callData.callerEmail
-                )
+                val targetContact = if (callData.isIncoming) {
+                    Contact(
+                        id = callData.callerId,
+                        email = callData.callerEmail
+                    )
+                } else {
+                    Contact(
+                        id = callData.calleeId,
+                        email = callData.calleeEmail
+                    )
+                }
 
                 when (action) {
                     CallNotificationAction.Answer -> {

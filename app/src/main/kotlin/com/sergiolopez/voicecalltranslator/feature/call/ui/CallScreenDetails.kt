@@ -114,7 +114,7 @@ private fun CallScreenDetailsContent(
             }
         },
         bottomBar = {
-            if (incoming && callUiState != CallStatus.CALL_IN_PROGRESS && callUiState != CallStatus.RECONNECTING) {
+            if (incoming && (callUiState == CallStatus.STARTING || callUiState == CallStatus.INCOMING_CALL)) {
                 CallIncomingActions(
                     modifier = modifier,
                     onCallAction = onCallAction
