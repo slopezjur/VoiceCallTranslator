@@ -52,7 +52,7 @@ fun VoiceCallTranslatorApp(
             },
             modifier = Modifier.padding(innerPaddingModifier)
         ) {
-            notesGraph(
+            vctGraph(
                 navigationState = navigationState,
                 themeConfiguration = themeConfiguration
             )
@@ -68,7 +68,7 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
         NavigationState(navController)
     }
 
-fun NavGraphBuilder.notesGraph(
+fun NavGraphBuilder.vctGraph(
     navigationState: NavigationState,
     themeConfiguration: (ThemeOption) -> Unit
 ) {
