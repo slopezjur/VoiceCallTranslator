@@ -140,7 +140,8 @@ class MagicAudioRepository @Inject constructor(
     suspend fun translation(textToTranslate: String): String? {
         val currentChatMessage = ChatMessage(
             role = ChatRole.User,
-            content = "Translate '$textToTranslate' from ${languageOption.name} to $targetLanguage. Answer only with the final translation without adding anything else. If the text is already in English, do not translate it again, just return the text you have received to translate."
+            // TODO: After multiple versions, this prompt is still not perfect...
+            content = "Translate from ${languageOption.name} to $targetLanguage answering only with the final translation without adding anything else and if the text is already in English, do not translate it again, just return the text you have received to translate, so this is the text you have to translate: $textToTranslate"
         )
 
         val chatCompletionRequest = ChatCompletionRequest(

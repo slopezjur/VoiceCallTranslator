@@ -28,10 +28,16 @@
     <string name="restart">Reiniciar</string>
     <string name="use_trained_voice">Usar voz entrenada</string>
     <string name="language">Idioma</string>
+    <string name="english">Inglés</string>
+    <string name="spanish">Español</string>
+    <string name="theme">Tema</string>
     <string name="system">Sistema</string>
     <string name="dark">Oscuro</string>
     <string name="light">Claro</string>
     <string name="logout">Cerrar sesión</string>
     <string name="delete_account">Eliminar cuenta</string>
     <string name="delete_account_description">La cuenta se eliminará inmediatamente.</string>
+    <string name="connecting">Conectando…</string>
+    <string name="connected">Conectado</string>
+    <string name="login_error">Error en el servidor, formato de email incorrecto, password de menos de 6 characters, error general, etc…</string>
 </resources>

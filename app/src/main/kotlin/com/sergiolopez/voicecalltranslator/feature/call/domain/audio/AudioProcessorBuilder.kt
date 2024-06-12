@@ -15,7 +15,6 @@ object AudioProcessorBuilder {
 
     // WebRTC params configuration for PCM audio
     private const val CHANNEL_COUNT = 1
-    private const val SAMPLE_RATE = 48000
     private const val BITS_PER_SAMPLE = 16
 
     suspend fun createWavFileFromByteBufferList(

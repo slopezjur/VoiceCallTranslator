@@ -38,4 +38,5 @@
     <string name="delete_account_description">The account will be deleted immediately.</string>
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
+    <string name="login_error">Server error. Bad email format, password with less than 6 characters, general error, etc…</string>
 </resources>

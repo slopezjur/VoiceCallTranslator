@@ -91,17 +91,14 @@ class MagicAudioProcessor @Inject constructor(
                 audioBufferList.put(audioBufferQueue.array(), audioBufferQueue.position(), length)
                 audioBufferList.flip()  // Prepare next reading
 
-                // Add cloned buffer to the queue
-                //bufferMiddleQueue.add(audioBufferQueue)
                 byteBufferList.add(audioBufferList)
+
+                if (byteBufferList.size >= minimumDelayBuffer) {
+                    processAudio()
+                }
             } else {
                 if ((counter >= minimumDelayBuffer - 1) && (byteBufferList.size >= oneSecondFromWebRtc)) {
-                    Log.d(VCT_MAGIC, "byteBufferList size ${byteBufferList.size}")
-                    processByteBufferList(byteBufferList = byteBufferList.toList())
-                    Log.d(VCT_MAGIC, "counter $counter")
-                    byteBufferList.clear()
-                    counter = 0
-                    Log.d(VCT_MAGIC, "byteBufferList clear")
+                    processAudio()
                 }
             }
 
@@ -120,6 +117,15 @@ class MagicAudioProcessor @Inject constructor(
 
             audioBuffer.flip()  // Prepare next round
         }
+    }
+
+    private fun processAudio() {
+        Log.d(VCT_MAGIC, "byteBufferList size ${byteBufferList.size}")
+        processByteBufferList(byteBufferList = byteBufferList.toList())
+        Log.d(VCT_MAGIC, "counter $counter")
+        byteBufferList.clear()
+        counter = 0
+        Log.d(VCT_MAGIC, "byteBufferList clear")
     }
 
     private fun hasSound(audioBuffer: ByteBuffer): Boolean {

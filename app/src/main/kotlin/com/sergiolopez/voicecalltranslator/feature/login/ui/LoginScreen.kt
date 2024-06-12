@@ -2,6 +2,7 @@ package com.sergiolopez.voicecalltranslator.feature.login.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,7 +67,7 @@ fun LoginScreenContent(
             }
 
             LoginViewModel.LoginUiState.ERROR -> {
-                showSnackbar.invoke("Server error. Bad email format, password with less than 6 characters, general error, etc...")
+                showSnackbar.invoke(stringResource(id = com.sergiolopez.voicecalltranslator.R.string.login_error))
                 resetUiState.invoke()
             }
         }
