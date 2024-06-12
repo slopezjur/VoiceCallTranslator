@@ -26,6 +26,7 @@ class MagicAudioProcessor @Inject constructor(
 
     private lateinit var scope: CoroutineScope
     private var isMagicNeeded: Boolean = false
+    private var audioEnabled: Boolean = true
 
     //private val bufferMiddleQueue: Queue<ByteBuffer> = LinkedList()
     private val bufferMiddleQueue: Queue<ByteBuffer> = ConcurrentLinkedQueue()
@@ -72,6 +73,10 @@ class MagicAudioProcessor @Inject constructor(
         fileIdentifier = 0
     }
 
+    fun setAudioEnabled(audioEnabled: Boolean) {
+        this.audioEnabled = audioEnabled
+    }
+
     override fun onAudioDataRecorded(
         audioFormat: Int,
         channelCount: Int,
@@ -86,7 +91,7 @@ class MagicAudioProcessor @Inject constructor(
             audioBufferQueue.put(audioBuffer.array(), audioBuffer.position(), length)
             audioBufferQueue.flip()  // Prepare next reading
 
-            if (hasSound(audioBuffer = audioBuffer)) {
+            if (hasSound(audioBuffer = audioBuffer) && audioEnabled) {
                 val audioBufferList = ByteBuffer.allocate(length)
                 audioBufferList.put(audioBufferQueue.array(), audioBufferQueue.position(), length)
                 audioBufferList.flip()  // Prepare next reading

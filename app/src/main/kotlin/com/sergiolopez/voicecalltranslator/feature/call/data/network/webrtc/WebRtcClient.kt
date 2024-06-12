@@ -226,8 +226,10 @@ class WebRtcClient @Inject constructor(
         try {
             if (shouldBeMuted) {
                 rtpSenderTrack?.track()?.setEnabled(false)
+                magicAudioProcessor.setAudioEnabled(false)
             } else {
                 rtpSenderTrack?.track()?.setEnabled(true)
+                magicAudioProcessor.setAudioEnabled(true)
             }
         } catch (e: Exception) {
             e.printStackTrace()
