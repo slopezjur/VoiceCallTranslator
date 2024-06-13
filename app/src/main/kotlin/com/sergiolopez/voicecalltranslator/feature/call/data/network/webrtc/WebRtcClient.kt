@@ -94,9 +94,6 @@ class WebRtcClient @Inject constructor(
         language: String,
         observer: PeerConnection.Observer
     ) {
-        magicAudioProcessor.initialize(
-            userId = username
-        )
         Log.d("$VCT_LOGS initializeWebrtcClient: ", "initializeWebrtcClient $username")
         this.username = username
         this.language = language
@@ -111,6 +108,9 @@ class WebRtcClient @Inject constructor(
 
     //negotiation section
     fun call(targetUserContact: Contact, targetLanguage: String) {
+        magicAudioProcessor.initialize(
+            userId = username
+        )
         magicAudioProcessor.setIsMagicNeeded(
             isMagicNeeded = targetLanguage != language,
             targetLanguage = targetLanguage
@@ -140,6 +140,9 @@ class WebRtcClient @Inject constructor(
     }
 
     fun answer(targetUserContact: Contact, targetLanguage: String) {
+        magicAudioProcessor.initialize(
+            userId = username
+        )
         magicAudioProcessor.setIsMagicNeeded(
             targetLanguage != language,
             targetLanguage
@@ -225,10 +228,10 @@ class WebRtcClient @Inject constructor(
     fun toggleAudio(shouldBeMuted: Boolean) {
         try {
             if (shouldBeMuted) {
-                rtpSenderTrack?.track()?.setEnabled(false)
+                //rtpSenderTrack?.track()?.setEnabled(false)
                 magicAudioProcessor.setAudioEnabled(false)
             } else {
-                rtpSenderTrack?.track()?.setEnabled(true)
+                //rtpSenderTrack?.track()?.setEnabled(true)
                 magicAudioProcessor.setAudioEnabled(true)
             }
         } catch (e: Exception) {

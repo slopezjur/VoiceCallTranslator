@@ -134,8 +134,19 @@ private fun CallScreenDetailsContent(
         ) {
             CallScreenConversation(
                 modifier = modifier,
-                messages = messages
+                messages = discardRepeatedMessages(messages = messages)
             )
+        }
+    }
+}
+
+fun discardRepeatedMessages(messages: List<Message>): List<Message> {
+    // TODO : There is a bug happening from time to time, It is duplicating messages... INVESTIGATE!
+    return messages.groupBy { message ->
+        message.text
+    }.entries.map { messageMap ->
+        messageMap.value.maxBy { messageFromMap ->
+            messageFromMap.text
         }
     }
 }

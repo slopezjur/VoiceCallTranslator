@@ -94,6 +94,7 @@ class CallViewModel @Inject constructor(
     }
 
     fun sendConnectionRequest(targetContact: Contact) {
+        _messageQueueState.value = LinkedList()
         launchCatching {
             webRtcRepository.sendConnectionRequest(
                 targetContact = targetContact

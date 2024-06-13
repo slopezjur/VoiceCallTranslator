@@ -71,6 +71,8 @@ class MagicAudioProcessor @Inject constructor(
         byteBufferList.clear()
         counter = 0
         fileIdentifier = 0
+        magicAudioRepository.cleanBuffers()
+        audioEnabled = true
     }
 
     fun setAudioEnabled(audioEnabled: Boolean) {
@@ -91,6 +93,7 @@ class MagicAudioProcessor @Inject constructor(
             audioBufferQueue.put(audioBuffer.array(), audioBuffer.position(), length)
             audioBufferQueue.flip()  // Prepare next reading
 
+            // TODO : Investigate how to properly mute the microphone...
             if (hasSound(audioBuffer = audioBuffer) && audioEnabled) {
                 val audioBufferList = ByteBuffer.allocate(length)
                 audioBufferList.put(audioBufferQueue.array(), audioBufferQueue.position(), length)
@@ -152,7 +155,7 @@ class MagicAudioProcessor @Inject constructor(
 
         //Log.d(VCT_MAGIC, "rms threshold: $rms")
 
-        return rms > 7
+        return rms > 8
     }
 
     private fun sendSilence(audioBufferQueue: ByteBuffer, audioBuffer: ByteBuffer) {

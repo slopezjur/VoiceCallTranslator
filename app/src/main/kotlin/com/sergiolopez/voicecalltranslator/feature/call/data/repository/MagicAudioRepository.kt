@@ -85,41 +85,44 @@ class MagicAudioRepository @Inject constructor(
         outputFile: File
     ): String {
         // TODO : If destiny language is English, we can directly use TranslationRequest
+        return runCatching {
+            // The queue it should never contain null values for the content
+            val filteredMessages = chatMessageHistoryQueue.mapNotNull { it.content }
+            val chatMessageHistory = if (filteredMessages.isEmpty()) {
+                null
+            } else {
+                filteredMessages.joinToString(separator = " ")
+            }
 
-        // The queue it should never contain null values for the content
-        val filteredMessages = chatMessageHistoryQueue.mapNotNull { it.content }
-        val chatMessageHistory = if (filteredMessages.isEmpty()) {
-            null
-        } else {
-            filteredMessages.joinToString(separator = " ")
-        }
+            Log.d(VctGlobalName.VCT_MAGIC, "chatMessageHistoryQueue: $chatMessageHistory")
 
-        Log.d(VctGlobalName.VCT_MAGIC, "chatMessageHistoryQueue: $chatMessageHistory")
-
-        val transcriptionRequest = TranscriptionRequest(
-            audio = FileSource(
-                name = OpenAiParams.AUDIO_WAV_FILE,
-                source = outputFile.source(),
-            ),
-            model = ModelId(OpenAiParams.TRANSCRIPTION_WHISPER_MODEL),
-            /*prompt = chatMessageHistoryQueue.lastOrNull()?.let {
+            val transcriptionRequest = TranscriptionRequest(
+                audio = FileSource(
+                    name = OpenAiParams.AUDIO_WAV_FILE,
+                    source = outputFile.source(),
+                ),
+                model = ModelId(OpenAiParams.TRANSCRIPTION_WHISPER_MODEL),
+                /*prompt = chatMessageHistoryQueue.lastOrNull()?.let {
                 it.messageContent.toString()
             },*/
-            prompt = chatMessageHistory,
-            responseFormat = AudioResponseFormat.Text,
-            temperature = WHISPER_TEMPERATURE,
-            language = languageOption.getLocalValue()
-        )
+                prompt = chatMessageHistory,
+                responseFormat = AudioResponseFormat.Text,
+                temperature = WHISPER_TEMPERATURE,
+                language = languageOption.getLocalValue()
+            )
 
-        val transcription = openAI.transcription(
-            request = transcriptionRequest
-        )
+            val transcription = openAI.transcription(
+                request = transcriptionRequest
+            )
 
-        if (transcription.text.isNotBlank()) {
-            _lastTranscription.value = transcription.text
-        }
+            if (transcription.text.isNotBlank()) {
+                _lastTranscription.value = transcription.text
+            }
 
-        return transcription.text
+            transcription.text
+        }.onFailure {
+            Log.d(VctGlobalName.VCT_MAGIC, "speechToText: $it: ${it.message}")
+        }.getOrDefault("")
     }
 
     fun updateCallTranscriptionHistory(
@@ -138,49 +141,64 @@ class MagicAudioRepository @Inject constructor(
     }
 
     suspend fun translation(textToTranslate: String): String? {
-        val currentChatMessage = ChatMessage(
-            role = ChatRole.User,
-            // TODO: After multiple versions, this prompt is still not perfect...
-            content = "Translate from ${languageOption.name} to $targetLanguage answering only with the final translation without adding anything else and if the text is already in English, do not translate it again, just return the text you have received to translate, so this is the text you have to translate: $textToTranslate"
-        )
+        return runCatching {
+            val currentChatMessage = ChatMessage(
+                role = ChatRole.User,
+                // TODO: After multiple versions, this prompt is still not perfect...
+                content = "Translate from ${languageOption.name} to $targetLanguage answering only with the final translation without adding anything else and if the text is already in English, do not translate it again, just return the text you have received to translate, so this is the text you have to translate: $textToTranslate"
+            )
 
-        val chatCompletionRequest = ChatCompletionRequest(
-            model = ModelId(OpenAiParams.TRANSLATION_GPT_3_5_TURBO),
-            messages = defaultChatMessageList + chatMessageHistoryQueue + listOf(currentChatMessage),
-            n = MAX_ANSWERS_PER_REQUEST,
-            maxTokens = MAX_TOKENS_PER_REQUEST,
-            //toolChoice = ToolChoice.None,
-        )
+            val chatCompletionRequest = ChatCompletionRequest(
+                model = ModelId(OpenAiParams.TRANSLATION_GPT_3_5_TURBO),
+                messages = defaultChatMessageList + chatMessageHistoryQueue + listOf(
+                    currentChatMessage
+                ),
+                n = MAX_ANSWERS_PER_REQUEST,
+                maxTokens = MAX_TOKENS_PER_REQUEST,
+                //toolChoice = ToolChoice.None,
+            )
 
-        val translation = openAI.chatCompletion(
-            request = chatCompletionRequest
-        )
+            val translation = openAI.chatCompletion(
+                request = chatCompletionRequest
+            )
 
-        _lastTranslation.value = translation.choices.firstOrNull()?.message?.content
+            _lastTranslation.value = translation.choices.firstOrNull()?.message?.content
 
-        return translation.choices.firstOrNull()?.message?.content
+            translation.choices.firstOrNull()?.message?.content
+        }.onFailure {
+            Log.d(VctGlobalName.VCT_MAGIC, "translation: $it: ${it.message}")
+        }.getOrNull()
     }
 
     suspend fun textToSpeech(textToSpeech: String): ByteArray {
-
-        val speechRequest = SpeechRequest(
-            model = ModelId(OpenAiParams.SPEECH_TTS_1),
-            input = textToSpeech,
-            voice = OpenAiSyntheticVoice.getOpenAiVoice(
-                openAiSyntheticVoice = openAiSyntheticVoice
-            ),
-            responseFormat = SpeechResponseFormat(
-                value = WAV_SPEECH_RESPONSE_FORMAT
+        return runCatching {
+            val speechRequest = SpeechRequest(
+                model = ModelId(OpenAiParams.SPEECH_TTS_1),
+                input = textToSpeech,
+                voice = OpenAiSyntheticVoice.getOpenAiVoice(
+                    openAiSyntheticVoice = openAiSyntheticVoice
+                ),
+                responseFormat = SpeechResponseFormat(
+                    value = WAV_SPEECH_RESPONSE_FORMAT
+                )
             )
-        )
 
-        //saveRawAudioByteArrayUseCase.invoke(rawAudio)
+            //saveRawAudioByteArrayUseCase.invoke(rawAudio)
 
-        return openAI.speech(speechRequest) //getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
+            openAI.speech(speechRequest) //getRawAudioByteArrayUseCase.invoke() ?: ByteArray(0)
+        }.onFailure {
+            Log.d(VctGlobalName.VCT_MAGIC, "textToSpeech: $it: ${it.message}")
+        }.getOrDefault(ByteArray(0))
     }
 
     fun setTargetLanguage(targetLanguage: String) {
         this.targetLanguage = targetLanguage
+    }
+
+    fun cleanBuffers() {
+        chatMessageHistoryQueue.clear()
+        _lastTranscription.value = null
+        _lastTranslation.value = null
     }
 
     companion object {
