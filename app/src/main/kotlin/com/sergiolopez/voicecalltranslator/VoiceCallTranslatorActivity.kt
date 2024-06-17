@@ -26,7 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
 import java.io.File
 
-
 @AndroidEntryPoint
 class VoiceCallTranslatorActivity : AppCompatActivity() {
     // Note : For now we have to use AppCompatActivity instead of ComponentActivity to update the Locale
