@@ -39,7 +39,7 @@ android {
     defaultConfig {
         applicationId = "com.sergiolopez.voicecalltranslator"
         minSdk = 28
-        resourceConfigurations += listOf("en", "es") // All supported languages in your app
+        resourceConfigurations += listOf("en", "es", "pl") // All supported languages in your app
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

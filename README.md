@@ -75,6 +75,10 @@ Afrikaans, Arabic, Armenian, Azerbaijani, Belarusian, Bosnian, Bulgarian, Catala
  Vietnamese, and Welsh.
 ```
 
+To include new languages just add the resource file `string.xml` corresponding to the new language,
+edit the `LanguageOption` enum and finally add it in `resourceConfigurations` inside the
+build.gradle.
+
 ## How to play
 
 - Clone the repo
