@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VCT</string>
+    <string name="permissions_title">VCT wymaga pozwolenia/pozwoleń:</string>
+    <string name="grant_permissions">Przyznaj uprawnienia</string>
+    <string name="permissions_title_dialog">Uprawnienia wymagane przez VCT</string>
+    <string name="permissions_required_list">VCT wymaga następujących uprawnień do działania:\n %1$s</string>
+    <string name="continue_action">Kontynuuj</string>
+    <string name="dismiss">Odrzuć</string>
+    <string name="login">Zaloguj się</string>
+    <string name="sign_up">Zarejestruj się</string>
+    <string name="contact_list">Lista kontaktów</string>
+    <string name="voice_settings">Ustawienia głosu</string>
+    <string name="account_settings">Ustawienia konta</string>
+    <string name="voice_training">Trening głosu</string>
+    <string name="call">Zadzwoń</string>
+    <string name="email">E-mail</string>
+    <string name="password">Hasło</string>
+    <string name="confirm_password">Potwierdź hasło</string>
+    <string name="call_dialog_title">Dzwonić do %1$s?</string>
+    <string name="call_dialog_subtitle">Połączenie rozpocznie się natychmiast.</string>
+    <string name="synthetic_voice">Głos syntetyczny</string>
+    <string name="none">Brak</string>
+    <string name="male">Mężczyzna</string>
+    <string name="female">Kobieta</string>
+    <string name="use_synthetic_voice">Użyj głosu syntetycznego</string>
+    <string name="start">Start</string>
+    <string name="restart">Restart</string>
+    <string name="use_trained_voice">Użyj wytrenowanego głosu</string>
+    <string name="language">Język</string>
+    <string name="english">Angielski</string>
+    <string name="spanish">Hiszpański</string>
+    <string name="polish">Polski</string>
+    <string name="theme">Motyw</string>
+    <string name="system">System</string>
+    <string name="dark">Ciemny</string>
+    <string name="light">Jasny</string>
+    <string name="logout">Wyloguj się</string>
+    <string name="delete_account">Usuń konto</string>
+    <string name="delete_account_description">Konto zostanie natychmiast usunięte.</string>
+    <string name="connecting">Łączenie…</string>
+    <string name="connected">Połączono</string>
+    <string name="login_error">Błąd serwera. Zły format e-mail, hasło krótsze niż 6 znaków, błąd ogólny, itd…</string>
+    <string name="call_ended">Połączenie zakończone</string>
+</resources>

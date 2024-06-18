@@ -30,6 +30,7 @@
     <string name="language">Idioma</string>
     <string name="english">Inglés</string>
     <string name="spanish">Español</string>
+    <string name="polish">Polaco</string>
     <string name="theme">Tema</string>
     <string name="system">Sistema</string>
     <string name="dark">Oscuro</string>
@@ -40,4 +41,5 @@
     <string name="connecting">Conectando…</string>
     <string name="connected">Conectado</string>
     <string name="login_error">Error en el servidor, formato de email incorrecto, password de menos de 6 characters, error general, etc…</string>
+    <string name="call_ended">Llamada terminada</string>
 </resources>

@@ -5,12 +5,14 @@ import com.sergiolopez.voicecalltranslator.R
 
 enum class LanguageOption(val nameValue: Int) {
     ENGLISH(R.string.english),
-    SPANISH(R.string.spanish);
+    SPANISH(R.string.spanish),
+    POLISH(R.string.polish);
 
     fun getLocalValue(): String {
         return when (this) {
             ENGLISH -> LOCALE_EN
             SPANISH -> LOCALE_ES
+            POLISH -> LOCALE_PL
         }
     }
 
@@ -25,6 +27,10 @@ enum class LanguageOption(val nameValue: Int) {
                     SPANISH
                 }
 
+                context.getString(POLISH.nameValue).lowercase() -> {
+                    POLISH
+                }
+
                 else -> {
                     ENGLISH
                 }
@@ -33,5 +39,6 @@ enum class LanguageOption(val nameValue: Int) {
 
         private const val LOCALE_ES = "es"
         private const val LOCALE_EN = "en"
+        private const val LOCALE_PL = "pl"
     }
 }

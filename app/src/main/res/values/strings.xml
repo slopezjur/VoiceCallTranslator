@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">VCT</string>
     <string name="permissions_title">VCT requires permission/s:</string>
@@ -29,6 +30,7 @@
     <string name="language">Language</string>
     <string name="english">English</string>
     <string name="spanish">Spanish</string>
+    <string name="polish">Polish</string>
     <string name="theme">Theme</string>
     <string name="system">System</string>
     <string name="dark">Dark</string>
@@ -39,4 +41,5 @@
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
     <string name="login_error">Server error. Bad email format, password with less than 6 characters, general error, etc…</string>
+    <string name="call_ended">Call ended</string>
 </resources>
