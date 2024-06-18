@@ -150,4 +150,4 @@ for building a real-time calling application. As this is a POC, the ultimate goa
 complete and functional application so there may be several tradeoffs and concessions throughout the
 code that will or will not be improved over time.
 
-# Built with love, inspired by lovers! <3
+# Built with love, inspired by AI lovers! <3
