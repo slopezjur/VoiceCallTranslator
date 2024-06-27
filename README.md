@@ -97,10 +97,10 @@ build.gradle.
 
 ## Pending tasks
 
-- The speaker button is fake, so it is simply facade and does nothing. In theory, it can be
-  connected
-  to the WebRTC library to choose which audio channel to use but I didn't investigate how to do it
-  yet.
+- <del>The speaker button is fake, so it is simply facade and does nothing. In theory, it can be
+  connected to the WebRTC library to choose which audio channel to use but I didn't investigate how
+  to do it yet.</del> DONE. Just for
+  reference https://chromium.googlesource.com/external/webrtc/+/refs/heads/master/examples/androidapp/src/org/appspot/apprtc/AppRTCAudioManager.java
 - The original idea for the app was to use the voice of the participants themselves. This option is
   still planned and I'm looking for a way to map each user account registered in Firebase with a
   voice

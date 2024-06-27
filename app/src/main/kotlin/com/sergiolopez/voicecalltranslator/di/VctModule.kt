@@ -1,6 +1,7 @@
 package com.sergiolopez.voicecalltranslator.di
 
 import android.content.Context
+import android.media.AudioManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,5 +13,9 @@ import dagger.hilt.components.SingletonComponent
 class VctModule {
 
     @Provides
-    fun provideContext(@ApplicationContext context: Context): Context = context.applicationContext
+    fun providesContext(@ApplicationContext context: Context): Context = context.applicationContext
+
+    @Provides
+    fun providesAudioManager(context: Context): AudioManager =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 }

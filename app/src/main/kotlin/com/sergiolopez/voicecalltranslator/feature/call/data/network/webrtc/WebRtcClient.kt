@@ -1,6 +1,7 @@
 package com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc
 
 import android.content.Context
+import android.media.AudioManager
 import android.util.Log
 import com.sergiolopez.voicecalltranslator.VctApiKeys
 import com.sergiolopez.voicecalltranslator.feature.call.data.network.webrtc.bridge.CallDataModel
@@ -29,7 +30,8 @@ import javax.inject.Singleton
 class WebRtcClient @Inject constructor(
     private val context: Context,
     private val sendConnectionUpdateUseCase: SendConnectionUpdateUseCase,
-    private val magicAudioProcessor: MagicAudioProcessor
+    private val magicAudioProcessor: MagicAudioProcessor,
+    private val audioManager: AudioManager
 ) {
     private lateinit var username: String
     private lateinit var language: String
@@ -227,20 +229,15 @@ class WebRtcClient @Inject constructor(
 
     fun toggleAudio(shouldBeMuted: Boolean) {
         try {
-            if (shouldBeMuted) {
-                //rtpSenderTrack?.track()?.setEnabled(false)
-                magicAudioProcessor.setAudioEnabled(false)
-            } else {
-                //rtpSenderTrack?.track()?.setEnabled(true)
-                magicAudioProcessor.setAudioEnabled(true)
-            }
+            audioManager.isMicrophoneMute = shouldBeMuted
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     fun toggleSpeaker(shouldBeSpeaker: Boolean) {
-        // TODO : Implementation needs further investigation...
+        // TODO : Deprecated, alternative?
+        audioManager.isSpeakerphoneOn = shouldBeSpeaker
     }
 
     fun startLocalStreaming() {

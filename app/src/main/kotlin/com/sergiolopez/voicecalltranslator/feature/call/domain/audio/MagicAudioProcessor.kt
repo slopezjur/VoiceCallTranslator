@@ -26,7 +26,6 @@ class MagicAudioProcessor @Inject constructor(
 
     private lateinit var scope: CoroutineScope
     private var isMagicNeeded: Boolean = false
-    private var audioEnabled: Boolean = true
 
     //private val bufferMiddleQueue: Queue<ByteBuffer> = LinkedList()
     private val bufferMiddleQueue: Queue<ByteBuffer> = ConcurrentLinkedQueue()
@@ -72,11 +71,6 @@ class MagicAudioProcessor @Inject constructor(
         counter = 0
         fileIdentifier = 0
         magicAudioRepository.cleanBuffers()
-        audioEnabled = true
-    }
-
-    fun setAudioEnabled(audioEnabled: Boolean) {
-        this.audioEnabled = audioEnabled
     }
 
     override fun onAudioDataRecorded(
@@ -94,7 +88,7 @@ class MagicAudioProcessor @Inject constructor(
             audioBufferQueue.flip()  // Prepare next reading
 
             // TODO : Investigate how to properly mute the microphone...
-            if (hasSound(audioBuffer = audioBuffer) && audioEnabled) {
+            if (hasSound(audioBuffer = audioBuffer)) {
                 val audioBufferList = ByteBuffer.allocate(length)
                 audioBufferList.put(audioBufferQueue.array(), audioBufferQueue.position(), length)
                 audioBufferList.flip()  // Prepare next reading
